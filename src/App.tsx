@@ -6,6 +6,7 @@ import { useSession } from "./auth/sessionStore";
 import { RegisterConsignmentScreen } from "./features/consignments/RegisterConsignmentScreen";
 import { QualityTestPanelScreen } from "./features/qualityTests/QualityTestPanelScreen";
 import { PendingQueueScreen } from "./features/sync/PendingQueueScreen";
+import { PourScreen } from "./features/tanks/PourScreen";
 import { SyncProvider } from "./features/sync/SyncProvider";
 import "./styles/app.css";
 
@@ -52,6 +53,8 @@ function Screens() {
       ) : null}
 
       {tab === "quality" ? <QualityTestPanelScreen initialReference={testing} /> : null}
+
+      {tab === "tanks" ? <PourScreen /> : null}
 
       {tab === "queue" ? <PendingQueueScreen /> : null}
     </AppShell>

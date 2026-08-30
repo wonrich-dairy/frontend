@@ -3,14 +3,14 @@ import {
   ClipboardIcon,
   CloudOffIcon,
   DropletIcon,
-  HomeIcon,
+  FlaskIcon,
   LogoMark,
   PersonIcon,
   SettingsIcon,
 } from "./icons";
 import { useSync } from "../features/sync/syncStore";
 
-export type Tab = "register" | "quality" | "queue";
+export type Tab = "register" | "quality" | "tanks" | "queue";
 
 /**
  * The phone frame every screen in the design sits inside: the branded top bar with its sync pill,
@@ -62,7 +62,6 @@ export function AppShell({
       <main className="shell__body">{children}</main>
 
       <nav className="tabbar" aria-label="Sections">
-        <TabButton label="Home" icon={<HomeIcon />} />
         <TabButton
           label="Consignments"
           icon={<ClipboardIcon />}
@@ -71,9 +70,15 @@ export function AppShell({
         />
         <TabButton
           label="Testing"
-          icon={<DropletIcon />}
+          icon={<FlaskIcon />}
           current={current === "quality"}
           onClick={() => onNavigate("quality")}
+        />
+        <TabButton
+          label="Tanks"
+          icon={<DropletIcon />}
+          current={current === "tanks"}
+          onClick={() => onNavigate("tanks")}
         />
         <TabButton
           label="Queue"

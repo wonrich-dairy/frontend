@@ -113,6 +113,15 @@ export function TrashIcon(props: IconProps) {
   );
 }
 
+export function FlaskIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M10 3h4M10.5 3v6.2L5.8 17.4A2 2 0 0 0 7.5 20.5h9a2 2 0 0 0 1.7-3.1L13.5 9.2V3" />
+      <path d="M8 15h8" />
+    </svg>
+  );
+}
+
 export function CloudOffIcon(props: IconProps) {
   return (
     <svg {...base} {...props}>
