@@ -539,3 +539,311 @@
   outline: 2px solid var(--navy-100);
   border-color: var(--navy-800);
 }
+
+/* Quality test panel (SCRUM-54) ------------------------------------------- */
+
+.panelhead {
+  margin-bottom: var(--space-4);
+}
+
+.panelhead__title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--navy-900);
+}
+
+.panelhead__subtitle {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--ink-muted);
+}
+
+.panelhead__change {
+  margin-top: var(--space-2);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--navy-800);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.card {
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  background: var(--surface);
+  border: 1.5px solid var(--navy-900);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+}
+
+.card__title {
+  margin: 0 0 var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--navy-900);
+}
+
+.card__error {
+  margin: var(--space-3) 0 0;
+  color: var(--danger);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Stepper ----------------------------------------------------------------- */
+
+.stepper {
+  margin-bottom: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.stepper--flagged {
+  border-color: var(--danger-border);
+  background: var(--danger-tint);
+}
+
+.stepper__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.stepper__label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--navy-900);
+}
+
+.stepper__warning {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--danger);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.stepper__control {
+  display: grid;
+  grid-template-columns: 56px 1fr 56px;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.stepper__button {
+  display: grid;
+  place-items: center;
+  height: 44px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--navy-050);
+  color: var(--navy-900);
+}
+
+.stepper__value {
+  height: 44px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--navy-900);
+}
+
+.stepper--flagged .stepper__value {
+  color: var(--danger);
+}
+
+.stepper__value:focus {
+  outline: none;
+  border-color: var(--navy-800);
+  background: var(--surface);
+}
+
+.stepper__error {
+  margin: var(--space-2) 0 0;
+  color: var(--danger);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Derived values ---------------------------------------------------------- */
+
+.derived {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  border-radius: var(--radius);
+  background: var(--navy-050);
+  border: 1px solid var(--navy-100);
+}
+
+.derived div + div {
+  border-left: 1px solid var(--navy-100);
+  padding-left: var(--space-4);
+}
+
+.derived__value {
+  margin: 4px 0 0;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--navy-900);
+}
+
+.derived__note {
+  margin: var(--space-2) 0 0;
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+
+/* Cascade ----------------------------------------------------------------- */
+
+.cascaderow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.cascaderow--failed {
+  border-color: var(--danger);
+  background: var(--danger-tint);
+}
+
+.cascaderow--waiting {
+  opacity: 0.45;
+}
+
+.cascaderow__label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--navy-900);
+}
+
+.cascaderow__choices {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.choice {
+  min-width: 72px;
+  padding: 10px var(--space-3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--navy-050);
+  color: var(--navy-900);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.choice--fail.choice--chosen {
+  background: var(--danger);
+  color: #fff;
+}
+
+.choice--pass.choice--chosen {
+  background: var(--success);
+  color: #fff;
+}
+
+/* KQ scale ---------------------------------------------------------------- */
+
+.kqgrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.kqswatch {
+  padding: var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.kqswatch--chosen {
+  border-color: var(--navy-900);
+  box-shadow: 0 0 0 2px var(--navy-100);
+}
+
+.kqswatch__colour {
+  display: block;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.kqswatch__grade {
+  display: block;
+  margin-top: var(--space-2);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy-900);
+}
+
+/* Verdict ----------------------------------------------------------------- */
+
+.verdict {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin: var(--space-4) 0;
+  padding: var(--space-4);
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+}
+
+.verdict--pending {
+  background: var(--surface);
+  color: var(--ink-muted);
+}
+
+.verdict--pass {
+  background: var(--success-tint);
+  border-color: var(--success);
+  color: #05603a;
+}
+
+.verdict--fail {
+  background: var(--danger-tint);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.verdict__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.verdict__detail {
+  margin: 2px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.saved__mark--fail {
+  border-color: var(--danger);
+  background: var(--danger-tint);
+  color: var(--danger);
+}

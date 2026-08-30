@@ -21,7 +21,12 @@ import {
 
 const emptySheet = (): CanEntry[] => [newEntry()];
 
-export function RegisterConsignmentScreen() {
+export function RegisterConsignmentScreen({
+  onProceedToQualityTest,
+}: {
+  /** Offered on the confirmation once the quality panel screen exists to receive it (SCRUM-54). */
+  onProceedToQualityTest?: (reference: string) => void;
+} = {}) {
   const { session, signOut } = useSession();
   const token = session?.accessToken ?? null;
 
@@ -112,7 +117,13 @@ export function RegisterConsignmentScreen() {
   // AC4 and AC5: the officer is told the record landed, and the sheet starts clean for the
   // next delivery rather than leaving the previous one on screen to be submitted twice.
   if (saved) {
-    return <SavedConfirmation consignment={saved} onRegisterAnother={reset} />;
+    return (
+      <SavedConfirmation
+        consignment={saved}
+        onRegisterAnother={reset}
+        onProceedToQualityTest={onProceedToQualityTest}
+      />
+    );
   }
 
   return (
@@ -203,9 +214,11 @@ export function RegisterConsignmentScreen() {
 function SavedConfirmation({
   consignment,
   onRegisterAnother,
+  onProceedToQualityTest,
 }: {
   consignment: Consignment;
   onRegisterAnother: () => void;
+  onProceedToQualityTest?: (reference: string) => void;
 }) {
   return (
     <section className="saved" aria-live="polite">
@@ -224,7 +237,22 @@ function SavedConfirmation({
         {consignment.totalQuantityKg.toFixed(1)} kg &middot; {consignment.totalQuantityLitres.toFixed(1)} L
       </p>
 
-      <button type="button" className="button" onClick={onRegisterAnother}>
+      {onProceedToQualityTest ? (
+        <button
+          type="button"
+          className="button"
+          onClick={() => onProceedToQualityTest(consignment.reference)}
+        >
+          Proceed to Quality Test
+        </button>
+      ) : null}
+
+      <button
+        type="button"
+        className={onProceedToQualityTest ? "button button--ghost" : "button"}
+        style={onProceedToQualityTest ? { marginTop: "var(--space-3)" } : undefined}
+        onClick={onRegisterAnother}
+      >
         Register another consignment
       </button>
     </section>

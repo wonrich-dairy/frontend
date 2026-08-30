@@ -16,3 +16,24 @@ export function registerConsignment(
 ): Promise<Consignment> {
   return request<Consignment>("/api/consignments", { method: "POST", body, token });
 }
+
+export interface PagedResult<T> {
+  items: T[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+}
+
+/**
+ * Registered consignments, newest page first. The gate screen uses this to offer the deliveries
+ * still waiting on a verdict — a consignment is tested once, so anything already accepted or
+ * rejected is filtered out by its status.
+ */
+export function searchConsignments(
+  token: string | null,
+  signal?: AbortSignal,
+  pageSize = 100,
+): Promise<PagedResult<Consignment>> {
+  return request<PagedResult<Consignment>>(`/api/consignments?pageSize=${pageSize}`, { token, signal });
+}
