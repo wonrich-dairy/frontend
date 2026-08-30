@@ -3,8 +3,9 @@ import { registerConsignment } from "../../api/consignments";
 import { ApiError } from "../../api/http";
 import { listSocieties } from "../../api/societies";
 import type { Consignment, Society } from "../../api/types";
-import { ArrowRightIcon, CheckIcon, PlusCircleIcon, WarningIcon } from "../../components/icons";
+import { ArrowRightIcon, CheckIcon, CloudOffIcon, PlusCircleIcon, WarningIcon } from "../../components/icons";
 import { useSession } from "../../auth/sessionStore";
+import { useSync } from "../sync/syncStore";
 import { CanRow } from "./CanRow";
 import { SocietyPicker } from "./SocietyPicker";
 import {
@@ -28,6 +29,7 @@ export function RegisterConsignmentScreen({
   onProceedToQualityTest?: (reference: string) => void;
 } = {}) {
   const { session, signOut } = useSession();
+  const { online, enqueue: queueRecord } = useSync();
   const token = session?.accessToken ?? null;
 
   const [societies, setSocieties] = useState<Society[]>([]);
@@ -40,6 +42,7 @@ export function RegisterConsignmentScreen({
   const [submitting, setSubmitting] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);
   const [saved, setSaved] = useState<Consignment | null>(null);
+  const [queued, setQueued] = useState(false);
 
   useEffect(() => {
     const abort = new AbortController();
@@ -64,6 +67,7 @@ export function RegisterConsignmentScreen({
     setErrors(null);
     setFailure(null);
     setSaved(null);
+    setQueued(false);
   }, []);
 
   const updateEntry = (updated: CanEntry) => {
@@ -91,16 +95,28 @@ export function RegisterConsignmentScreen({
       return;
     }
 
+    const body = { societyId: society.id, cans: toCanRequests(society, entries) };
+
+    // AC1: with no network the sheet is taken anyway, held on the device and uploaded later.
+    if (!online) {
+      queueSheet(society.name, body);
+      return;
+    }
+
     setSubmitting(true);
 
     try {
-      const consignment = await registerConsignment(
-        { societyId: society.id, cans: toCanRequests(society, entries) },
-        token,
-      );
+      const consignment = await registerConsignment(body, token);
 
       setSaved(consignment);
     } catch (error: unknown) {
+      // The service being unreachable is not a refusal: the sheet joins the queue rather than
+      // being lost, which is the same outcome as having been offline all along.
+      if (error instanceof ApiError && error.status === 0) {
+        queueSheet(society.name, body);
+        return;
+      }
+
       const message =
         error instanceof ApiError ? error.message : "The consignment could not be registered. Try again.";
 
@@ -114,8 +130,25 @@ export function RegisterConsignmentScreen({
     }
   };
 
+  const queueSheet = (societyName: string, body: { societyId: string; cans: { canNumber: number; quantityKg: number }[] }) => {
+    queueRecord({
+      kind: "RegisterConsignment",
+      summary: `${societyName} - ${body.cans.length} can${body.cans.length === 1 ? "" : "s"}`,
+      consignment: { societyId: body.societyId, cans: body.cans, arrivalAtLocal: localNow() },
+    });
+
+    setSubmitting(false);
+    setQueued(true);
+  };
+
   // AC4 and AC5: the officer is told the record landed, and the sheet starts clean for the
   // next delivery rather than leaving the previous one on screen to be submitted twice.
+  // AC2 and AC5: held on the device with a pending mark, and once uploaded it reads like any
+  // other record — the officer is told which of the two happened.
+  if (queued) {
+    return <QueuedConfirmation onRegisterAnother={reset} />;
+  }
+
   if (saved) {
     return (
       <SavedConfirmation
@@ -211,6 +244,26 @@ export function RegisterConsignmentScreen({
   );
 }
 
+function QueuedConfirmation({ onRegisterAnother }: { onRegisterAnother: () => void }) {
+  return (
+    <section className="saved" aria-live="polite">
+      <span className="saved__mark saved__mark--pending">
+        <CloudOffIcon width={40} height={40} />
+      </span>
+
+      <h2 className="saved__title">Saved on this device</h2>
+      <p className="saved__detail">
+        There is no connection right now. The sheet is queued and uploads by itself when the
+        network returns; its reference is issued then.
+      </p>
+
+      <button type="button" className="button" style={{ marginTop: "var(--space-6)" }} onClick={onRegisterAnother}>
+        Register another consignment
+      </button>
+    </section>
+  );
+}
+
 function SavedConfirmation({
   consignment,
   onRegisterAnother,
@@ -266,4 +319,15 @@ function withoutEntry(
   const { [id]: _removed, ...rest } = cans;
 
   return rest;
+}
+
+/** The device's wall clock, which is the arrival time an offline record has to carry. */
+function localNow(): string {
+  const now = new Date();
+  const pad = (value: number) => String(value).padStart(2, "0");
+
+  return (
+    `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}` +
+    `T${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`
+  );
 }

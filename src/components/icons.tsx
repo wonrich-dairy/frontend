@@ -113,6 +113,23 @@ export function TrashIcon(props: IconProps) {
   );
 }
 
+export function CloudOffIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M7.5 18h9a4 4 0 0 0 .6-7.96A6 6 0 0 0 6.4 8.5" />
+      <path d="M3 3l18 18" />
+    </svg>
+  );
+}
+
+export function CloudIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M7.5 18h9a4 4 0 0 0 .6-7.96A6 6 0 0 0 5.7 11 3.5 3.5 0 0 0 6 18Z" />
+    </svg>
+  );
+}
+
 export function HomeIcon(props: IconProps) {
   return (
     <svg {...base} {...props}>

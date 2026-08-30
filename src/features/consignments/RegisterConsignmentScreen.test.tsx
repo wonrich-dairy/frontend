@@ -2,6 +2,8 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SessionProvider } from "../../auth/SessionContext";
+import { SyncProvider } from "../sync/SyncProvider";
+import { emptyQueue } from "../sync/queue";
 import { RegisterConsignmentScreen } from "./RegisterConsignmentScreen";
 
 const society = {
@@ -60,7 +62,9 @@ function stubFetch(post: () => Promise<Response> | Response) {
 function renderScreen() {
   return render(
     <SessionProvider initialSession={session}>
-      <RegisterConsignmentScreen />
+      <SyncProvider initialQueue={emptyQueue()}>
+        <RegisterConsignmentScreen />
+      </SyncProvider>
     </SessionProvider>,
   );
 }
@@ -82,6 +86,7 @@ async function fillFirstCan(user: ReturnType<typeof userEvent.setup>, label: str
 let fetchMock: ReturnType<typeof stubFetch>;
 
 beforeEach(() => {
+  Object.defineProperty(navigator, "onLine", { value: true, configurable: true });
   fetchMock = stubFetch(
     () =>
       new Response(JSON.stringify(registered), {
@@ -229,7 +234,11 @@ describe("registering a consignment", () => {
     expect(screen.getByLabelText("Can label")).toHaveValue("KG-01");
   });
 
-  it("says so plainly when the service cannot be reached", async () => {
+  /**
+   * Under SCRUM-10 an unreachable service is not a refusal. The sheet joins the offline queue
+   * rather than being lost, which is the same outcome as having had no signal all along.
+   */
+  it("queues the sheet when the service cannot be reached", async () => {
     vi.stubGlobal(
       "fetch",
       (fetchMock = stubFetch(() => Promise.reject(new TypeError("Failed to fetch")))),
@@ -242,9 +251,8 @@ describe("registering a consignment", () => {
     await fillFirstCan(user, "KG-01", "40.5");
     await user.click(screen.getByRole("button", { name: /Register consignment/ }));
 
-    await waitFor(() =>
-      expect(screen.getByText(/Cannot reach the intake service/)).toBeInTheDocument(),
-    );
+    await waitFor(() => expect(screen.getByText("Saved on this device")).toBeInTheDocument());
+    expect(screen.getByText(/uploads by itself when the network returns/)).toBeInTheDocument();
   });
 });
 

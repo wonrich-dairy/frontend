@@ -7,12 +7,15 @@ import {
   type AlcoholStage,
   type KqColour,
   type QualityTestView,
+  type RecordQualityTestRequest,
   type StageOutcome,
   type TestPreview,
 } from "../../api/qualityTests";
 import type { Consignment } from "../../api/types";
 import { useSession } from "../../auth/sessionStore";
-import { CheckIcon, SearchIcon, WarningIcon } from "../../components/icons";
+import { compositionFrom } from "../sync/offlineComposition";
+import { useSync } from "../sync/syncStore";
+import { CheckIcon, CloudOffIcon, SearchIcon, WarningIcon } from "../../components/icons";
 import { AlcoholCascadeCard } from "./AlcoholCascadeCard";
 import { KqScaleCard } from "./KqScaleCard";
 import { StepperField } from "./StepperField";
@@ -38,6 +41,7 @@ export function QualityTestPanelScreen({
   initialReference?: string;
 } = {}) {
   const { session, signOut } = useSession();
+  const { online, enqueue: queueRecord } = useSync();
   const token = session?.accessToken ?? null;
 
   const [untested, setUntested] = useState<Consignment[]>([]);
@@ -52,6 +56,7 @@ export function QualityTestPanelScreen({
   const [failure, setFailure] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [recorded, setRecorded] = useState<QualityTestView | null>(null);
+  const [queued, setQueued] = useState(false);
 
   const errors = useMemo(() => validatePanel(form), [form]);
   const readings = useMemo(() => toReadings(form), [form]);
@@ -95,6 +100,10 @@ export function QualityTestPanelScreen({
       return;
     }
 
+    if (!online) {
+      return;
+    }
+
     const abort = new AbortController();
     const attempt = ++previewToken.current;
 
@@ -122,9 +131,40 @@ export function QualityTestPanelScreen({
       clearTimeout(timer);
       abort.abort();
     };
-  }, [consignment, readingsKey, token]);
+  }, [consignment, readingsKey, token, online]);
 
   // A changed reading invalidates what the service last said, so the stale verdict goes with it.
+  /**
+   * AC8: with no network the officer still sees the corrected CLR, SNF and TS. Computed on the
+   * device for display only — the service recomputes on upload and its figures are the ones
+   * stored, so nothing on record depends on this.
+   */
+  const offlinePreview = useMemo<TestPreview | null>(() => {
+    if (online || !readings) {
+      return null;
+    }
+
+    const composition = compositionFrom(
+      readings.fatPercent,
+      readings.rawLactometerReading,
+      readings.temperatureCelsius,
+    );
+    const curdled = readings.alcoholOutcomes.ClotOnBoiling === "Positive";
+
+    return {
+      correctedClr: composition.correctedClr,
+      snf: composition.snf,
+      totalSolids: composition.totalSolids,
+      stabilityGrade: "Calculated on this device",
+      passedAlcoholAt: "",
+      clotOnBoiling: curdled,
+      measures: [],
+      meetsStandard: !curdled,
+    };
+  }, [online, readings]);
+
+  const shownPreview = online ? preview : offlinePreview;
+
   const update = useCallback((patch: Partial<PanelForm>) => {
     setForm((current) => ({ ...current, ...patch }));
     setPreview(null);
@@ -135,6 +175,17 @@ export function QualityTestPanelScreen({
     setPreview(null);
   };
 
+  const queuePanel = (reference: string, body: RecordQualityTestRequest) => {
+    queueRecord({
+      kind: "RecordQualityTest",
+      summary: `${reference} - ${body.verdict === "Accept" ? "accepted" : "rejected"}`,
+      qualityTest: { ...body, consignmentReference: reference },
+    });
+
+    setSubmitting(false);
+    setQueued(true);
+  };
+
   const reset = () => {
     setConsignment(null);
     setForm(emptyPanel());
@@ -143,6 +194,7 @@ export function QualityTestPanelScreen({
     setShowErrors(false);
     setFailure(null);
     setRecorded(null);
+    setQueued(false);
     setSearch("");
   };
 
@@ -156,16 +208,28 @@ export function QualityTestPanelScreen({
     }
 
     // Complete readings, but the service has not answered yet. Saying so beats a dead button.
-    if (!preview) {
+    if (!shownPreview) {
       setFailure("Still evaluating these readings. Try again in a moment.");
+      return;
+    }
+
+    const body = toRecordRequest(readings, shownPreview);
+
+    if (!online) {
+      queuePanel(consignment.reference, body);
       return;
     }
 
     setSubmitting(true);
 
     try {
-      setRecorded(await recordQualityTest(consignment.reference, toRecordRequest(readings, preview), token));
+      setRecorded(await recordQualityTest(consignment.reference, body, token));
     } catch (error: unknown) {
+      if (error instanceof ApiError && error.status === 0) {
+        queuePanel(consignment.reference, body);
+        return;
+      }
+
       setFailure(
         error instanceof ApiError ? error.message : "The panel could not be recorded. Try again.",
       );
@@ -177,6 +241,10 @@ export function QualityTestPanelScreen({
       setSubmitting(false);
     }
   };
+
+  if (queued) {
+    return <QueuedPanelConfirmation onTestAnother={reset} />;
+  }
 
   if (recorded) {
     return <RecordedConfirmation test={recorded} onTestAnother={reset} />;
@@ -220,7 +288,7 @@ export function QualityTestPanelScreen({
           min={0}
           max={15}
           error={shown.fatPercent}
-          warning={warningFor(preview, "Fat")}
+          warning={warningFor(shownPreview, "Fat")}
           disabled={locked}
           onChange={(value) => update({ fatPercent: value })}
         />
@@ -233,7 +301,7 @@ export function QualityTestPanelScreen({
           min={0}
           max={40}
           error={shown.rawLactometerReading}
-          warning={warningFor(preview, "CorrectedClr", "Clr")}
+          warning={warningFor(shownPreview, "CorrectedClr", "Clr")}
           disabled={locked}
           onChange={(value) => update({ rawLactometerReading: value })}
         />
@@ -246,7 +314,7 @@ export function QualityTestPanelScreen({
           min={0}
           max={100}
           error={shown.waterPercent}
-          warning={warningFor(preview, "Water")}
+          warning={warningFor(shownPreview, "Water")}
           disabled={locked}
           onChange={(value) => update({ waterPercent: value })}
         />
@@ -267,18 +335,20 @@ export function QualityTestPanelScreen({
       <section className="derived" aria-label="Calculated values">
         <div>
           <span className="microlabel">Calculated SNF %</span>
-          <p className="derived__value">{format(preview?.snf)}</p>
+          <p className="derived__value">{format(shownPreview?.snf)}</p>
         </div>
         <div>
           <span className="microlabel">Calculated TS %</span>
-          <p className="derived__value">{format(preview?.totalSolids)}</p>
+          <p className="derived__value">{format(shownPreview?.totalSolids)}</p>
         </div>
       </section>
 
-      {preview ? (
+      {shownPreview ? (
         <p className="derived__note">
-          Corrected lactometer reading {preview.correctedClr.toFixed(2)} &middot; calculated by the
-          service from the readings above.
+          Corrected lactometer reading {shownPreview.correctedClr.toFixed(2)} &middot;{" "}
+          {online
+            ? "calculated by the service from the readings above."
+            : "calculated on this device; the service recalculates it on upload."}
         </p>
       ) : (
         <p className="derived__note">SNF and TS are calculated once every reading is entered.</p>
@@ -305,7 +375,7 @@ export function QualityTestPanelScreen({
         </p>
       ) : null}
 
-      <VerdictPanel preview={preview} curdled={forcesRejection(form.alcohol)} />
+      <VerdictPanel preview={shownPreview} curdled={forcesRejection(form.alcohol)} />
 
       {failure ? (
         <p className="notice notice--error" role="alert">
@@ -441,6 +511,27 @@ function ConsignmentPicker({
           ))
         )}
       </ul>
+    </section>
+  );
+}
+
+function QueuedPanelConfirmation({ onTestAnother }: { onTestAnother: () => void }) {
+  return (
+    <section className="saved" aria-live="polite">
+      <span className="saved__mark saved__mark--pending">
+        <CloudOffIcon width={40} height={40} />
+      </span>
+
+      <h2 className="saved__title">Saved on this device</h2>
+      <p className="saved__detail">
+        There is no connection right now. The panel is queued and uploads by itself when the
+        network returns. The service recalculates SNF and TS on upload, so the figures on record
+        are its own.
+      </p>
+
+      <button type="button" className="button" style={{ marginTop: "var(--space-6)" }} onClick={onTestAnother}>
+        Test another consignment
+      </button>
     </section>
   );
 }

@@ -2,6 +2,8 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SessionProvider } from "../../auth/SessionContext";
+import { SyncProvider } from "../sync/SyncProvider";
+import { emptyQueue } from "../sync/queue";
 import { QualityTestPanelScreen } from "./QualityTestPanelScreen";
 
 const consignment = {
@@ -86,7 +88,9 @@ function json(body: unknown, status = 200) {
 function renderScreen() {
   return render(
     <SessionProvider initialSession={session}>
-      <QualityTestPanelScreen />
+      <SyncProvider initialQueue={emptyQueue()}>
+        <QualityTestPanelScreen />
+      </SyncProvider>
     </SessionProvider>,
   );
 }
@@ -103,6 +107,7 @@ async function enterReadings(user: ReturnType<typeof userEvent.setup>) {
 }
 
 beforeEach(() => {
+  Object.defineProperty(navigator, "onLine", { value: true, configurable: true });
   fetchMock = stubFetch(soundPreview);
   vi.stubGlobal("fetch", fetchMock);
 });
