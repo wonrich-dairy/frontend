@@ -36,6 +36,10 @@ export interface QualityTestReadings {
   waterPercent: number;
   kqColour: KqColour;
   alcoholOutcomes: Partial<Record<AlcoholStage, StageOutcome>>;
+  /** What the officer's own senses found. A sense not OK fails the panel like any other measure. */
+  smellOk: boolean;
+  colourOk: boolean;
+  tasteOk: boolean;
 }
 
 /** One measure as the service judged it. */
@@ -67,6 +71,9 @@ export interface QualityTestView {
   temperatureCelsius: number;
   waterPercent: number;
   kqColour: string;
+  smellOk: boolean;
+  colourOk: boolean;
+  tasteOk: boolean;
   correctedClr: number;
   snf: number;
   totalSolids: number;

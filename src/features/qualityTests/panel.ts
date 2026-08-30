@@ -15,6 +15,10 @@ export interface PanelForm {
   waterPercent: string;
   kqColour: KqColour | null;
   alcohol: CascadeAnswers;
+  /** The officer confirms what is wrong, not what is right, so these start sound. */
+  smellOk: boolean;
+  colourOk: boolean;
+  tasteOk: boolean;
 }
 
 export interface PanelErrors {
@@ -33,6 +37,9 @@ export const emptyPanel = (): PanelForm => ({
   waterPercent: "",
   kqColour: null,
   alcohol: {},
+  smellOk: true,
+  colourOk: true,
+  tasteOk: true,
 });
 
 /** The ranges the service accepts, so an out-of-range reading is caught at the bench. */
@@ -101,6 +108,9 @@ export function toReadings(form: PanelForm): QualityTestReadings | null {
     waterPercent: parseReading(form.waterPercent)!,
     kqColour: form.kqColour!,
     alcoholOutcomes: stagesRun(form.alcohol),
+    smellOk: form.smellOk,
+    colourOk: form.colourOk,
+    tasteOk: form.tasteOk,
   };
 }
 

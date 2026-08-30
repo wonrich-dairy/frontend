@@ -224,6 +224,45 @@ describe("the derived values", () => {
   });
 });
 
+describe("the sensory check", () => {
+  it("starts with every sense sound, because the officer confirms what is wrong", async () => {
+    const user = userEvent.setup();
+    renderScreen();
+    await pickConsignment(user);
+
+    const card = screen.getByLabelText("Sensory check");
+
+    for (const sense of ["Smell OK", "Colour OK", "Taste OK"]) {
+      expect(within(card).getByRole("switch", { name: sense })).toBeChecked();
+    }
+  });
+
+  it("sends the sense the officer turned off", async () => {
+    const user = userEvent.setup();
+    renderScreen();
+    await pickConsignment(user);
+
+    await user.click(screen.getByRole("switch", { name: "Smell OK" }));
+    await enterReadings(user);
+    await user.click(
+      within(screen.getByRole("group", { name: "80% Alcohol Test" })).getByRole("button", {
+        name: /Pass/,
+      }),
+    );
+    await user.click(screen.getByRole("radio", { name: /Excellent/ }));
+
+    await screen.findByText(/Accepted|Rejected/);
+    await user.click(screen.getByRole("button", { name: /Confirm & Save Test/ }));
+
+    await waitFor(() => expect(recordCalls()).toHaveLength(1));
+
+    const body = JSON.parse(String(recordCalls()[0][1].body));
+    expect(body.smellOk).toBe(false);
+    expect(body.colourOk).toBe(true);
+    expect(body.tasteOk).toBe(true);
+  });
+});
+
 describe("recording the panel", () => {
   it("does not submit while the panel is incomplete", async () => {
     const user = userEvent.setup();
