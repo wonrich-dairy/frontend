@@ -651,6 +651,10 @@
 }
 
 .stepper__value {
+  /* A grid item will not shrink below the input's intrinsic width without this, which pushed the
+     increment button off the side of a 390px screen. */
+  min-width: 0;
+  width: 100%;
   height: 44px;
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
