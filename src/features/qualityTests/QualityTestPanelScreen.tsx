@@ -15,6 +15,7 @@ import { useSession } from "../../auth/sessionStore";
 import { CheckIcon, SearchIcon, WarningIcon } from "../../components/icons";
 import { AlcoholCascadeCard } from "./AlcoholCascadeCard";
 import { KqScaleCard } from "./KqScaleCard";
+import { SensoryCheckCard } from "./SensoryCheckCard";
 import { StepperField } from "./StepperField";
 import { answerStage, forcesRejection } from "./cascade";
 import {
@@ -208,6 +209,14 @@ export function QualityTestPanelScreen({
           Choose a different consignment
         </button>
       </header>
+
+      <SensoryCheckCard
+        smellOk={form.smellOk}
+        colourOk={form.colourOk}
+        tasteOk={form.tasteOk}
+        disabled={locked}
+        onChange={update}
+      />
 
       <section className="card" aria-label="Physical parameters">
         <h3 className="card__title">Physical Parameters</h3>

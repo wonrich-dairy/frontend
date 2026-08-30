@@ -18,6 +18,9 @@ const sound = (): PanelForm => ({
   waterPercent: "0",
   kqColour: "Blue",
   alcohol: { Alcohol80: "Negative" },
+  smellOk: true,
+  colourOk: true,
+  tasteOk: true,
 });
 
 const preview = (over: Partial<TestPreview> = {}): TestPreview => ({
@@ -78,7 +81,18 @@ describe("the readings sent for evaluation", () => {
       waterPercent: 0,
       kqColour: "Blue",
       alcoholOutcomes: { Alcohol80: "Negative" },
+      smellOk: true,
+      colourOk: true,
+      tasteOk: true,
     });
+  });
+
+  it("carries what the officer's senses found", () => {
+    const readings = toReadings({ ...sound(), smellOk: false })!;
+
+    expect(readings.smellOk).toBe(false);
+    expect(readings.colourOk).toBe(true);
+    expect(readings.tasteOk).toBe(true);
   });
 
   it("carries no SNF or TS, because the service derives them", () => {

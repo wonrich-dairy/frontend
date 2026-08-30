@@ -851,3 +851,81 @@
   background: var(--danger-tint);
   color: var(--danger);
 }
+
+/* Sensory check ----------------------------------------------------------- */
+
+.sense {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.sense:last-child {
+  margin-bottom: 0;
+}
+
+.sense--failed {
+  border-color: var(--danger);
+  background: var(--danger-tint);
+}
+
+.sense__label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--navy-900);
+}
+
+.sense--failed .sense__label {
+  color: var(--danger);
+}
+
+/* A switch rather than a tick box: the design draws it as one, and it reads as a state the
+   officer is turning off rather than a box being unticked. */
+.sense__toggle {
+  appearance: none;
+  position: relative;
+  flex: none;
+  width: 48px;
+  height: 28px;
+  border-radius: 999px;
+  background: var(--border-strong);
+  cursor: pointer;
+  transition: background 120ms ease-in-out;
+}
+
+.sense__toggle::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.2);
+  transition: transform 120ms ease-in-out;
+}
+
+.sense__toggle:checked {
+  background: var(--success);
+}
+
+.sense__toggle:checked::after {
+  transform: translateX(20px);
+}
+
+.sense__toggle:focus-visible {
+  outline: 2px solid var(--navy-800);
+  outline-offset: 2px;
+}
+
+.sense__toggle:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
