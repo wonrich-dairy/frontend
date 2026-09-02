@@ -66,6 +66,7 @@ function renderScreen() {
 }
 
 async function chooseSociety(user: ReturnType<typeof userEvent.setup>) {
+  await user.type(await screen.findByLabelText("Search society name or tag"), "Kobei");
   await user.click(await screen.findByRole("button", { name: /Kobeigane/ }));
 }
 
@@ -99,17 +100,68 @@ afterEach(() => {
 });
 
 describe("registering a consignment", () => {
-  it("lists the societies the officer can choose from", async () => {
+  it("only offers societies once the officer searches", async () => {
+    const user = userEvent.setup();
     renderScreen();
 
+    const search = await screen.findByLabelText("Search society name or tag");
+    expect(screen.queryByRole("button", { name: /Kobeigane/ })).not.toBeInTheDocument();
+
+    await user.type(search, "KG");
+
     expect(await screen.findByRole("button", { name: /Kobeigane/ })).toBeInTheDocument();
+  });
+
+  it("keeps the search and the can sheet on screen after a society is chosen", async () => {
+    const user = userEvent.setup();
+    renderScreen();
+
+    await chooseSociety(user);
+
+    // The card sits under the search rather than replacing it, so the sheet below does not move.
+    expect(screen.getByLabelText("Search society name or tag")).toBeInTheDocument();
+    expect(screen.getByLabelText("Can label")).toBeEnabled();
+    expect(screen.getByRole("button", { name: /Add another can/ })).toBeEnabled();
+  });
+
+  it("removes a can from the sheet through the row action sheet", async () => {
+    const user = userEvent.setup();
+    renderScreen();
+
+    await chooseSociety(user);
+    await fillFirstCan(user, "KG-01", "40.5");
+    await user.click(screen.getByRole("button", { name: /Add another can/ }));
+
+    // The row carries no delete icon of its own; the three-dots opens the sheet that holds it.
+    await user.click(screen.getAllByRole("button", { name: /Actions for can 1/ })[0]);
+
+    const sheet = await screen.findByRole("dialog", { name: /KG-01/ });
+    expect(sheet).toHaveTextContent("40.5 kg");
+
+    await user.click(screen.getByRole("button", { name: /Delete Entry/ }));
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getAllByLabelText("Can label")[0]).toHaveValue("");
+  });
+
+  it("sends the officer back to the label when the sheet offers to edit the row", async () => {
+    const user = userEvent.setup();
+    renderScreen();
+
+    await chooseSociety(user);
+    await fillFirstCan(user, "KG-01", "40.5");
+    await user.click(screen.getByRole("button", { name: /Actions for can 1/ }));
+    await user.click(await screen.findByRole("button", { name: /Edit Entry/ }));
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Can label")).toHaveFocus();
   });
 
   it("does not submit while the society is missing", async () => {
     const user = userEvent.setup();
     renderScreen();
 
-    await screen.findByRole("button", { name: /Kobeigane/ });
+    await screen.findByLabelText("Search society name or tag");
     await user.click(screen.getByRole("button", { name: /Register consignment/ }));
 
     expect(await screen.findByText("Select the supplying society.")).toBeInTheDocument();
@@ -191,7 +243,8 @@ describe("registering a consignment", () => {
     await user.click(await screen.findByRole("button", { name: /Register another consignment/ }));
 
     // Back to an empty sheet with no society chosen, so the previous delivery cannot be sent twice.
-    expect(await screen.findByRole("button", { name: /Kobeigane/ })).toBeInTheDocument();
+    expect(await screen.findByLabelText("Search society name or tag")).toHaveValue("");
+    expect(screen.queryByRole("button", { name: /Kobeigane/ })).not.toBeInTheDocument();
     expect(screen.getByLabelText("Can label")).toHaveValue("");
     expect(screen.getByLabelText("Kilograms")).toHaveValue("");
   });

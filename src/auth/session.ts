@@ -3,7 +3,7 @@
  * screen needs a token before it can do anything; the token is validated by the intake service
  * itself, which never calls back here.
  */
-const authBaseUrl = (import.meta.env.VITE_AUTH_API_URL ?? "http://localhost:5238").replace(/\/$/, "");
+const authBaseUrl = (import.meta.env.VITE_AUTH_API_URL ?? "http://localhost:5000").replace(/\/$/, "");
 
 const STORAGE_KEY = "wonrich.session";
 

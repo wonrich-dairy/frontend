@@ -356,6 +356,92 @@
   text-transform: uppercase;
 }
 
+/* Row action sheet -------------------------------------------------------- */
+
+.sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.sheet__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(16, 24, 40, 0.45);
+}
+
+.sheet__panel {
+  position: relative;
+  width: 100%;
+  max-width: var(--screen-width);
+  padding: var(--space-2) 0 var(--space-3);
+  background: var(--surface);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  box-shadow: var(--shadow-raised);
+}
+
+.sheet__grip {
+  display: block;
+  width: 36px;
+  height: 4px;
+  margin: 0 auto var(--space-3);
+  border-radius: 999px;
+  background: var(--border-strong);
+}
+
+.sheet__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0 var(--space-4) var(--space-3);
+  border-bottom: 1px solid var(--border);
+}
+
+.sheet__body {
+  flex: 1;
+}
+
+.sheet__row {
+  display: block;
+  margin-top: 2px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--navy-900);
+}
+
+.sheet__amount {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+
+.sheet__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-4);
+  border: 0;
+  border-bottom: 1px dashed var(--border);
+  background: transparent;
+  color: var(--navy-900);
+  font-size: 15px;
+  font-weight: 700;
+  text-align: left;
+}
+
+.sheet__item:last-child {
+  border-bottom: 0;
+}
+
+.sheet__item--danger {
+  color: var(--danger);
+}
+
 /* Total and primary action ------------------------------------------------ */
 
 .total {

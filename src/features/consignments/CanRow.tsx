@@ -1,10 +1,13 @@
-import { DropletIcon, PlusIcon, TrashIcon, WarningIcon } from "../../components/icons";
+import { useRef, useState } from "react";
+import { DropletIcon, MoreIcon, PlusIcon, WarningIcon } from "../../components/icons";
+import { CanActionSheet } from "./CanActionSheet";
 import type { CanEntry, CanEntryErrors } from "./canSheet";
-import { isBlank } from "./canSheet";
+import { isBlank, parseKg } from "./canSheet";
 
 /**
  * One line of the can sheet. The label and the weight are edited in place, as they are in the
- * design, so the sheet reads like the paper one it replaces.
+ * design, so the sheet reads like the paper one it replaces. Removing a can lives behind the
+ * row's three-dots button rather than on the row itself, so it takes a deliberate second tap.
  *
  * The column captures kilograms rather than the litres the Figma frame shows: the gate weighs
  * cans, the service takes `quantityKg`, and it derives litres itself from the centre's configured
@@ -33,6 +36,18 @@ export function CanRow({
   const kgId = `can-${entry.id}-kg`;
   const errorId = `can-${entry.id}-error`;
 
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const menuButton = useRef<HTMLButtonElement>(null);
+  const labelInput = useRef<HTMLInputElement>(null);
+
+  const kg = parseKg(entry.quantityKg);
+  const rowTitle = entry.label.trim() === "" ? `Can ${index + 1}` : entry.label.trim();
+
+  const closeSheet = () => {
+    setSheetOpen(false);
+    menuButton.current?.focus();
+  };
+
   return (
     <div className={`canrow${invalid ? " canrow--invalid" : ""}`}>
       <span className="canrow__icon">{empty ? <PlusIcon /> : <DropletIcon />}</span>
@@ -43,6 +58,7 @@ export function CanRow({
         </label>
         <input
           id={labelId}
+          ref={labelInput}
           value={entry.label}
           disabled={disabled}
           placeholder={placeholder}
@@ -69,14 +85,17 @@ export function CanRow({
       </span>
 
       <button
+        ref={menuButton}
         type="button"
         className="canrow__menu"
-        onClick={onRemove}
+        onClick={() => setSheetOpen(true)}
         disabled={disabled}
-        title={`Remove can ${index + 1}`}
+        aria-haspopup="dialog"
+        aria-expanded={sheetOpen}
+        title={`Actions for can ${index + 1}`}
       >
-        <TrashIcon />
-        <span className="sr-only">Remove can {index + 1}</span>
+        <MoreIcon />
+        <span className="sr-only">Actions for can {index + 1}</span>
       </button>
 
       {invalid ? (
@@ -84,6 +103,23 @@ export function CanRow({
           <WarningIcon />
           <span>{errors?.label ?? errors?.quantityKg}</span>
         </p>
+      ) : null}
+
+      {sheetOpen ? (
+        <CanActionSheet
+          rowTitle={rowTitle}
+          amount={kg === null ? "No weight yet" : `${kg.toFixed(1)} kg`}
+          onEdit={() => {
+            setSheetOpen(false);
+            labelInput.current?.focus();
+            labelInput.current?.select();
+          }}
+          onDelete={() => {
+            setSheetOpen(false);
+            onRemove();
+          }}
+          onClose={closeSheet}
+        />
       ) : null}
     </div>
   );
