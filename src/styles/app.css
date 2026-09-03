@@ -289,6 +289,14 @@
   color: var(--danger);
 }
 
+/*
+ * A grid child defaults to min-width:auto, which refuses to shrink below its content and pushes
+ * the row wider than the 390px screen instead of letting the text ellipsize (SCRUM-94).
+ */
+.canrow__field {
+  min-width: 0;
+}
+
 .canrow__field input {
   width: 100%;
   padding: 4px 6px;
@@ -298,6 +306,7 @@
   font-size: 16px;
   font-weight: 700;
   color: var(--navy-900);
+  text-overflow: ellipsis;
 }
 
 .canrow__field input:focus {
@@ -336,6 +345,18 @@
   border-radius: 6px;
   background: transparent;
   color: var(--ink-faint);
+}
+
+/* Stands in for the sheet until a society is chosen, so nothing inert is on screen. */
+.cansheet__prompt {
+  margin: var(--space-3) 0 0;
+  padding: var(--space-5) var(--space-4);
+  border: 1.5px dashed var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--ink-muted);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
 }
 
 .addcan {

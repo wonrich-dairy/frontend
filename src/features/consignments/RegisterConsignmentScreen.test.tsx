@@ -121,6 +121,50 @@ describe("registering a consignment", () => {
     expect(postCount()).toBe(0);
   });
 
+  // SCRUM-94: before a society was chosen the section rendered a blank row whose label, weight
+  // and remove control were all disabled, plus a disabled "Add another can". QA found three
+  // controls that looked available and did nothing, over a "Select a societ" placeholder the
+  // label column was too narrow to show.
+  it("offers no can controls until a society is chosen", async () => {
+    renderScreen();
+
+    await screen.findByRole("button", { name: /Kobeigane/ });
+
+    expect(screen.queryByLabelText("Can label")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Kilograms")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Add another can/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Remove can/ })).not.toBeInTheDocument();
+    expect(screen.getByText(/Choose the supplying society/)).toBeInTheDocument();
+  });
+
+  it("offers a working can sheet once a society is chosen", async () => {
+    const user = userEvent.setup();
+    renderScreen();
+
+    await chooseSociety(user);
+
+    // Every control the empty state withheld is now present and live.
+    expect(screen.getByLabelText("Can label")).toBeEnabled();
+    expect(screen.getByLabelText("Kilograms")).toBeEnabled();
+
+    const addAnother = screen.getByRole("button", { name: /Add another can/ });
+    expect(addAnother).toBeEnabled();
+
+    await user.click(addAnother);
+    expect(screen.getAllByLabelText("Can label")).toHaveLength(2);
+  });
+
+  it("suggests the next can label for the chosen society rather than a prompt", async () => {
+    const user = userEvent.setup();
+    renderScreen();
+
+    await chooseSociety(user);
+
+    // The placeholder is the society's own tag and the next number - short enough for the
+    // column, unlike the "Select a society" prompt it replaced.
+    expect(screen.getByLabelText("Can label")).toHaveAttribute("placeholder", "KG-01");
+  });
+
   it("does not submit while the can sheet is empty", async () => {
     const user = userEvent.setup();
     renderScreen();
@@ -197,6 +241,10 @@ describe("registering a consignment", () => {
 
     // Back to an empty sheet with no society chosen, so the previous delivery cannot be sent twice.
     expect(await screen.findByRole("button", { name: /Kobeigane/ })).toBeInTheDocument();
+    expect(screen.queryByLabelText("Can label")).not.toBeInTheDocument();
+
+    // And the sheet the officer gets on choosing a society again is blank, not the last one.
+    await chooseSociety(user);
     expect(screen.getByLabelText("Can label")).toHaveValue("");
     expect(screen.getByLabelText("Kilograms")).toHaveValue("");
   });

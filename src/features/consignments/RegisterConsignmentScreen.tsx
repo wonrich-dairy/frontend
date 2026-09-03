@@ -187,37 +187,50 @@ export function RegisterConsignmentScreen({
           </span>
         </div>
 
-        <div className="cansheet">
-          {entries.map((entry, index) => (
-            <CanRow
-              key={entry.id}
-              entry={entry}
-              index={index}
-              placeholder={society ? suggestLabel(society.canLabelPrefix, entries.slice(0, index)) : "Select a society"}
-              errors={errors?.cans[entry.id]}
-              disabled={submitting || !society}
-              onChange={updateEntry}
-              onRemove={() => removeEntry(entry.id)}
-            />
-          ))}
-        </div>
+        {/*
+          The sheet appears only once a society is chosen. It used to render a blank row and an
+          "Add another can" button straight away, both inert because a can label cannot be checked
+          without the society's tag — controls that look available but do nothing, and a
+          "Select a society" placeholder too long for the label column, so it read as
+          "Select a societ" (SCRUM-94).
+        */}
+        {society ? (
+          <>
+            <div className="cansheet">
+              {entries.map((entry, index) => (
+                <CanRow
+                  key={entry.id}
+                  entry={entry}
+                  index={index}
+                  placeholder={suggestLabel(society.canLabelPrefix, entries.slice(0, index))}
+                  errors={errors?.cans[entry.id]}
+                  disabled={submitting}
+                  onChange={updateEntry}
+                  onRemove={() => removeEntry(entry.id)}
+                />
+              ))}
+            </div>
 
-        {errors?.sheet ? (
-          <p className="notice notice--error" role="alert">
-            <WarningIcon />
-            {errors.sheet}
-          </p>
-        ) : null}
+            {errors?.sheet ? (
+              <p className="notice notice--error" role="alert">
+                <WarningIcon />
+                {errors.sheet}
+              </p>
+            ) : null}
 
-        <button
-          type="button"
-          className="addcan"
-          disabled={submitting || !society}
-          onClick={() => setEntries((current) => [...current, newEntry()])}
-        >
-          <PlusCircleIcon />
-          Add another can
-        </button>
+            <button
+              type="button"
+              className="addcan"
+              disabled={submitting}
+              onClick={() => setEntries((current) => [...current, newEntry()])}
+            >
+              <PlusCircleIcon />
+              Add another can
+            </button>
+          </>
+        ) : (
+          <p className="cansheet__prompt">Choose the supplying society to start the can sheet.</p>
+        )}
       </section>
 
       <section className="total" aria-label="Consignment total">
