@@ -117,15 +117,19 @@ export function TraceBatchScreen() {
               <EmptyState>No tank on this note could be resolved.</EmptyState>
             ) : (
               trace.tanks.map((tank) => (
-                <Facts
-                  key={`${tank.tankCode}-${tank.fillNumber}`}
-                  rows={[
-                    ["Tank", `${tank.tankName} (${tank.tankCode})`],
-                    ["Fill", String(tank.fillNumber)],
-                    ["Drawn", `${tank.quantityLitres.toFixed(1)} L`],
-                    ["Consignments", String(tank.consignments.length)],
-                  ]}
-                />
+                <div key={tank.tankCode}>
+                  <Facts
+                    rows={[
+                      ["Tank", `${tank.tankName} (${tank.tankCode})`],
+                      ["Drawn", `${tank.quantityDrawnLitres.toFixed(1)} L`],
+                      ["Consignments", String(tank.consignments.length)],
+                    ]}
+                  />
+
+                  {tank.missing.length > 0 ? (
+                    <p className="tracerow__breach">{tank.missing.join(" ")}</p>
+                  ) : null}
+                </div>
               ))
             )}
           </Accordion>
@@ -143,11 +147,21 @@ export function TraceBatchScreen() {
                   <article key={consignment.reference} className="tracerow">
                     <header className="tracerow__head">
                       <strong>{consignment.reference}</strong>
+                      {/*
+                        The verdict is the gate's own, not something inferred here. `missing` is
+                        the trail's gaps - an unresolved society, no panel on record - so it says
+                        the trace is incomplete, never that the milk failed.
+                      */}
                       <span
-                        className={`badge${consignment.breaches.length > 0 ? " badge--bad" : " badge--good"}`}
+                        className={`badge${
+                          consignment.qualityTest === null
+                            ? ""
+                            : consignment.qualityTest.verdict === "Reject"
+                              ? " badge--bad"
+                              : " badge--good"
+                        }`}
                       >
-                        {consignment.qualityTest?.verdict ??
-                          (consignment.breaches.length > 0 ? "Breached" : "Accepted")}
+                        {consignment.qualityTest?.verdict ?? "Not tested"}
                       </span>
                     </header>
 
@@ -157,8 +171,8 @@ export function TraceBatchScreen() {
                       <span>{consignment.quantityLitres.toFixed(0)} L</span>
                     </p>
 
-                    {consignment.breaches.length > 0 ? (
-                      <p className="tracerow__breach">{consignment.breaches.join(", ")}</p>
+                    {consignment.missing.length > 0 ? (
+                      <p className="tracerow__breach">{consignment.missing.join(" ")}</p>
                     ) : null}
                   </article>
                 )),
@@ -174,7 +188,8 @@ export function TraceBatchScreen() {
                   rows={[
                     ["Society", `${society.societyName} (${society.societyCode})`],
                     ["Tightest margin", society.tightestMargin.toFixed(2)],
-                    ["Consignments", society.consignmentReferences.join(", ")],
+                    ["On", society.tightestMeasure ?? "Nothing tested"],
+                    ["Consignments", String(society.consignmentCount)],
                   ]}
                 />
               ))}

@@ -28,22 +28,25 @@ export interface TracedConsignment {
   pouredBy: string | null;
   qualityTest: TracedQualityTest | null;
   tightestMargin: number;
-  breaches: string[];
+  /** Links this consignment could not resolve. Named `Missing` on the service. */
+  missing: string[];
 }
 
 export interface TracedTank {
   tankCode: string;
   tankName: string;
-  quantityLitres: number;
-  fillNumber: number;
+  quantityDrawnLitres: number;
   consignments: TracedConsignment[];
+  missing: string[];
 }
 
 export interface SocietyRisk {
   societyCode: string;
   societyName: string;
+  consignmentCount: number;
   tightestMargin: number;
-  consignmentReferences: string[];
+  /** The measure that sat closest to its limit, or null when nothing was tested. */
+  tightestMeasure: string | null;
 }
 
 export interface BatchTrace {
