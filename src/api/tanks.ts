@@ -8,7 +8,10 @@ export interface Tank {
   capacityLitres: number;
   totalQuantityLitres: number;
   totalQuantityKg: number;
+  availableQuantityLitres: number;
   consignmentCount: number;
+  fillNumber: number;
+  lastClosedAtUtc: string | null;
 }
 
 export interface PourableConsignment {
@@ -32,6 +35,21 @@ export interface ManifestEntry {
 export interface TankManifest {
   tank: Tank;
   entries: ManifestEntry[];
+}
+
+/** One tank's manifest. `date` narrows it to the entries poured on that intake date. */
+export function getTankManifest(
+  tankCode: string,
+  token: string | null,
+  signal?: AbortSignal,
+  date?: string,
+): Promise<TankManifest> {
+  const query = date ? `?date=${encodeURIComponent(date)}` : "";
+
+  return request<TankManifest>(
+    `/api/tanks/${encodeURIComponent(tankCode)}/manifest${query}`,
+    { token, signal },
+  );
 }
 
 export function listTanks(token: string | null, signal?: AbortSignal): Promise<Tank[]> {

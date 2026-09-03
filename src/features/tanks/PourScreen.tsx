@@ -14,7 +14,12 @@ import { cachePourable, cacheTanks, cachedPourable, cachedTanks } from "./cache"
  * three is three records — which is also what the offline queue holds, one per consignment, so the
  * two paths agree on what a pour is.
  */
-export function PourScreen() {
+export function PourScreen({
+  initialTankCode,
+}: {
+  /** Set when the officer came from a tank's own screen, so the tank is not asked for twice. */
+  initialTankCode?: string;
+} = {}) {
   const { session, signOut } = useSession();
   const { online, enqueue: queueRecord } = useSync();
   const token = session?.accessToken ?? null;
@@ -26,7 +31,9 @@ export function PourScreen() {
   const [fresh, setFresh] = useState(false);
   const stale = !online || !fresh;
 
-  const [tank, setTank] = useState<Tank | null>(null);
+  const [tank, setTank] = useState<Tank | null>(
+    () => cachedTanks()?.items.find((one) => one.code === initialTankCode) ?? null,
+  );
   const [chosen, setChosen] = useState<string[]>([]);
   const [failure, setFailure] = useState<string | null>(null);
   const [pouring, setPouring] = useState(false);
@@ -43,6 +50,9 @@ export function PourScreen() {
       .then(([loadedTanks, loadedPourable]) => {
         setTanks(loadedTanks);
         setPourable(loadedPourable);
+        setTank((current) =>
+          current ?? loadedTanks.find((one) => one.code === initialTankCode) ?? null,
+        );
         cacheTanks(loadedTanks);
         cachePourable(loadedPourable);
         setFresh(true);
@@ -55,7 +65,7 @@ export function PourScreen() {
       });
 
     return () => abort.abort();
-  }, [online, token]);
+  }, [online, token, initialTankCode]);
 
   const selected = useMemo(
     () => pourable.filter((consignment) => chosen.includes(consignment.reference)),
@@ -138,9 +148,11 @@ export function PourScreen() {
           Into <strong>{tank.name}</strong> ({tank.code}) &middot; holding{" "}
           {tank.totalQuantityLitres.toFixed(1)} of {tank.capacityLitres.toFixed(0)} L
         </p>
-        <button type="button" className="panelhead__change" onClick={() => setTank(null)} disabled={pouring}>
-          Choose a different tank
-        </button>
+        {initialTankCode ? null : (
+          <button type="button" className="panelhead__change" onClick={() => setTank(null)} disabled={pouring}>
+            Choose a different tank
+          </button>
+        )}
       </header>
 
       <section className="card" aria-label="Accepted consignments">

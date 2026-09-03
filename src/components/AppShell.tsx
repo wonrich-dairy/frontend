@@ -1,92 +1,100 @@
 import type { ReactNode } from "react";
 import {
+  ArrowLeftIcon,
   ClipboardIcon,
   CloudOffIcon,
   DropletIcon,
-  FlaskIcon,
+  HomeIcon,
   LogoMark,
   PersonIcon,
   SettingsIcon,
 } from "./icons";
 import { useSync } from "../features/sync/syncStore";
+import { useNavigation } from "../app/navigationStore";
 
-export type Tab = "register" | "quality" | "tanks" | "queue";
+export type Tab = "home" | "consignments" | "tanks" | "settings";
+
+const tabs: { id: Tab; label: string; path: string; icon: ReactNode }[] = [
+  { id: "home", label: "Home", path: "/", icon: <HomeIcon /> },
+  { id: "consignments", label: "Consignments", path: "/consignments", icon: <ClipboardIcon /> },
+  { id: "tanks", label: "Tanks", path: "/tanks", icon: <DropletIcon /> },
+  { id: "settings", label: "Settings", path: "/settings", icon: <SettingsIcon /> },
+];
 
 /**
- * The phone frame every screen in the design sits inside: the branded top bar with its sync pill,
- * and the tab bar. The pill is the design's "Cloud Sync Active" chip made honest — it reports
- * whether there is a connection and how much is still waiting on the device (SCRUM-10, AC3).
+ * The phone frame every screen sits inside: the branded top bar with its sync pill and the tab
+ * bar beneath. The pill is the design's "Cloud Sync Active" chip made honest — it reports whether
+ * there is a connection and how much is still waiting on the device (SCRUM-10, AC3).
+ *
+ * A screen pushed on top of a tab (adding a tank, a profile) passes `title`, which swaps the
+ * brand bar for the compact back bar those frames are drawn with.
  */
 export function AppShell({
   children,
-  userName,
   current,
-  onNavigate,
-  onSignOut,
+  title,
+  onBack,
 }: {
   children: ReactNode;
-  userName?: string;
   current: Tab;
-  onNavigate: (tab: Tab) => void;
-  onSignOut?: () => void;
+  title?: string;
+  onBack?: () => void;
 }) {
   const { online, syncing, pendingCount } = useSync();
+  const { navigate, path } = useNavigation();
 
   return (
     <div className="shell">
-      <header className="topbar">
-        <span className="topbar__brand">
-          <LogoMark />
-          Wonrich
-          <br />
-          Dairy
-        </span>
+      {title ? (
+        <header className="topbar topbar--compact">
+          <button type="button" className="iconbutton" onClick={onBack} title="Back">
+            <ArrowLeftIcon width={20} height={20} />
+            <span className="sr-only">Back</span>
+          </button>
+          <h1 className="topbar__title">{title}</h1>
+          <span className="iconbutton iconbutton--ghost" aria-hidden="true" />
+        </header>
+      ) : (
+        <header className="topbar">
+          <span className="topbar__brand">
+            <LogoMark />
+            <span>
+              Wonrich
+              <br />
+              Dairy
+            </span>
+          </span>
 
-        <span className="topbar__spacer" />
+          <span className="topbar__spacer" />
 
-        <SyncPill online={online} syncing={syncing} pendingCount={pendingCount} />
+          <SyncPill online={online} syncing={syncing} pendingCount={pendingCount} />
 
-        {onSignOut ? (
           <button
             type="button"
-            className="iconbutton"
-            onClick={onSignOut}
-            title={`Sign out ${userName ?? ""}`.trim()}
+            className="iconbutton iconbutton--round"
+            onClick={() => navigate("/profile")}
+            aria-current={path === "/profile" ? "page" : undefined}
+            title="Your profile"
           >
-            <PersonIcon />
-            <span className="sr-only">Sign out</span>
+            <PersonIcon width={18} height={18} />
+            <span className="sr-only">Your profile</span>
           </button>
-        ) : null}
-      </header>
+        </header>
+      )}
 
       <main className="shell__body">{children}</main>
 
       <nav className="tabbar" aria-label="Sections">
-        <TabButton
-          label="Consignments"
-          icon={<ClipboardIcon />}
-          current={current === "register"}
-          onClick={() => onNavigate("register")}
-        />
-        <TabButton
-          label="Testing"
-          icon={<FlaskIcon />}
-          current={current === "quality"}
-          onClick={() => onNavigate("quality")}
-        />
-        <TabButton
-          label="Tanks"
-          icon={<DropletIcon />}
-          current={current === "tanks"}
-          onClick={() => onNavigate("tanks")}
-        />
-        <TabButton
-          label="Queue"
-          icon={<SettingsIcon />}
-          badge={pendingCount}
-          current={current === "queue"}
-          onClick={() => onNavigate("queue")}
-        />
+        {tabs.map((tab) => (
+          <TabButton
+            key={tab.id}
+            label={tab.label}
+            icon={tab.icon}
+            badge={tab.id === "home" ? pendingCount : 0}
+            current={current === tab.id}
+            onClick={() => navigate(tab.path)}
+          />
+        ))}
       </nav>
     </div>
   );
@@ -152,9 +160,8 @@ function TabButton({
   return (
     <button
       type="button"
-      className="tabbar__item"
+      className={`tabbar__item${current ? " tabbar__item--current" : ""}`}
       aria-current={current ? "page" : undefined}
-      disabled={!onClick}
       onClick={onClick}
     >
       <span className="tabbar__icon">

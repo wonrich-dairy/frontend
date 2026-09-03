@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { signIn } from "../auth/session";
 import { useSession } from "../auth/sessionStore";
-import { WarningIcon } from "./icons";
+import { BadgeIcon, LockIcon, LoginIcon, LogoMark, WarningIcon } from "./icons";
 
 /**
  * Every intake route is guarded (SCRUM-34), so the officer signs in before the gate screen can
  * read societies or record anything. Kept deliberately small: the token comes from the shared
  * auth service and is the only thing this screen is here to obtain.
+ *
+ * The frame labels the first field "Employee ID or Email"; the auth service authenticates on a
+ * user name, so the label says what the service will actually accept.
  */
 export function SignInScreen() {
   const { setSession } = useSession();
@@ -37,34 +40,45 @@ export function SignInScreen() {
 
   return (
     <form className="signin" onSubmit={submit} noValidate>
+      <span className="signin__mark">
+        <LogoMark width={44} height={44} />
+      </span>
+
       <h1 className="signin__title">Wonrich Dairy</h1>
-      <p className="signin__subtitle">Milk collection centre intake</p>
+      <p className="signin__subtitle">Field Management System</p>
 
       <div className="field">
-        <label className="microlabel" htmlFor="signin-username">
+        <label className="field__label" htmlFor="signin-username">
           Username
         </label>
-        <input
-          id="signin-username"
-          value={userName}
-          autoComplete="username"
-          disabled={busy}
-          onChange={(event) => setUserName(event.target.value)}
-        />
+        <span className="field__wrap">
+          <BadgeIcon className="field__icon" />
+          <input
+            id="signin-username"
+            value={userName}
+            autoComplete="username"
+            disabled={busy}
+            placeholder="Enter ID..."
+            onChange={(event) => setUserName(event.target.value)}
+          />
+        </span>
       </div>
 
       <div className="field">
-        <label className="microlabel" htmlFor="signin-password">
-          Password
+        <label className="field__label" htmlFor="signin-password">
+          PIN / Password
         </label>
-        <input
-          id="signin-password"
-          type="password"
-          value={password}
-          autoComplete="current-password"
-          disabled={busy}
-          onChange={(event) => setPassword(event.target.value)}
-        />
+        <span className="field__wrap">
+          <LockIcon className="field__icon" />
+          <input
+            id="signin-password"
+            type="password"
+            value={password}
+            autoComplete="current-password"
+            disabled={busy}
+            onChange={(event) => setPassword(event.target.value)}
+          />
+        </span>
       </div>
 
       {failure ? (
@@ -74,9 +88,11 @@ export function SignInScreen() {
         </p>
       ) : null}
 
-      <button type="submit" className="button" disabled={busy}>
-        {busy ? "Signing in..." : "Sign in"}
+      <button type="submit" className="button button--wide" disabled={busy}>
+        {busy ? "Signing in..." : <><LoginIcon /> Log In</>}
       </button>
+
+      <p className="signin__foot">Secure Access Environment</p>
     </form>
   );
 }
