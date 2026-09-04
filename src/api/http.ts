@@ -14,22 +14,34 @@ export class ApiError extends Error {
   }
 }
 
-const baseUrl = (import.meta.env.VITE_INTAKE_API_URL ?? "http://localhost:5237").replace(/\/$/, "");
+const intakeBaseUrl = (import.meta.env.VITE_INTAKE_API_URL ?? "http://localhost:5237").replace(/\/$/, "");
+
+const processingBaseUrl = (
+  import.meta.env.VITE_PROCESSING_API_URL ?? "http://localhost:5239"
+).replace(/\/$/, "");
+
+export type ServiceName = "intake" | "processing";
+
+const BASE_URLS: Record<ServiceName, string> = {
+  intake: intakeBaseUrl,
+  processing: processingBaseUrl,
+};
 
 interface RequestOptions {
   method?: string;
   body?: unknown;
   token?: string | null;
   signal?: AbortSignal;
+  service?: ServiceName;
 }
 
 export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const { method = "GET", body, token, signal } = options;
+  const { method = "GET", body, token, signal, service = "intake" } = options;
 
   let response: Response;
 
   try {
-    response = await fetch(`${baseUrl}${path}`, {
+    response = await fetch(`${BASE_URLS[service]}${path}`, {
       method,
       signal,
       headers: {
@@ -40,7 +52,11 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
       body: body === undefined ? undefined : JSON.stringify(body),
     });
   } catch {
-    throw new ApiError(0, "network_unavailable", "Cannot reach the intake service. Check the connection and try again.");
+    throw new ApiError(
+      0,
+      "network_unavailable",
+      "Cannot reach the service. Check the connection and try again.",
+    );
   }
 
   if (response.status === 204) {

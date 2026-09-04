@@ -19,6 +19,9 @@ import { TraceBatchScreen } from "./features/trace/TraceBatchScreen";
 import { SettingsScreen } from "./features/settings/SettingsScreen";
 import { SocietyFormScreen } from "./features/settings/SocietyFormScreen";
 import { TankFormScreen } from "./features/settings/TankFormScreen";
+import { ProcessingTanksScreen } from "./features/processing/ProcessingTanksScreen";
+import { ProcessingTankFormScreen } from "./features/processing/ProcessingTankFormScreen";
+import { UnloadScreen } from "./features/processing/UnloadScreen";
 import { UserProfileScreen } from "./features/profile/UserProfileScreen";
 import { SyncProvider } from "./features/sync/SyncProvider";
 import "./styles/app.css";
@@ -195,6 +198,48 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
       parent: "/settings",
       needs: "manageTanks",
       element: <TankFormScreen code={editTank.code} />,
+    };
+  }
+
+  if (match("/processing/tanks", path)) {
+    return {
+      tab: "home",
+      title: "Factory Tanks",
+      parent: "/",
+      needs: "readProcessing",
+      element: <ProcessingTanksScreen />,
+    };
+  }
+
+  if (match("/processing/tanks/new", path)) {
+    return {
+      tab: "home",
+      title: "Add Factory Tank",
+      parent: "/processing/tanks",
+      needs: "manageProcessingTanks",
+      element: <ProcessingTankFormScreen />,
+    };
+  }
+
+  const processingTank = match("/processing/tanks/:code", path);
+
+  if (processingTank) {
+    return {
+      tab: "home",
+      title: `Edit ${processingTank.code}`,
+      parent: "/processing/tanks",
+      needs: "manageProcessingTanks",
+      element: <ProcessingTankFormScreen code={processingTank.code} />,
+    };
+  }
+
+  if (match("/processing/unloads", path)) {
+    return {
+      tab: "home",
+      title: "Unloading Bay",
+      parent: "/",
+      needs: "readProcessing",
+      element: <UnloadScreen />,
     };
   }
 

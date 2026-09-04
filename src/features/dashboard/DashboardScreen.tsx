@@ -11,6 +11,7 @@ import {
   ClockIcon,
   DropletIcon,
   GridPlusIcon,
+  TankIcon,
   TraceIcon,
   TruckIcon,
   UsersIcon,
@@ -120,6 +121,22 @@ export function DashboardScreen() {
               title="Dispatch Note"
               detail="Create waybills for outgoing processed batches."
               onClick={() => navigate("/dispatch")}
+            />
+          ) : null}
+          {can(role, "readProcessing") ? (
+            <Action
+              icon={<TankIcon width={20} height={20} />}
+              title="Factory Tanks"
+              detail="Configure storing and mixing tanks at the factory."
+              onClick={() => navigate("/processing/tanks")}
+            />
+          ) : null}
+          {can(role, "readProcessing") ? (
+            <Action
+              icon={<TruckIcon width={20} height={20} />}
+              title="Unloading Bay"
+              detail="Record a bowser load into a storing tank."
+              onClick={() => navigate("/processing/unloads")}
             />
           ) : null}
           {can(role, "traceBatches") ? (

@@ -16,7 +16,10 @@ export type Permission =
   | "pourToTanks"
   | "recordDispatchNotes"
   | "traceBatches"
-  | "manageTanks";
+  | "manageTanks"
+  | "manageProcessingTanks"
+  | "recordUnloads"
+  | "readProcessing";
 
 const ROLE_CLAIM = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
 
@@ -28,6 +31,14 @@ const GRANTS: Record<Permission, readonly Role[]> = {
   recordDispatchNotes: ["SystemAdministrator", "MccManager"],
   traceBatches: ["SystemAdministrator", "ProductionManager", "QualityAnalyst"],
   manageTanks: ["SystemAdministrator", "MccManager"],
+  manageProcessingTanks: ["SystemAdministrator", "ProductionManager"],
+  recordUnloads: ["SystemAdministrator", "ProductionManager", "FactoryIntakeOfficer"],
+  readProcessing: [
+    "SystemAdministrator",
+    "ProductionManager",
+    "FactoryIntakeOfficer",
+    "QualityAnalyst",
+  ],
 };
 
 export function roleFromToken(accessToken: string | null | undefined): Role | null {
