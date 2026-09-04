@@ -144,12 +144,12 @@ export function DispatchNoteScreen() {
       <section className="card">
         <p className="readonlyfield">
           <span className="microlabel">Slip No</span>
-          <strong>Allocated by the service on submit</strong>
+          <strong>Issued when you submit</strong>
         </p>
 
         <p className="readonlyfield">
           <span className="microlabel">Date</span>
-          <strong>{new Date().toLocaleDateString()}</strong>
+          <strong>{formatToday()}</strong>
         </p>
 
         <label className="field">
@@ -442,4 +442,11 @@ function todayAt(time: string): string {
   const pad = (value: number) => String(value).padStart(2, "0");
 
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${time}:00`;
+}
+
+function formatToday(): string {
+  const now = new Date();
+  const months = "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split(" ");
+
+  return `${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
 }
