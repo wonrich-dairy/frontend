@@ -3,19 +3,10 @@ import { ApiError } from "../../api/http";
 import { getTankManifest, type TankManifest } from "../../api/tanks";
 import { useSession } from "../../auth/sessionStore";
 import { useNavigation } from "../../app/navigationStore";
-import { DropletIcon, ThermometerIcon } from "../../components/icons";
+import { DropletIcon } from "../../components/icons";
 import { EmptyState, ErrorNotice, Loading } from "../../components/ui/Feedback";
 import { percentFull } from "./fill";
 
-/**
- * One tank: what it holds, the pour action, and the manifest behind the fill.
- *
- * The frame pairs this with a temperature log. No endpoint records or reads a tank temperature —
- * `GET /api/tanks` publishes capacity and fill and nothing thermal — so that card states what it
- * needs rather than collecting readings this client would then drop on the floor. The manifest
- * takes the place the "recent readings" table holds in the design: it is the record of what
- * actually went into the tank, and it is real.
- */
 export function TankDetailScreen({ code }: { code: string }) {
   const { session } = useSession();
   const { navigate } = useNavigation();
@@ -76,7 +67,7 @@ export function TankDetailScreen({ code }: { code: string }) {
           <span className="meter__fill" style={{ width: `${percentFull(tank)}%` }} />
         </span>
         <p className="card__footnote">
-          Fill {tank.fillNumber} &middot; {tank.availableQuantityLitres.toFixed(0)} L still free
+          Fill {tank.fillNumber} &middot; {tank.availableQuantityLitres.toFixed(0)} L to draw
         </p>
       </section>
 
@@ -89,17 +80,6 @@ export function TankDetailScreen({ code }: { code: string }) {
         Pour Consignment Here
       </button>
 
-      <section className="card card--muted" aria-label="Log temperature">
-        <h3 className="card__title">
-          <ThermometerIcon />
-          Log Temperature
-        </h3>
-        <p className="card__footnote">
-          The service does not yet record tank temperatures — no endpoint reads or writes one, and
-          `GET /api/tanks` returns capacity and fill only. Readings taken here would be lost, so
-          the control is held back until the service can keep them.
-        </p>
-      </section>
 
       <section className="card" aria-label="Tank manifest">
         <h3 className="card__title">

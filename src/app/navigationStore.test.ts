@@ -21,7 +21,6 @@ describe("route matching", () => {
   });
 
   it("does not let a one-segment pattern swallow a deeper path", () => {
-    // /tanks/:code must not match /tanks/T1/pour, or the pour screen would be unreachable.
     expect(match("/tanks/:code", "/tanks/T1/pour")).toBeNull();
   });
 

@@ -142,7 +142,6 @@ describe("the alcohol cascade", () => {
     const cascade = screen.getByLabelText("Alcohol test cascade");
     const at75 = within(cascade).getByRole("group", { name: "75% Alcohol Test" });
 
-    // Present but inert until the rung above it fails.
     expect(within(at75).getByRole("button", { name: /Fail/ })).toBeDisabled();
 
     const at80 = within(cascade).getByRole("group", { name: "80% Alcohol Test" });
@@ -183,7 +182,6 @@ describe("the derived values", () => {
     await waitFor(() => expect(within(derived).getByText("8.53%")).toBeInTheDocument());
     expect(within(derived).getByText("12.63%")).toBeInTheDocument();
 
-    // There is no SNF or TS input for the officer to type into.
     expect(screen.queryByLabelText(/^SNF/)).toBeNull();
     expect(screen.queryByLabelText(/^TS/)).toBeNull();
   });

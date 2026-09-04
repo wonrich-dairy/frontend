@@ -1,6 +1,5 @@
 import type { ProblemDetails } from "./types";
 
-/** A refusal from the service, carrying the parts of the problem body worth showing. */
 export class ApiError extends Error {
   readonly status: number;
   readonly code: string | undefined;
@@ -41,7 +40,6 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
       body: body === undefined ? undefined : JSON.stringify(body),
     });
   } catch {
-    // Offline at the gate is ordinary, so it reads as a condition rather than a crash.
     throw new ApiError(0, "network_unavailable", "Cannot reach the intake service. Check the connection and try again.");
   }
 
@@ -72,10 +70,6 @@ async function readJson(response: Response): Promise<unknown> {
   }
 }
 
-/**
- * Turns a problem body into one sentence for the officer. Validation failures are flattened
- * because the service reports them per field and the screen has one message area.
- */
 function toApiError(status: number, payload: unknown): ApiError {
   const problem = (payload ?? {}) as ProblemDetails;
 
@@ -97,8 +91,16 @@ function defaultMessage(status: number): string {
   }
 
   if (status === 403) {
-    return "Your role is not permitted to register consignments.";
+    return "Your role does not allow this.";
   }
 
-  return "The consignment could not be registered. Try again.";
+  if (status === 404) {
+    return "That record could not be found.";
+  }
+
+  if (status >= 500) {
+    return "The service is having trouble. Try again in a moment.";
+  }
+
+  return "That could not be saved. Try again.";
 }

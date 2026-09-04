@@ -32,13 +32,11 @@ import {
   type PanelForm,
 } from "./panel";
 
-/** Long enough that stepping through a value does not fire a request per tap. */
 const PREVIEW_DEBOUNCE_MS = 350;
 
 export function QualityTestPanelScreen({
   initialReference,
 }: {
-  /** Set when the officer came straight from registering a delivery (SCRUM-53). */
   initialReference?: string;
 } = {}) {
   const { session, signOut } = useSession();
@@ -71,7 +69,6 @@ export function QualityTestPanelScreen({
         const waiting = page.items.filter((item) => item.status === "Registered");
         setUntested(waiting);
 
-        // Arriving from a registration goes straight to that delivery's panel.
         if (initialReference) {
           const arrived = waiting.find((item) => item.reference === initialReference);
 
@@ -89,11 +86,6 @@ export function QualityTestPanelScreen({
     return () => abort.abort();
   }, [token, initialReference]);
 
-  /**
-   * Every derived figure comes from the service, which evaluates with the shared panel library
-   * (SCRUM-50). Computing SNF or TS here would let the gate and the lab drift apart on the same
-   * readings, which is the whole reason that library exists.
-   */
   const previewToken = useRef(0);
 
   useEffect(() => {
@@ -134,12 +126,6 @@ export function QualityTestPanelScreen({
     };
   }, [consignment, readingsKey, token, online]);
 
-  // A changed reading invalidates what the service last said, so the stale verdict goes with it.
-  /**
-   * AC8: with no network the officer still sees the corrected CLR, SNF and TS. Computed on the
-   * device for display only — the service recomputes on upload and its figures are the ones
-   * stored, so nothing on record depends on this.
-   */
   const offlinePreview = useMemo<TestPreview | null>(() => {
     if (online || !readings) {
       return null;
@@ -208,7 +194,6 @@ export function QualityTestPanelScreen({
       return;
     }
 
-    // Complete readings, but the service has not answered yet. Saying so beats a dead button.
     if (!shownPreview) {
       setFailure("Still evaluating these readings. Try again in a moment.");
       return;
@@ -393,7 +378,6 @@ export function QualityTestPanelScreen({
         </p>
       ) : null}
 
-      {/* Never disabled on an incomplete panel: the officer needs to be told what is missing. */}
       <button type="submit" className="button" disabled={locked}>
         {submitting ? "Saving..." : "Confirm & Save Test"}
       </button>
@@ -401,10 +385,6 @@ export function QualityTestPanelScreen({
   );
 }
 
-/**
- * The verdict, as the service would settle it. Shown as soon as the readings are complete rather
- * than after submitting, so the officer sees what they are about to record.
- */
 function VerdictPanel({ preview, curdled }: { preview: TestPreview | null; curdled: boolean }) {
   if (!preview) {
     return (
@@ -585,7 +565,6 @@ function format(value: number | undefined): string {
   return value === undefined ? "—" : `${value.toFixed(2)}%`;
 }
 
-/** The service's own word for a measure it flagged, shown against the field it belongs to. */
 function warningFor(preview: TestPreview | null, ...measures: string[]): string | undefined {
   const breach = preview?.measures.find(
     (measure) =>

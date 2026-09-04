@@ -1,14 +1,5 @@
 import { request } from "./http";
 
-/**
- * The quality panel endpoints (SCRUM-7). Every derived figure — the corrected lactometer reading,
- * SNF, TS, the stability grade, and whether the sample meets the standard — comes from the
- * service, which computes them with the shared panel library (SCRUM-50). Recomputing any of it in
- * the browser would reintroduce exactly the drift between gate and lab that the library exists to
- * prevent, so the screen asks and displays rather than calculates.
- */
-
-/** The seven-shade KQ scale. The numeric values are the stored contract; order is best to worst. */
 export const KQ_COLOURS = [
   "Blue",
   "LightBlue",
@@ -21,12 +12,10 @@ export const KQ_COLOURS = [
 
 export type KqColour = (typeof KQ_COLOURS)[number];
 
-/** The cascade runs hardest first and stops at the first sample that does not clot. */
 export const ALCOHOL_STAGES = ["Alcohol80", "Alcohol75", "Alcohol68", "ClotOnBoiling"] as const;
 
 export type AlcoholStage = (typeof ALCOHOL_STAGES)[number];
 
-/** "Positive" means the sample clotted, which the officer reads as a failed stage. */
 export type StageOutcome = "Negative" | "Positive";
 
 export interface QualityTestReadings {
@@ -36,13 +25,11 @@ export interface QualityTestReadings {
   waterPercent: number;
   kqColour: KqColour;
   alcoholOutcomes: Partial<Record<AlcoholStage, StageOutcome>>;
-  /** What the officer's own senses found. A sense not OK fails the panel like any other measure. */
   smellOk: boolean;
   colourOk: boolean;
   tasteOk: boolean;
 }
 
-/** One measure as the service judged it. */
 export interface Measure {
   measure: string;
   value: string;
@@ -50,7 +37,6 @@ export interface Measure {
   detail: string | null;
 }
 
-/** What the officer sees before committing to a verdict; nothing is stored. */
 export interface TestPreview {
   correctedClr: number;
   snf: number;
@@ -93,7 +79,6 @@ export interface RecordQualityTestRequest extends QualityTestReadings {
   failedValue?: string;
 }
 
-/** Evaluates readings without recording anything. */
 export function previewQualityTest(
   reference: string,
   readings: QualityTestReadings,
@@ -108,7 +93,6 @@ export function previewQualityTest(
   });
 }
 
-/** Records the panel and settles the consignment's verdict. A consignment is tested once. */
 export function recordQualityTest(
   reference: string,
   body: RecordQualityTestRequest,

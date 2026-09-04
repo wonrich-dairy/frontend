@@ -23,7 +23,6 @@ function queueOf(...records: NewRecord[]): SyncQueue {
   return records.reduce((queue, record) => enqueue(queue, record), emptyQueue());
 }
 
-/** Drives the browser's own notion of connectivity, which the provider listens to. */
 function setOnline(value: boolean) {
   Object.defineProperty(navigator, "onLine", { value, configurable: true });
   window.dispatchEvent(new Event(value ? "online" : "offline"));
@@ -158,7 +157,6 @@ describe("reconnecting", () => {
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalled());
 
-    // Nothing lost, nothing marked failed: the next window tries again.
     expect(screen.getByText("first")).toBeInTheDocument();
     expect(screen.queryByLabelText("Needs review")).toBeNull();
   });
@@ -188,7 +186,6 @@ describe("a record that keeps its identity", () => {
 
     await waitFor(() => expect(fetchMock.mock.calls.length).toBeGreaterThan(1));
 
-    // The identifier is what lets the service apply a replayed record once.
     for (const call of fetchMock.mock.calls) {
       const body = JSON.parse(String(call[1].body));
       expect(body.operations[0].clientRecordId).toBe(id);

@@ -3,6 +3,7 @@ import { searchConsignments } from "../../api/consignments";
 import { ApiError } from "../../api/http";
 import type { Consignment } from "../../api/types";
 import { useSession } from "../../auth/sessionStore";
+import { can, roleFromToken } from "../../auth/permissions";
 import { useNavigation } from "../../app/navigationStore";
 import {
   CalendarIcon,
@@ -15,17 +16,11 @@ import {
 } from "../../components/icons";
 import { ErrorNotice, Loading } from "../../components/ui/Feedback";
 
-/**
- * The shift's standing at a glance, then the actions the officer starts a task from.
- *
- * The four figures are counted from today's consignments rather than read from a summary
- * endpoint: none is published, and deriving them from the day's records keeps the tiles honest
- * about what the service actually holds.
- */
 export function DashboardScreen() {
   const { session } = useSession();
   const { navigate } = useNavigation();
   const token = session?.accessToken ?? null;
+  const role = roleFromToken(token);
 
   const [consignments, setConsignments] = useState<Consignment[] | null>(null);
   const [failure, setFailure] = useState<string | null>(null);
@@ -97,31 +92,37 @@ export function DashboardScreen() {
         </div>
 
         <div className="actions">
-          <Action
-            icon={<GridPlusIcon width={20} height={20} />}
-            title="Register Consignment"
-            detail="Log new milk deliveries from farmers or societies."
-            tone="solid"
-            onClick={() => navigate("/consignments")}
-          />
+          {can(role, "registerConsignments") ? (
+            <Action
+              icon={<GridPlusIcon width={20} height={20} />}
+              title="Register Consignment"
+              detail="Log new milk deliveries from farmers or societies."
+              tone="solid"
+              onClick={() => navigate("/consignments")}
+            />
+          ) : null}
           <Action
             icon={<DropletIcon width={20} height={20} />}
             title="Chilling Tanks"
             detail="Monitor capacity and current temperatures."
             onClick={() => navigate("/tanks")}
           />
-          <Action
-            icon={<TruckIcon width={20} height={20} />}
-            title="Dispatch Note"
-            detail="Create waybills for outgoing processed batches."
-            onClick={() => navigate("/dispatch")}
-          />
-          <Action
-            icon={<TraceIcon width={20} height={20} />}
-            title="Trace a Batch"
-            detail="Look up history by scanning lot numbers."
-            onClick={() => navigate("/trace")}
-          />
+          {can(role, "recordDispatchNotes") ? (
+            <Action
+              icon={<TruckIcon width={20} height={20} />}
+              title="Dispatch Note"
+              detail="Create waybills for outgoing processed batches."
+              onClick={() => navigate("/dispatch")}
+            />
+          ) : null}
+          {can(role, "traceBatches") ? (
+            <Action
+              icon={<TraceIcon width={20} height={20} />}
+              title="Trace a Batch"
+              detail="Look up history by scanning lot numbers."
+              onClick={() => navigate("/trace")}
+            />
+          ) : null}
           <Action
             icon={<UsersIcon width={20} height={20} />}
             title="Manage Societies"
@@ -175,7 +176,6 @@ function Action({
   );
 }
 
-/** The device's local date as `YYYY-MM-DD`, which is what the service dates arrivals by. */
 function localDate(): string {
   const now = new Date();
   const pad = (value: number) => String(value).padStart(2, "0");
@@ -190,7 +190,6 @@ function formatDate(isoDate: string): string {
   return `${months[(month ?? 1) - 1]} ${day}, ${year}`;
 }
 
-/** Kilolitres, as the design labels the tile; litres would run to five digits by mid-morning. */
 function formatKilolitres(litres: number): string {
   return `${(litres / 1000).toFixed(1)} kL`;
 }

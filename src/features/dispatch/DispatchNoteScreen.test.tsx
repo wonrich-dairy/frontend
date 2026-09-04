@@ -123,7 +123,6 @@ describe("recording a dispatch note", () => {
   it("will not submit until the panel and a source tank are complete", async () => {
     renderScreen();
 
-    // The service refuses a note with no tank or no readings; the officer is told here first.
     expect(await screen.findByRole("button", { name: /Submit Dispatch/ })).toBeDisabled();
   });
 
@@ -163,7 +162,6 @@ describe("recording a dispatch note", () => {
     renderScreen();
 
     await fillNote(user);
-    // Clotted at 80% but held at 75%, so the cascade halts one rung down.
     await user.click(screen.getByRole("switch", { name: /80% Alcohol/ }));
     await user.click(screen.getByRole("button", { name: /Submit Dispatch/ }));
 

@@ -128,24 +128,25 @@ describe("settings", () => {
     renderScreen();
 
     expect(await screen.findByText("5000 L")).toBeInTheDocument();
-    // 4,100 of 5,000 litres.
     expect(screen.getByText("4100 L (82%)")).toBeInTheDocument();
   });
 
-  it("offers the tank options sheet from the row menu", async () => {
-    const user = userEvent.setup();
+  it("offers no tank actions the service cannot carry out", async () => {
     renderScreen();
 
-    await user.click(await screen.findByRole("button", { name: /Options for Primary Cooler/ }));
+    await screen.findByText("Primary Cooler");
 
-    expect(await screen.findByRole("dialog", { name: "Tank Options" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Options for Primary Cooler/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Add Tank/ })).not.toBeInTheDocument();
   });
 
-  it("holds back the settings rows nothing is built behind", async () => {
+  it("shows no settings rows with nothing behind them", async () => {
     renderScreen();
 
-    // Opening an empty screen would be worse than a row that says it is not ready.
-    expect(await screen.findByRole("button", { name: /App Preferences/ })).toBeDisabled();
-    expect(screen.getByRole("button", { name: /Help & Support/ })).toBeDisabled();
+    await screen.findByText("Primary Cooler");
+
+    expect(screen.queryByRole("button", { name: /App Preferences/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Notification Settings/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Help & Support/ })).not.toBeInTheDocument();
   });
 });

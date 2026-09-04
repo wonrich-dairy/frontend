@@ -1,14 +1,5 @@
 import type { PourableConsignment, Tank } from "../../api/tanks";
 
-/**
- * The last tanks and pourable consignments the device saw.
- *
- * Pouring has to work with no network (SCRUM-10, AC1), and the officer cannot choose from a list
- * that has to be fetched. The tanks are plant rather than reference data — three of them, shipped
- * with the schema — so a cached copy is as good as a fetched one; the pourable list goes stale,
- * which the screen says out loud rather than pretending otherwise.
- */
-
 const TANKS_KEY = "wonrich.tanks";
 const POURABLE_KEY = "wonrich.pourable";
 
@@ -37,7 +28,6 @@ function write<T>(key: string, items: T[]): void {
   try {
     localStorage.setItem(key, JSON.stringify({ at: new Date().toISOString(), items }));
   } catch {
-    // Without storage the screen simply has nothing to offer offline.
   }
 }
 

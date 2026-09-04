@@ -2,11 +2,6 @@ import { useMemo, useState } from "react";
 import type { Society } from "../../api/types";
 import { PersonIcon, SearchIcon } from "../../components/icons";
 
-/**
- * Choosing the supplying society. Societies are searched rather than listed in a dropdown
- * because the officer knows the name or the tag painted on the cans, and only registered
- * societies can be supplied — there is no free-text option.
- */
 export function SocietyPicker({
   societies,
   selected,

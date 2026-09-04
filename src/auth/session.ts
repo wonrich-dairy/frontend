@@ -1,8 +1,3 @@
-/**
- * Sign-in against the shared auth service (SCRUM-34). Every intake route is guarded, so the
- * screen needs a token before it can do anything; the token is validated by the intake service
- * itself, which never calls back here.
- */
 const authBaseUrl = (import.meta.env.VITE_AUTH_API_URL ?? "http://localhost:5238").replace(/\/$/, "");
 
 const STORAGE_KEY = "wonrich.session";
@@ -44,10 +39,6 @@ export async function signIn(userName: string, password: string): Promise<Sessio
   return { accessToken: tokens.accessToken, expiresAtUtc: tokens.expiresAtUtc, userName };
 }
 
-/**
- * Held in sessionStorage rather than localStorage: the gate device is shared, so closing the tab
- * should end the shift's session rather than leave it signed in for whoever picks it up next.
- */
 export function loadSession(): Session | null {
   try {
     const stored = sessionStorage.getItem(STORAGE_KEY);
@@ -72,7 +63,6 @@ export function saveSession(session: Session | null): void {
       sessionStorage.removeItem(STORAGE_KEY);
     }
   } catch {
-    // A device with storage blocked still works; the session just does not survive a reload.
   }
 }
 

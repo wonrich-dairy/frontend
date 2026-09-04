@@ -1126,6 +1126,8 @@
   font-weight: 800;
   color: var(--navy-900);
   white-space: nowrap;
+}
+
 /* Sensory check ----------------------------------------------------------- */
 
 .sense {
@@ -1203,3 +1205,28 @@
   opacity: 0.55;
   cursor: not-allowed;
 }
+
+.signinpage {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-6);
+  min-height: 100dvh;
+  padding: var(--space-8) var(--space-5);
+  background: var(--surface-sunken);
+  align-content: center;
+}
+
+.pill--standalone {
+  justify-self: center;
+}
+
+.signinpage .signin {
+  width: 100%;
+  max-width: 340px;
+  padding: var(--space-8) var(--space-6);
+  border: 1.5px solid var(--navy-900);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-raised);
+}
+

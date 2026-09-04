@@ -6,20 +6,13 @@ import type { Society } from "../../api/types";
 import { useSession } from "../../auth/sessionStore";
 import { useNavigation } from "../../app/navigationStore";
 import {
-  BellIcon,
-  ChevronRightIcon,
-  HelpIcon,
-  MoreIcon,
   PencilIcon,
   PersonIcon,
   PlusIcon,
-  SlidersIcon,
 } from "../../components/icons";
-import { ActionSheet, SheetAction } from "../../components/ui/Modal";
 import { EmptyState, ErrorNotice, Loading } from "../../components/ui/Feedback";
 import { percentFull } from "../tanks/fill";
 
-/** Maintenance: the societies that supply the centre and the tanks that hold what they bring. */
 export function SettingsScreen() {
   const { session } = useSession();
   const { navigate } = useNavigation();
@@ -28,7 +21,6 @@ export function SettingsScreen() {
   const [societies, setSocieties] = useState<Society[] | null>(null);
   const [tanks, setTanks] = useState<Tank[] | null>(null);
   const [failure, setFailure] = useState<string | null>(null);
-  const [tankMenu, setTankMenu] = useState<Tank | null>(null);
 
   useEffect(() => {
     const abort = new AbortController();
@@ -121,15 +113,6 @@ export function SettingsScreen() {
             <article key={tank.code} className="tankrow">
               <header className="tankrow__head">
                 <h2 className="tankrow__name">{tank.name}</h2>
-                <button
-                  type="button"
-                  className="iconbutton"
-                  onClick={() => setTankMenu(tank)}
-                  title={`Options for ${tank.name}`}
-                >
-                  <MoreIcon width={18} height={18} />
-                  <span className="sr-only">Options for {tank.name}</span>
-                </button>
               </header>
 
               <p className="tankrow__status">
@@ -158,44 +141,8 @@ export function SettingsScreen() {
         </>
       )}
 
-      <section className="settingslist" aria-label="Application settings">
-        <SettingsLink icon={<SlidersIcon width={18} height={18} />} label="App Preferences" />
-        <SettingsLink icon={<BellIcon width={18} height={18} />} label="Notification Settings" />
-        <SettingsLink icon={<HelpIcon width={18} height={18} />} label="Help & Support" />
-      </section>
 
-      {tankMenu ? (
-        <ActionSheet
-          eyebrow={tankMenu.code.toUpperCase()}
-          title="Tank Options"
-          onClose={() => setTankMenu(null)}
-        >
-          <SheetAction
-            icon={<PencilIcon width={18} height={18} />}
-            label="Edit Tank"
-            onClick={() => {
-              const code = tankMenu.code;
-              setTankMenu(null);
-              navigate(`/settings/tanks/${encodeURIComponent(code)}`);
-            }}
-          />
-        </ActionSheet>
-      ) : null}
     </>
   );
 }
 
-/**
- * The three rows the settings list is drawn with. Nothing behind them is specified — no
- * preference, notification or support surface exists in the service or the backlog — so they
- * announce themselves as unavailable rather than opening an empty screen.
- */
-function SettingsLink({ icon, label }: { icon: React.ReactNode; label: string }) {
-  return (
-    <button type="button" className="settingslist__item" disabled title={`${label} is not available yet`}>
-      <span className="settingslist__icon">{icon}</span>
-      <span className="settingslist__label">{label}</span>
-      <ChevronRightIcon width={18} height={18} />
-    </button>
-  );
-}

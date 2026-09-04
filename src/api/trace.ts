@@ -1,7 +1,5 @@
 import { request } from "./http";
 
-/** Resolving a factory batch back to the tanks and consignments behind it (SCRUM-12). */
-
 export interface TracedQualityTest {
   fatPercent: number;
   snf: number;
@@ -28,7 +26,6 @@ export interface TracedConsignment {
   pouredBy: string | null;
   qualityTest: TracedQualityTest | null;
   tightestMargin: number;
-  /** Links this consignment could not resolve. Named `Missing` on the service. */
   missing: string[];
 }
 
@@ -45,7 +42,6 @@ export interface SocietyRisk {
   societyName: string;
   consignmentCount: number;
   tightestMargin: number;
-  /** The measure that sat closest to its limit, or null when nothing was tested. */
   tightestMeasure: string | null;
 }
 
@@ -65,7 +61,6 @@ export interface BatchTrace {
   totalDispatchedLitres: number;
   tanks: TracedTank[];
   societiesByMargin: SocietyRisk[];
-  /** Links the trace could not resolve, named so the gap is visible rather than silent. */
   missing: string[];
 }
 
@@ -80,16 +75,4 @@ export function traceBatch(
   );
 }
 
-export interface FactoryBatch {
-  reference: string;
-  batchDate: string;
-  dispatchNoteReference: string;
-  arrivedAtLocal: string;
-  totalQuantityLitres: number;
-  screenedBy: string | null;
-  screenedAtUtc: string;
-}
 
-export function listBatches(token: string | null, signal?: AbortSignal): Promise<FactoryBatch[]> {
-  return request<FactoryBatch[]>("/api/factory/batches", { token, signal });
-}

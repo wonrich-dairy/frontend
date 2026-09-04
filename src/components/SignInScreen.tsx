@@ -3,14 +3,6 @@ import { signIn } from "../auth/session";
 import { useSession } from "../auth/sessionStore";
 import { BadgeIcon, LockIcon, LoginIcon, LogoMark, WarningIcon } from "./icons";
 
-/**
- * Every intake route is guarded (SCRUM-34), so the officer signs in before the gate screen can
- * read societies or record anything. Kept deliberately small: the token comes from the shared
- * auth service and is the only thing this screen is here to obtain.
- *
- * The frame labels the first field "Employee ID or Email"; the auth service authenticates on a
- * user name, so the label says what the service will actually accept.
- */
 export function SignInScreen() {
   const { setSession } = useSession();
   const [userName, setUserName] = useState("");
@@ -39,7 +31,13 @@ export function SignInScreen() {
   };
 
   return (
-    <form className="signin" onSubmit={submit} noValidate>
+    <div className="signinpage">
+      <span className="pill pill--standalone">
+        <span className="pill__dot" />
+        Secure Access
+      </span>
+
+      <form className="signin" onSubmit={submit} noValidate>
       <span className="signin__mark">
         <LogoMark width={44} height={44} />
       </span>
@@ -49,7 +47,7 @@ export function SignInScreen() {
 
       <div className="field">
         <label className="field__label" htmlFor="signin-username">
-          Username
+          Employee ID
         </label>
         <span className="field__wrap">
           <BadgeIcon className="field__icon" />
@@ -93,6 +91,7 @@ export function SignInScreen() {
       </button>
 
       <p className="signin__foot">Secure Access Environment</p>
-    </form>
+      </form>
+    </div>
   );
 }

@@ -6,10 +6,6 @@ export interface RegisterConsignmentRequest {
   cans: { canNumber: number; quantityKg: number }[];
 }
 
-/**
- * Registers the can sheet. The reference, the arrival time and the litres are all allocated by
- * the service — litres are derived from the weighed kilograms and are never submitted.
- */
 export function registerConsignment(
   body: RegisterConsignmentRequest,
   token: string | null,
@@ -25,11 +21,6 @@ export interface PagedResult<T> {
   totalPages: number;
 }
 
-/**
- * Registered consignments, newest page first. The gate screen uses this to offer the deliveries
- * still waiting on a verdict — a consignment is tested once, so anything already accepted or
- * rejected is filtered out by its status.
- */
 export function searchConsignments(
   token: string | null,
   signal?: AbortSignal,

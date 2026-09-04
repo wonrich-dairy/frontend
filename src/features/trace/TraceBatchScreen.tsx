@@ -5,11 +5,6 @@ import { useSession } from "../../auth/sessionStore";
 import { DropletIcon, SearchIcon, TraceIcon, TruckIcon, ClipboardIcon } from "../../components/icons";
 import { Accordion, EmptyState, ErrorNotice } from "../../components/ui/Feedback";
 
-/**
- * Resolving a factory batch back through its dispatch note, its tanks and the consignments that
- * filled them (SCRUM-12). Each link is its own section because a recall works backwards one hop
- * at a time, and the officer needs to see where the trail stops.
- */
 export function TraceBatchScreen() {
   const { session } = useSession();
   const token = session?.accessToken ?? null;
@@ -147,11 +142,6 @@ export function TraceBatchScreen() {
                   <article key={consignment.reference} className="tracerow">
                     <header className="tracerow__head">
                       <strong>{consignment.reference}</strong>
-                      {/*
-                        The verdict is the gate's own, not something inferred here. `missing` is
-                        the trail's gaps - an unresolved society, no panel on record - so it says
-                        the trace is incomplete, never that the milk failed.
-                      */}
                       <span
                         className={`badge${
                           consignment.qualityTest === null

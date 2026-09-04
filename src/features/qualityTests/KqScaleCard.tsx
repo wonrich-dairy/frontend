@@ -1,13 +1,5 @@
 import { KQ_COLOURS, type KqColour } from "../../api/qualityTests";
 
-/**
- * The KQ card the officer holds against the sample. The dye keeps its colour in fresh milk and is
- * reduced through to white as microbial activity rises, so the scale runs best to worst.
- *
- * The order is the service's enum order, not the swatch order drawn in Figma: the numeric values
- * are stored against panels and compared across checkpoints, so the shade in position five has to
- * be the shade the service calls position five.
- */
 const SHADES: Record<KqColour, { swatch: string; grade: string }> = {
   Blue: { swatch: "#3b82f6", grade: "Excellent" },
   LightBlue: { swatch: "#60a5fa", grade: "Very Good" },

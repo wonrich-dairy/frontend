@@ -6,14 +6,10 @@ import { NavigationProvider } from "../../app/navigation";
 import { SyncProvider } from "../sync/SyncProvider";
 import { emptyQueue } from "../sync/queue";
 import { DashboardScreen } from "./DashboardScreen";
+import { sessionFor } from "../../test/tokens";
 
-const session = {
-  accessToken: "test-token",
-  expiresAtUtc: new Date(Date.now() + 3_600_000).toISOString(),
-  userName: "k.perera",
-};
+const session = sessionFor("SystemAdministrator");
 
-/** The device's local date, which is what the service dates arrivals by. */
 function today(): string {
   const now = new Date();
   const pad = (value: number) => String(value).padStart(2, "0");
@@ -89,7 +85,6 @@ describe("the dashboard", () => {
 
     const stats = await screen.findByLabelText("Today at this centre");
 
-    // 2,500 L over three consignments, two of them accepted.
     expect(within(stats).getByText("2.5 kL")).toBeInTheDocument();
     expect(within(stats).getByText("3")).toBeInTheDocument();
     expect(within(stats).getByText("2")).toBeInTheDocument();
@@ -117,9 +112,28 @@ describe("the dashboard", () => {
 
     renderScreen();
 
-    // The tiles are a summary; losing them must not cost the officer the actions.
     expect(await screen.findByRole("alert")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Register Consignment/ })).toBeInTheDocument();
+  });
+
+  it("offers only the quick actions the role can carry out", async () => {
+    vi.stubGlobal("fetch", stubFetch([]));
+
+    render(
+      <NavigationProvider>
+        <SessionProvider initialSession={sessionFor("IntakeOfficer")}>
+          <SyncProvider initialQueue={emptyQueue()}>
+            <DashboardScreen />
+          </SyncProvider>
+        </SessionProvider>
+      </NavigationProvider>,
+    );
+
+    expect(await screen.findByRole("button", { name: /Register Consignment/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Chilling Tanks/ })).toBeInTheDocument();
+
+    expect(screen.queryByRole("button", { name: /Dispatch Note/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Trace a Batch/ })).not.toBeInTheDocument();
   });
 
   it("opens the screen behind a quick action", async () => {

@@ -1,14 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { NavigationContext, normalise, type Navigation, type Route } from "./navigationStore";
 
-/**
- * A minimal path router over the History API.
- *
- * The client carries no routing dependency — the registry is not reachable from the build
- * environment, and the design only needs what is here: a path, a way to push and pop it, and the
- * browser's own back button working. The officer's device back gesture has to leave a screen
- * rather than the app, which is the whole reason this is not a `useState` switch.
- */
 export function NavigationProvider({ children }: { children: ReactNode }) {
   const [route, setRoute] = useState<Route>(read);
 
@@ -32,8 +24,6 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const back = useCallback((to = "/") => {
-    // Deep-linked straight onto this screen, so there is nothing of ours to go back to and the
-    // browser would leave the app. Send the officer to the parent screen instead.
     if (depthOf() > 0) {
       window.history.back();
       return;

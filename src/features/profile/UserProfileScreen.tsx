@@ -6,13 +6,6 @@ import { useNavigation } from "../../app/navigationStore";
 import { BadgeIcon, ClipboardIcon, ClockIcon, LogOutIcon, PersonIcon } from "../../components/icons";
 import { useSync } from "../sync/syncStore";
 
-/**
- * The officer's own screen: who is signed in, what the shift has taken so far, and the way out.
- *
- * The intake count is the officer's own registrations today, counted from the consignments the
- * service returns — there is no shift endpoint, and `registeredBy` is what identifies their work.
- * The shift itself is read off the device clock for the same reason.
- */
 export function UserProfileScreen() {
   const { session, signOut } = useSession();
   const { navigate } = useNavigation();
@@ -27,7 +20,6 @@ export function UserProfileScreen() {
     searchConsignments(token, abort.signal)
       .then((page) => setConsignments(page.items))
       .catch(() => {
-        // The count is a courtesy on this screen; failing to fetch it should not blank the page.
         if (!abort.signal.aborted) {
           setConsignments([]);
         }

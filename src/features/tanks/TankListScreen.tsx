@@ -7,11 +7,6 @@ import { DropletIcon, ThermometerIcon } from "../../components/icons";
 import { EmptyState, ErrorNotice, Loading } from "../../components/ui/Feedback";
 import { percentFull } from "./fill";
 
-/**
- * Live tank status. The design leads each card with a temperature; the service publishes none,
- * so the card leads with the fill it does publish and says plainly that the reading is missing
- * rather than showing a number nobody took.
- */
 export function TankListScreen() {
   const { session } = useSession();
   const { navigate } = useNavigation();
@@ -61,8 +56,6 @@ export function TankListScreen() {
 
 function TankCard({ tank, onOpen }: { tank: Tank; onOpen: () => void }) {
   const percent = percentFull(tank);
-  // The centre works a tank down and closes the fill; near the top there is no room for the next
-  // consignment, which is the thing worth flagging before an officer walks a can over.
   const full = percent >= 95;
 
   return (
@@ -94,7 +87,7 @@ function TankCard({ tank, onOpen }: { tank: Tank; onOpen: () => void }) {
 
       <span className="tankcard__foot">
         {tank.consignmentCount} {tank.consignmentCount === 1 ? "consignment" : "consignments"} in
-        fill {tank.fillNumber} &middot; {tank.availableQuantityLitres.toFixed(0)} L free
+        fill {tank.fillNumber} &middot; {tank.availableQuantityLitres.toFixed(0)} L to draw
       </span>
     </button>
   );

@@ -1,10 +1,7 @@
-/** Shapes returned by the MCC & Intake Service (SCRUM-6, SCRUM-51). */
-
 export interface Society {
   id: string;
   code: string;
   name: string;
-  /** Printed on the cans, e.g. "KG" for Kobeigane. */
   canLabelPrefix: string;
   contactPerson: string | null;
   contactNumber: string | null;
@@ -35,10 +32,6 @@ export interface Consignment {
   cans: ConsignmentCan[];
 }
 
-/**
- * RFC 9457 body the service returns for every refusal. `code` is the field to branch on —
- * `detail` is prose meant for the officer, and `errors` is present on model validation failures.
- */
 export interface ProblemDetails {
   type?: string;
   title?: string;

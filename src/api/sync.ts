@@ -1,12 +1,6 @@
 import { request } from "./http";
 import type { QueuedRecord } from "../features/sync/queue";
 
-/**
- * Uploading an offline queue (SCRUM-10). The endpoint answers 200 whenever the request itself is
- * well formed — the per-record statuses carry the outcomes, so one refused record never sinks the
- * queue behind it.
- */
-
 export type SyncStatus = "Applied" | "Duplicate" | "Failed";
 
 export interface SyncResult {
@@ -23,7 +17,6 @@ export interface SyncBatchResult {
   failed: number;
 }
 
-/** The queue as the service takes it: identity, position, kind, and the payload for that kind. */
 export function toOperations(records: QueuedRecord[]) {
   return records.map((record) => ({
     clientRecordId: record.clientRecordId,

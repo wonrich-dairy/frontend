@@ -8,7 +8,6 @@ export interface SessionValue {
   signOut: () => void;
 }
 
-/** Kept apart from the provider component so the module exports only one kind of thing. */
 export const SessionContext = createContext<SessionValue | null>(null);
 
 export function useSession(): SessionValue {

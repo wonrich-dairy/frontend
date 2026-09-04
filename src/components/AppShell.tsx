@@ -21,14 +21,6 @@ const tabs: { id: Tab; label: string; path: string; icon: ReactNode }[] = [
   { id: "settings", label: "Settings", path: "/settings", icon: <SettingsIcon /> },
 ];
 
-/**
- * The phone frame every screen sits inside: the branded top bar with its sync pill and the tab
- * bar beneath. The pill is the design's "Cloud Sync Active" chip made honest — it reports whether
- * there is a connection and how much is still waiting on the device (SCRUM-10, AC3).
- *
- * A screen pushed on top of a tab (adding a tank, a profile) passes `title`, which swaps the
- * brand bar for the compact back bar those frames are drawn with.
- */
 export function AppShell({
   children,
   current,

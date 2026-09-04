@@ -8,10 +8,6 @@ const KIND_LABEL: Record<QueuedRecord["kind"], string> = {
   PourToTank: "Pour",
 };
 
-/**
- * What is still on the device (AC3), and what the service refused (AC6). A refused record is never
- * dropped on the client's say-so: it waits here with the reason until someone decides.
- */
 export function PendingQueueScreen() {
   const { online, syncing, pending, failed, sync, retry, discard } = useSync();
 

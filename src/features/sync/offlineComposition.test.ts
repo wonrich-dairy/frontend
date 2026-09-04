@@ -8,13 +8,6 @@ import {
   totalSolids,
 } from "./offlineComposition";
 
-/**
- * Every case here is lifted from `Wonrich.QualityPanel.Tests.MilkCompositionTests`, so the two
- * implementations are pinned to the same worked examples. If the service's formulae move and this
- * port does not, these fail — which is the point of copying the cases rather than inventing new
- * ones.
- */
-
 describe("correcting the lactometer reading", () => {
   it("leaves a reading taken at the calibration temperature alone", () => {
     expect(correctedClr(28.0, 27.0)).toBe(28.0);
@@ -58,15 +51,12 @@ describe("solids", () => {
   });
 
   it("carries results to two decimals, halves away from zero", () => {
-    // 0.7326 + 6.9425 + 0.72 = 8.3951, which must land on a storable two-decimal figure.
     expect(snf(3.33, 27.77)).toBe(8.4);
   });
 });
 
 describe("the full chain", () => {
   it("derives SNF from the corrected CLR, not the raw reading", () => {
-    // Raw 28.0 at 30 °C corrects to 28.60, so SNF is 0.88 + 7.15 + 0.72 = 8.75.
-    // Using the raw reading instead would give 8.60 — the mistake this test exists to catch.
     const result = compositionFrom(4.0, 28.0, 30.0);
 
     expect(result.correctedClr).toBe(28.6);

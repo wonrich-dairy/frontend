@@ -16,12 +16,6 @@ interface Draft {
 
 const blank: Draft = { name: "", leader: "", tag: "", contactNumber: "" };
 
-/**
- * Registering a society, and editing one.
- *
- * The tag is the can-label prefix and the society code: it is the SOCIETY segment of every
- * consignment reference already issued, so the design locks it after creation and so does this.
- */
 export function SocietyFormScreen({ id }: { id?: string }) {
   const { session } = useSession();
   const { navigate, back } = useNavigation();

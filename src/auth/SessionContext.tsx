@@ -7,7 +7,6 @@ export function SessionProvider({
   initialSession,
 }: {
   children: ReactNode;
-  /** Supplied by tests so a signed-in screen can be rendered directly. */
   initialSession?: Session | null;
 }) {
   const [session, setSessionState] = useState<Session | null>(

@@ -1,7 +1,3 @@
-/**
- * The glyphs used in the Figma frames, inlined so the screen carries no icon dependency and
- * every mark inherits the surrounding colour.
- */
 import type { SVGProps } from "react";
 
 type IconProps = SVGProps<SVGSVGElement>;
@@ -168,9 +164,12 @@ export function SettingsIcon(props: IconProps) {
 export function LogoMark(props: IconProps) {
   return (
     <svg {...base} width={22} height={22} {...props}>
-      <path d="M3 15c3-1 5-4 9-4s6 3 9 4" />
-      <path d="M6 15v3h12v-3" />
-      <circle cx="12" cy="7" r="2.2" />
+      <path d="M4 6c0 2.2.6 3.6 1.7 4.5" />
+      <path d="M20 6c0 2.2-.6 3.6-1.7 4.5" />
+      <path d="M5.7 10.5C5.2 8.8 6.6 7.4 8.4 7.4h7.2c1.8 0 3.2 1.4 2.7 3.1l-.6 2.1a6.2 6.2 0 0 1-5.7 4.4h-.2a6.2 6.2 0 0 1-5.5-4.4z" />
+      <path d="M9.8 19.2a3.4 3.4 0 0 0 4.4 0" />
+      <circle cx="9.8" cy="12" r="1" />
+      <circle cx="14.2" cy="12" r="1" />
     </svg>
   );
 }

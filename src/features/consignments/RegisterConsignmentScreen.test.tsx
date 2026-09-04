@@ -39,7 +39,6 @@ const session = {
   userName: "k.perera",
 };
 
-/** Answers the societies GET; the POST is set per test so each can choose its outcome. */
 function stubFetch(post: () => Promise<Response> | Response) {
   return vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = String(input);
@@ -121,10 +120,6 @@ describe("registering a consignment", () => {
     expect(postCount()).toBe(0);
   });
 
-  // SCRUM-94: before a society was chosen the section rendered a blank row whose label, weight
-  // and remove control were all disabled, plus a disabled "Add another can". QA found three
-  // controls that looked available and did nothing, over a "Select a societ" placeholder the
-  // label column was too narrow to show.
   it("offers no can controls until a society is chosen", async () => {
     renderScreen();
 
@@ -143,7 +138,6 @@ describe("registering a consignment", () => {
 
     await chooseSociety(user);
 
-    // Every control the empty state withheld is now present and live.
     expect(screen.getByLabelText("Can label")).toBeEnabled();
     expect(screen.getByLabelText("Kilograms")).toBeEnabled();
 
@@ -160,8 +154,6 @@ describe("registering a consignment", () => {
 
     await chooseSociety(user);
 
-    // The placeholder is the society's own tag and the next number - short enough for the
-    // column, unlike the "Select a society" prompt it replaced.
     expect(screen.getByLabelText("Can label")).toHaveAttribute("placeholder", "KG-01");
   });
 
@@ -239,11 +231,9 @@ describe("registering a consignment", () => {
 
     await user.click(await screen.findByRole("button", { name: /Register another consignment/ }));
 
-    // Back to an empty sheet with no society chosen, so the previous delivery cannot be sent twice.
     expect(await screen.findByRole("button", { name: /Kobeigane/ })).toBeInTheDocument();
     expect(screen.queryByLabelText("Can label")).not.toBeInTheDocument();
 
-    // And the sheet the officer gets on choosing a society again is blank, not the last one.
     await chooseSociety(user);
     expect(screen.getByLabelText("Can label")).toHaveValue("");
     expect(screen.getByLabelText("Kilograms")).toHaveValue("");
@@ -278,14 +268,9 @@ describe("registering a consignment", () => {
 
     expect(await screen.findByText(/Milk intake closes at 16:00/)).toBeInTheDocument();
 
-    // The sheet is left as it was, so the officer can correct and resubmit.
     expect(screen.getByLabelText("Can label")).toHaveValue("KG-01");
   });
 
-  /**
-   * Under SCRUM-10 an unreachable service is not a refusal. The sheet joins the offline queue
-   * rather than being lost, which is the same outcome as having had no signal all along.
-   */
   it("queues the sheet when the service cannot be reached", async () => {
     vi.stubGlobal(
       "fetch",

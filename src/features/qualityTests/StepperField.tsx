@@ -1,10 +1,5 @@
 import { MinusIcon, PlusIcon, WarningIcon } from "../../components/icons";
 
-/**
- * A reading entered with the stepper the design uses, or typed straight in. The officer is at a
- * bench with wet hands, so nudging by a step is the primary gesture; the field stays editable for
- * anyone who would rather type the number.
- */
 export function StepperField({
   id,
   label,
@@ -24,7 +19,6 @@ export function StepperField({
   min: number;
   max: number;
   error?: string;
-  /** The service's word for a reading that is out of range but still enterable, e.g. "Low". */
   warning?: string;
   disabled?: boolean;
   onChange: (value: string) => void;
@@ -34,7 +28,6 @@ export function StepperField({
     const next = Number.isFinite(current) ? current + by : 0;
     const clamped = Math.min(max, Math.max(min, next));
 
-    // Steps are tenths, and floating point would otherwise show 4.199999999999999.
     onChange(clamped.toFixed(decimalsIn(step)));
   };
 

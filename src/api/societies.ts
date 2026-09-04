@@ -1,8 +1,6 @@
 import { request } from "./http";
 import type { Society } from "./types";
 
-/** Registered supplying societies (SCRUM-51). Reads need a token; maintenance needs a manager. */
-
 export interface SaveSocietyRequest {
   code: string;
   name: string;
@@ -42,20 +40,4 @@ export function updateSociety(
   });
 }
 
-/**
- * Societies are never deleted. Retiring one keeps it resolvable from historical consignments
- * while taking it out of the list the officer can pick at the gate.
- */
-export function deactivateSociety(id: string, token: string | null): Promise<Society> {
-  return request<Society>(`/api/societies/${encodeURIComponent(id)}/deactivate`, {
-    method: "POST",
-    token,
-  });
-}
 
-export function reactivateSociety(id: string, token: string | null): Promise<Society> {
-  return request<Society>(`/api/societies/${encodeURIComponent(id)}/reactivate`, {
-    method: "POST",
-    token,
-  });
-}

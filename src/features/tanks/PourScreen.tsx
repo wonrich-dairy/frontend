@@ -6,18 +6,9 @@ import { ArrowRightIcon, CheckIcon, CloudOffIcon, DropletIcon, WarningIcon } fro
 import { useSync } from "../sync/syncStore";
 import { cachePourable, cacheTanks, cachedPourable, cachedTanks } from "./cache";
 
-/**
- * Pouring accepted consignments into a chilling tank (SCRUM-52), and doing it with no network
- * (SCRUM-10, AC1 and AC7).
- *
- * The design pours several consignments at once; the service takes one per call, so a selection of
- * three is three records — which is also what the offline queue holds, one per consignment, so the
- * two paths agree on what a pour is.
- */
 export function PourScreen({
   initialTankCode,
 }: {
-  /** Set when the officer came from a tank's own screen, so the tank is not asked for twice. */
   initialTankCode?: string;
 } = {}) {
   const { session, signOut } = useSession();
@@ -26,8 +17,6 @@ export function PourScreen({
 
   const [tanks, setTanks] = useState<Tank[]>(() => cachedTanks()?.items ?? []);
   const [pourable, setPourable] = useState<PourableConsignment[]>(() => cachedPourable()?.items ?? []);
-  // Whether a fetch has landed this session. Staleness follows from that and the connection, so
-  // it is derived rather than held.
   const [fresh, setFresh] = useState(false);
   const stale = !online || !fresh;
 
@@ -58,7 +47,6 @@ export function PourScreen({
         setFresh(true);
       })
       .catch(() => {
-        // Whatever the device last saw is better than an empty screen at the tank.
         if (!abort.signal.aborted) {
           setFresh(false);
         }

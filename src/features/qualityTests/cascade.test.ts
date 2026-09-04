@@ -18,7 +18,6 @@ describe("which stage the officer is asked next", () => {
   it("stops there when the sample does not clot", () => {
     const answers: CascadeAnswers = { Alcohol80: "Negative" };
 
-    // Stable at 80% means stable at every gentler strength, so the rest is a foregone conclusion.
     expect(visibleStages(answers)).toEqual(["Alcohol80"]);
     expect(isComplete(answers)).toBe(true);
   });
@@ -64,7 +63,6 @@ describe("what is sent to the service", () => {
   it("sends only the stages the cascade actually ran", () => {
     const answers: CascadeAnswers = { Alcohol80: "Negative", Alcohol75: "Positive" };
 
-    // The service replays the same rule and discards anything past the first negative.
     expect(stagesRun(answers)).toEqual({ Alcohol80: "Negative" });
   });
 
@@ -88,7 +86,6 @@ describe("changing an answer", () => {
       Alcohol68: "Negative",
     };
 
-    // Correcting 80% to a pass makes everything below it unasked, not merely hidden.
     expect(answerStage(answers, "Alcohol80", "Negative")).toEqual({ Alcohol80: "Negative" });
   });
 

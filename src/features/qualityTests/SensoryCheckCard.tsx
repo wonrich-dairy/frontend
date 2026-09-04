@@ -1,11 +1,3 @@
-/**
- * What the officer's own senses say about the sample, before any instrument is involved.
- *
- * The toggles start on: the officer confirms what is *wrong*, not what is right, and at a bench
- * that is the movement worth making deliberate. A sense turned off fails the panel exactly like an
- * out-of-range CLR — sour milk is a reason to turn a delivery away whatever the lactometer reads —
- * and the service treats it the same way, so the verdict below updates as soon as one is switched.
- */
 export function SensoryCheckCard({
   smellOk,
   colourOk,

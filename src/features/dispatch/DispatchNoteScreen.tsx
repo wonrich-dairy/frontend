@@ -11,21 +11,11 @@ import { Modal } from "../../components/ui/Modal";
 import { ErrorNotice, Loading, SaveConfirmation } from "../../components/ui/Feedback";
 import { STRENGTHS, gradeFrom, humanGrade, type Strength } from "./grade";
 
-/** One tank the bowser draws from, as the officer is filling it in. */
 interface Draw {
   tankCode: string;
   quantityLitres: string;
 }
 
-/**
- * The bowser dispatch note (SCRUM-8).
- *
- * Several fields the frame draws have nowhere to be stored: `RecordDispatchNoteRequest` takes the
- * bowser, the driver, the dispatch time, the tanks drawn from and the panel, and carries no P.O.
- * number, no time-in, no seal numbers and no signatures. Those are laid out but disabled rather
- * than collected and dropped — a signature the officer gives and the service never receives is
- * worse than a field that says so.
- */
 export function DispatchNoteScreen() {
   const { session } = useSession();
   const { navigate } = useNavigation();
@@ -334,16 +324,6 @@ export function DispatchNoteScreen() {
         </p>
       </section>
 
-      <section className="card card--muted" aria-label="Not yet recorded">
-        <h3 className="card__title">Seal Numbers, Signatures and P.O.</h3>
-        <p className="card__footnote">
-          The note the service stores carries the bowser, the driver, the dispatch time, the tanks
-          drawn from and the panel above. It has no field for a P.O. number, a time in, the F.T,
-          R.T and V.B seals, or the three signatures the paper slip collects. They are left out
-          rather than captured and discarded.
-        </p>
-      </section>
-
       <section className="card" aria-label="Remarks">
         <label className="field">
           <span className="field__label">Remarks</span>
@@ -425,7 +405,6 @@ function SelectSourceTanks({
     >
       <ul className="picklist">
         {tanks.map((tank) => {
-          // An empty tank has nothing to give a bowser, so it is shown and not offered.
           const empty = tank.totalQuantityLitres <= 0;
 
           return (
@@ -458,7 +437,6 @@ function SelectSourceTanks({
   );
 }
 
-/** A `HH:mm` from the time input as a local wall-clock stamp on today's date. */
 function todayAt(time: string): string {
   const now = new Date();
   const pad = (value: number) => String(value).padStart(2, "0");

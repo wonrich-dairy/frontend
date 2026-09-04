@@ -1,7 +1,5 @@
 import { request } from "./http";
 
-/** The centre's chilling tanks and their manifests (SCRUM-52). */
-
 export interface Tank {
   code: string;
   name: string;
@@ -37,7 +35,6 @@ export interface TankManifest {
   entries: ManifestEntry[];
 }
 
-/** One tank's manifest. `date` narrows it to the entries poured on that intake date. */
 export function getTankManifest(
   tankCode: string,
   token: string | null,
@@ -56,7 +53,6 @@ export function listTanks(token: string | null, signal?: AbortSignal): Promise<T
   return request<Tank[]>("/api/tanks", { token, signal });
 }
 
-/** Accepted at the gate and not already in a tank. Rejected and untested milk never appears. */
 export function listPourable(
   token: string | null,
   signal?: AbortSignal,
@@ -64,7 +60,6 @@ export function listPourable(
   return request<PourableConsignment[]>("/api/tanks/pourable", { token, signal });
 }
 
-/** One consignment into one tank. The service allocates nothing here; the pour is the record. */
 export function pourIntoTank(
   tankCode: string,
   consignmentReference: string,

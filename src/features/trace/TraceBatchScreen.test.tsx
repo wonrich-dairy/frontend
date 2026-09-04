@@ -10,18 +10,6 @@ const session = {
   userName: "k.perera",
 };
 
-/**
- * Transcribed from the service's own records rather than from the client's interfaces -
- * `BatchTraceView`, `TracedTankView`, `TracedConsignmentView` and `SocietyRiskView` in
- * `MccIntakeService/Application/Traceability/BatchTraceService.cs`, camel-cased the way
- * System.Text.Json sends them.
- *
- * A fixture built from the client's own types cannot catch the client reading a field the service
- * does not send: it agrees with whatever the interface happens to say. Four fields were wrong that
- * way - `quantityLitres` and `fillNumber` on a tank, `breaches` on a consignment, and
- * `consignmentReferences` on a society - and each one crashed this screen on the first real
- * response. Keep this shaped like the server.
- */
 const trace = {
   batchReference: "BAT-782-991",
   batchDate: "2026-08-30",
@@ -126,7 +114,6 @@ async function searchFor(user: ReturnType<typeof userEvent.setup>, reference: st
   await user.keyboard("{Enter}");
 }
 
-/** Source Tanks and the society breakdown start collapsed, as they are drawn. */
 async function expand(user: ReturnType<typeof userEvent.setup>, section: string | RegExp) {
   await user.click(await screen.findByRole("button", { name: section }));
 }
@@ -148,7 +135,6 @@ describe("tracing a batch", () => {
 
     await expand(user, /Source Tanks/);
 
-    // The figure the service calls quantityDrawnLitres, not the tank's running total.
     expect(screen.getByText("4500.0 L")).toBeInTheDocument();
 
     expect(screen.getByText("CON-9921")).toBeInTheDocument();
@@ -164,8 +150,6 @@ describe("tracing a batch", () => {
 
     expect(await screen.findByText("Accept")).toBeInTheDocument();
 
-    // `missing` is the trail's gaps, not a quality failure, so an untested consignment reads as
-    // untested rather than as rejected milk.
     expect(screen.getByText("Not tested")).toBeInTheDocument();
     expect(
       screen.getByText("No gate quality test is recorded for this consignment."),

@@ -14,20 +14,11 @@ import {
 } from "./queue";
 import { loadQueue, saveQueue } from "./storage";
 
-/**
- * Holds the offline queue and drains it when the network comes back (SCRUM-10).
- *
- * The browser's online event is a hint, not a promise — it fires when the interface has a link,
- * which at a chilling centre is not the same as being able to reach the service. So a failed
- * upload is not treated as an error to show the officer: the records stay queued and the next
- * window tries again.
- */
 export function SyncProvider({
   children,
   initialQueue,
 }: {
   children: ReactNode;
-  /** Supplied by tests so a queue can be rendered without touching storage. */
   initialQueue?: SyncQueue;
 }) {
   const { session } = useSession();
@@ -57,7 +48,6 @@ export function SyncProvider({
   const waiting = useMemo(() => pending(queue), [queue]);
   const refused = useMemo(() => failed(queue), [queue]);
 
-  // One upload at a time: the queue is sent whole, and two in flight would race on the outcomes.
   const inFlight = useRef(false);
 
   const sync = useCallback(async () => {
@@ -75,16 +65,12 @@ export function SyncProvider({
 
       setQueue((current) => applyOutcomes(current, batch.results));
     } catch {
-      // Still unreachable. The records keep their place and the next window tries again.
     } finally {
       inFlight.current = false;
       setSyncing(false);
     }
   }, [queue, token]);
 
-  // AC4: on reconnection the queue uploads on its own, without the officer asking. Synchronising
-  // with the network is what effects are for, and the progress flag the upload sets is what the
-  // pill in the top bar reports, so the state update here is the point rather than an accident.
   useEffect(() => {
     if (online && waiting.length > 0 && token) {
       // oxlint-disable-next-line react/set-state-in-effect

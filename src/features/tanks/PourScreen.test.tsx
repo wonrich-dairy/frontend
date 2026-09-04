@@ -173,7 +173,6 @@ describe("pouring", () => {
 
 describe("pouring with no network", () => {
   it("offers what the device last saw, and says the list may have moved on", async () => {
-    // A first visit online fills the cache.
     const { unmount } = renderScreen();
     await screen.findByText("Primary Cooler");
     unmount();

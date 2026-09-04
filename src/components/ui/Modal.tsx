@@ -1,10 +1,6 @@
 import { useEffect, type ReactNode } from "react";
 import { CloseIcon } from "../icons";
 
-/**
- * The modal container from the design: a titled card over a scrim. Escape and the scrim both
- * dismiss it, because the officer is one-handed at the gate and the close control is small.
- */
 export function Modal({
   title,
   onClose,
@@ -53,10 +49,6 @@ export function Modal({
   );
 }
 
-/**
- * The confirmation card. Destructive by default because every frame drawn for it is a deletion,
- * and the confirming action is named for what it does rather than "OK".
- */
 export function ConfirmDialog({
   title,
   subject,
@@ -113,7 +105,6 @@ export function ConfirmDialog({
   );
 }
 
-/** The bottom sheet the row menus open, listing the actions for one row. */
 export function ActionSheet({
   eyebrow,
   title,

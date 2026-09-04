@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react";
-import { CheckIcon, ChevronDownIcon, WarningIcon } from "../icons";
+import { CheckIcon, ChevronDownIcon, LockIcon, WarningIcon } from "../icons";
+import type { Role } from "../../auth/permissions";
 
-/** The "Saved Successfully" frame, reused by every screen that records something. */
 export function SaveConfirmation({
   title = "Saved Successfully",
   detail = "The record has been securely uploaded and synced.",
@@ -39,7 +39,6 @@ export function SaveConfirmation({
   );
 }
 
-/** A collapsible section, as the trace screen stacks them. */
 export function Accordion({
   icon,
   title,
@@ -87,7 +86,6 @@ export function ErrorNotice({ children }: { children: ReactNode }) {
   );
 }
 
-/** Shown while a screen's first load is in flight, so the frame is never briefly empty. */
 export function Loading({ label = "Loading..." }: { label?: string }) {
   return (
     <p className="loading" role="status">
@@ -98,4 +96,34 @@ export function Loading({ label = "Loading..." }: { label?: string }) {
 
 export function EmptyState({ children }: { children: ReactNode }) {
   return <p className="emptystate">{children}</p>;
+}
+
+const ROLE_NAMES: Record<Role, string> = {
+  SystemAdministrator: "System Administrator",
+  MccManager: "MCC Manager",
+  IntakeOfficer: "Intake Officer",
+  QualityAnalyst: "Quality Analyst",
+  FactoryIntakeOfficer: "Factory Intake Officer",
+  ProductionManager: "Production Manager",
+};
+
+function article(name: string): string {
+  return `${"AEIOU".includes(name[0]) ? "An" : "A"} ${name}`;
+}
+
+export function NotPermitted({ role }: { role: Role | null }) {
+  return (
+    <section className="notpermitted">
+      <span className="notpermitted__mark">
+        <LockIcon width={28} height={28} />
+      </span>
+
+      <h1 className="notpermitted__title">Not available to you</h1>
+      <p className="notpermitted__detail">
+        {role
+          ? `${article(ROLE_NAMES[role])} does not have access to this screen. Ask an administrator if you need it.`
+          : "Sign in again to continue."}
+      </p>
+    </section>
+  );
 }

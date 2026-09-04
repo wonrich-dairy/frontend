@@ -25,7 +25,6 @@ const emptySheet = (): CanEntry[] => [newEntry()];
 export function RegisterConsignmentScreen({
   onProceedToQualityTest,
 }: {
-  /** Offered on the confirmation once the quality panel screen exists to receive it (SCRUM-54). */
   onProceedToQualityTest?: (reference: string) => void;
 } = {}) {
   const { session, signOut } = useSession();
@@ -37,7 +36,6 @@ export function RegisterConsignmentScreen({
   const [society, setSociety] = useState<Society | null>(null);
   const [entries, setEntries] = useState<CanEntry[]>(emptySheet);
 
-  // Held back until the officer submits, so the sheet does not scold them mid-entry.
   const [errors, setErrors] = useState<SheetErrors | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);
@@ -90,14 +88,12 @@ export function RegisterConsignmentScreen({
     setErrors(found);
     setFailure(null);
 
-    // AC3: nothing is sent while a required field is missing or a value is out of range.
     if (hasErrors(found) || !society) {
       return;
     }
 
     const body = { societyId: society.id, cans: toCanRequests(society, entries) };
 
-    // AC1: with no network the sheet is taken anyway, held on the device and uploaded later.
     if (!online) {
       queueSheet(society.name, body);
       return;
@@ -110,8 +106,6 @@ export function RegisterConsignmentScreen({
 
       setSaved(consignment);
     } catch (error: unknown) {
-      // The service being unreachable is not a refusal: the sheet joins the queue rather than
-      // being lost, which is the same outcome as having been offline all along.
       if (error instanceof ApiError && error.status === 0) {
         queueSheet(society.name, body);
         return;
@@ -141,10 +135,6 @@ export function RegisterConsignmentScreen({
     setQueued(true);
   };
 
-  // AC4 and AC5: the officer is told the record landed, and the sheet starts clean for the
-  // next delivery rather than leaving the previous one on screen to be submitted twice.
-  // AC2 and AC5: held on the device with a pending mark, and once uploaded it reads like any
-  // other record — the officer is told which of the two happened.
   if (queued) {
     return <QueuedConfirmation onRegisterAnother={reset} />;
   }
@@ -187,13 +177,6 @@ export function RegisterConsignmentScreen({
           </span>
         </div>
 
-        {/*
-          The sheet appears only once a society is chosen. It used to render a blank row and an
-          "Add another can" button straight away, both inert because a can label cannot be checked
-          without the society's tag — controls that look available but do nothing, and a
-          "Select a society" placeholder too long for the label column, so it read as
-          "Select a societ" (SCRUM-94).
-        */}
         {society ? (
           <>
             <div className="cansheet">
@@ -334,7 +317,6 @@ function withoutEntry(
   return rest;
 }
 
-/** The device's wall clock, which is the arrival time an offline record has to carry. */
 function localNow(): string {
   const now = new Date();
   const pad = (value: number) => String(value).padStart(2, "0");

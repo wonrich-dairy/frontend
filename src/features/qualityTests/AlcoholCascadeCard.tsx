@@ -1,10 +1,6 @@
 import { ALCOHOL_STAGES, type AlcoholStage, type StageOutcome } from "../../api/qualityTests";
 import { STAGE_LABEL, visibleStages, type CascadeAnswers } from "./cascade";
 
-/**
- * The cascade, one rung at a time. A stage the cascade has not reached is shown but inert, so the
- * officer can see what may still be coming without being able to answer out of order.
- */
 export function AlcoholCascadeCard({
   answers,
   disabled,

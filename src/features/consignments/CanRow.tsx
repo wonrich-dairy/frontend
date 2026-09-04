@@ -2,14 +2,6 @@ import { DropletIcon, PlusIcon, TrashIcon, WarningIcon } from "../../components/
 import type { CanEntry, CanEntryErrors } from "./canSheet";
 import { isBlank } from "./canSheet";
 
-/**
- * One line of the can sheet. The label and the weight are edited in place, as they are in the
- * design, so the sheet reads like the paper one it replaces.
- *
- * The column captures kilograms rather than the litres the Figma frame shows: the gate weighs
- * cans, the service takes `quantityKg`, and it derives litres itself from the centre's configured
- * density — a figure the API does not publish, so the screen cannot convert faithfully.
- */
 export function CanRow({
   entry,
   index,

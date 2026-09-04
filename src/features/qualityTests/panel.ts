@@ -7,7 +7,6 @@ import type {
 } from "../../api/qualityTests";
 import { isComplete, stagesRun, type CascadeAnswers } from "./cascade";
 
-/** The readings as typed, so a half-entered field can be held without being coerced to a number. */
 export interface PanelForm {
   fatPercent: string;
   rawLactometerReading: string;
@@ -15,7 +14,6 @@ export interface PanelForm {
   waterPercent: string;
   kqColour: KqColour | null;
   alcohol: CascadeAnswers;
-  /** The officer confirms what is wrong, not what is right, so these start sound. */
   smellOk: boolean;
   colourOk: boolean;
   tasteOk: boolean;
@@ -42,7 +40,6 @@ export const emptyPanel = (): PanelForm => ({
   tasteOk: true,
 });
 
-/** The ranges the service accepts, so an out-of-range reading is caught at the bench. */
 const RANGES = {
   fatPercent: { min: 0, max: 15, label: "Fat must be between 0 and 15 percent." },
   rawLactometerReading: { min: 0, max: 40, label: "The lactometer reading must be between 0 and 40." },
@@ -92,10 +89,6 @@ export function hasErrors(errors: PanelErrors): boolean {
   return Object.keys(errors).length > 0;
 }
 
-/**
- * The readings the service needs to evaluate the panel. Returns null while anything is missing,
- * which is also the signal that there is nothing worth previewing yet.
- */
 export function toReadings(form: PanelForm): QualityTestReadings | null {
   if (hasErrors(validatePanel(form))) {
     return null;
@@ -114,10 +107,6 @@ export function toReadings(form: PanelForm): QualityTestReadings | null {
   };
 }
 
-/**
- * The panel as it is recorded. A rejection has to name what failed and its value, so those are
- * taken from the first measure the service flagged rather than left to the officer to retype.
- */
 export function toRecordRequest(
   readings: QualityTestReadings,
   preview: TestPreview,
@@ -136,15 +125,10 @@ export function toRecordRequest(
   };
 }
 
-/** The measure the rejection is pinned to: the first one outside its limit. */
 export function firstBreach(preview: TestPreview): Measure | undefined {
   return preview.measures.find((measure) => measure.isOutsideThreshold);
 }
 
-/**
- * Whether the panel would be accepted. Clotting on boiling curdles the milk, which is refused
- * outright rather than weighed against the other measures.
- */
 export function verdictOf(preview: TestPreview): "Accept" | "Reject" {
   return preview.meetsStandard && !preview.clotOnBoiling ? "Accept" : "Reject";
 }

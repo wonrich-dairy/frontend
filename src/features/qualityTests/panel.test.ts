@@ -114,7 +114,6 @@ describe("the verdict", () => {
   });
 
   it("rejects a curdled sample even when every measure is in range", () => {
-    // The milk is already clotted; acceptance is refused rather than left to judgement.
     expect(verdictOf(preview({ clotOnBoiling: true }))).toBe("Reject");
   });
 });

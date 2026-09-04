@@ -54,7 +54,6 @@ describe("capturing records", () => {
       { clientRecordId: queue.records[0].clientRecordId, status: "Applied", reference: "MCC-1" },
     ]);
 
-    // A pour must never be sent before the consignment it pours, so positions cannot be reused.
     expect(pending(drained)).toHaveLength(0);
     expect(enqueue(drained, panel("MCC-1")).records[0].sequence).toBe(2);
   });
@@ -78,7 +77,6 @@ describe("folding an upload's outcomes back in", () => {
   });
 
   it("treats a duplicate as done, because the service already holds it", () => {
-    // The expected answer when an earlier upload landed but its response never arrived.
     const queue = queueOf(consignment());
     const after = applyOutcomes(queue, [
       { clientRecordId: queue.records[0].clientRecordId, status: "Duplicate", reference: "MCC-1" },
@@ -131,7 +129,6 @@ describe("what the officer can do with a refused record", () => {
 
     expect(pending(again)).toHaveLength(1);
     expect(pending(again)[0].error).toBeUndefined();
-    // The identifier survives, so the service still recognises a record it may already hold.
     expect(pending(again)[0].clientRecordId).toBe(id);
   });
 

@@ -2,7 +2,6 @@ import { createContext, useContext } from "react";
 import type { NewRecord, QueuedRecord } from "./queue";
 
 export interface SyncValue {
-  /** Whether the browser believes it has a network. */
   online: boolean;
   syncing: boolean;
   pending: QueuedRecord[];
@@ -14,7 +13,6 @@ export interface SyncValue {
   discard: (clientRecordId: string) => void;
 }
 
-/** Split from the provider so the module exports only one kind of thing. */
 export const SyncContext = createContext<SyncValue | null>(null);
 
 export function useSync(): SyncValue {
