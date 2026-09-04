@@ -18,6 +18,7 @@ import { DispatchNoteScreen } from "./features/dispatch/DispatchNoteScreen";
 import { TraceBatchScreen } from "./features/trace/TraceBatchScreen";
 import { SettingsScreen } from "./features/settings/SettingsScreen";
 import { SocietyFormScreen } from "./features/settings/SocietyFormScreen";
+import { TankFormScreen } from "./features/settings/TankFormScreen";
 import { UserProfileScreen } from "./features/profile/UserProfileScreen";
 import { SyncProvider } from "./features/sync/SyncProvider";
 import "./styles/app.css";
@@ -172,6 +173,28 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
       tab: "settings",
       needs: "manageSocieties",
       element: <SocietyFormScreen id={society.id} />,
+    };
+  }
+
+  if (match("/settings/tanks/new", path)) {
+    return {
+      tab: "settings",
+      title: "Add New Tank",
+      parent: "/settings",
+      needs: "manageTanks",
+      element: <TankFormScreen />,
+    };
+  }
+
+  const editTank = match("/settings/tanks/:code", path);
+
+  if (editTank) {
+    return {
+      tab: "settings",
+      title: `Edit ${editTank.code}`,
+      parent: "/settings",
+      needs: "manageTanks",
+      element: <TankFormScreen code={editTank.code} />,
     };
   }
 

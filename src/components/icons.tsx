@@ -378,3 +378,13 @@ export function AlertTempIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function PowerIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M12 4v8" />
+      <path d="M7.4 7a7 7 0 1 0 9.2 0" />
+    </svg>
+  );
+}
+

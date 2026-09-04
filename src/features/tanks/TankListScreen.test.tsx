@@ -22,6 +22,8 @@ function tank(overrides: Record<string, unknown> = {}) {
     consignmentCount: 6,
     fillNumber: 3,
     lastClosedAtUtc: null,
+    status: "Active" as const,
+    latestTemperature: null,
     ...overrides,
   };
 }

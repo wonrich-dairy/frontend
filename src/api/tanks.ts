@@ -1,5 +1,16 @@
 import { request } from "./http";
 
+export const TANK_STATUSES = ["Active", "UnderMaintenance"] as const;
+
+export type TankStatus = (typeof TANK_STATUSES)[number];
+
+export interface TankTemperature {
+  celsius: number;
+  recordedBy: string | null;
+  recordedAtUtc: string;
+  fillNumber: number;
+}
+
 export interface Tank {
   code: string;
   name: string;
@@ -10,6 +21,14 @@ export interface Tank {
   consignmentCount: number;
   fillNumber: number;
   lastClosedAtUtc: string | null;
+  status: TankStatus;
+  latestTemperature: TankTemperature | null;
+}
+
+export interface SaveTankRequest {
+  code: string;
+  name: string;
+  capacityLitres: number;
 }
 
 export interface PourableConsignment {
@@ -70,4 +89,57 @@ export function pourIntoTank(
     body: { consignmentReference },
     token,
   });
+}
+
+export function createTank(body: SaveTankRequest, token: string | null): Promise<Tank> {
+  return request<Tank>("/api/tanks", { method: "POST", body, token });
+}
+
+export function updateTank(
+  code: string,
+  body: SaveTankRequest,
+  token: string | null,
+): Promise<Tank> {
+  return request<Tank>(`/api/tanks/${encodeURIComponent(code)}`, {
+    method: "PUT",
+    body,
+    token,
+  });
+}
+
+export function setTankInService(
+  code: string,
+  inService: boolean,
+  token: string | null,
+): Promise<Tank> {
+  const action = inService ? "reactivate" : "deactivate";
+
+  return request<Tank>(`/api/tanks/${encodeURIComponent(code)}/${action}`, {
+    method: "POST",
+    token,
+  });
+}
+
+export function logTankTemperature(
+  code: string,
+  celsius: number,
+  token: string | null,
+): Promise<TankTemperature> {
+  return request<TankTemperature>(`/api/tanks/${encodeURIComponent(code)}/temperatures`, {
+    method: "POST",
+    body: { celsius },
+    token,
+  });
+}
+
+export function listTankTemperatures(
+  code: string,
+  token: string | null,
+  signal?: AbortSignal,
+  limit = 20,
+): Promise<TankTemperature[]> {
+  return request<TankTemperature[]>(
+    `/api/tanks/${encodeURIComponent(code)}/temperatures?limit=${limit}`,
+    { token, signal },
+  );
 }

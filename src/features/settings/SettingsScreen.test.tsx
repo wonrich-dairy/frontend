@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SessionProvider } from "../../auth/SessionContext";
@@ -42,6 +42,8 @@ const tanks = [
     consignmentCount: 6,
     fillNumber: 3,
     lastClosedAtUtc: null,
+    status: "Active",
+    latestTemperature: null,
   },
 ];
 
@@ -128,13 +130,36 @@ describe("settings", () => {
     expect(screen.getByText("4100 L (82%)")).toBeInTheDocument();
   });
 
-  it("offers no tank actions the service cannot carry out", async () => {
+  it("offers tank management to a manager", async () => {
+    const user = userEvent.setup();
     renderScreen();
 
     await screen.findByText("Primary Cooler");
 
-    expect(screen.queryByRole("button", { name: /Options for Primary Cooler/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Add Tank/ })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /Options for Primary Cooler/ }));
+
+    const sheet = await screen.findByRole("dialog", { name: "Tank Options" });
+    expect(within(sheet).getByRole("button", { name: /Edit Tank/ })).toBeInTheDocument();
+    expect(within(sheet).getByRole("button", { name: /Take Out of Service/ })).toBeInTheDocument();
+  });
+
+  it("withholds tank management from a role that cannot carry it out", async () => {
+    render(
+      <NavigationProvider>
+        <SessionProvider initialSession={sessionFor("IntakeOfficer")}>
+          <SettingsScreen />
+        </SessionProvider>
+      </NavigationProvider>,
+    );
+
+    await screen.findByText("Primary Cooler");
+
     expect(screen.queryByRole("button", { name: /Add Tank/ })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /Options for Primary Cooler/ }),
+    ).not.toBeInTheDocument();
   });
 
   it("shows no settings rows with nothing behind them", async () => {

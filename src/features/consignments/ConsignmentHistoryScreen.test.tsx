@@ -33,7 +33,6 @@ const rows = [
   consignment("MCC-20260904-BD-01", "Registered", "Badulla Uva"),
 ];
 
-/** Answers the way the service does: the status query narrows the rows and the total. */
 function stubFetch() {
   return vi.fn(async (input: RequestInfo | URL) => {
     const url = new URL(String(input), "http://localhost");

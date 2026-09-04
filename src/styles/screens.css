@@ -599,6 +599,9 @@
 }
 
 .tankrow__status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   margin: var(--space-3) 0 0;
   color: var(--navy-900);
   font-size: 13px;
@@ -1347,5 +1350,15 @@
 
 .pagehead__detail--lead {
   margin-top: var(--space-5);
+}
+
+.dot--warn {
+  background: #f79009;
+}
+
+.tankrow__code {
+  margin-left: auto;
+  color: var(--ink-muted);
+  font-weight: 600;
 }
 
