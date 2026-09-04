@@ -7,12 +7,9 @@ import { SyncProvider } from "../sync/SyncProvider";
 import { emptyQueue } from "../sync/queue";
 import { TankListScreen } from "./TankListScreen";
 import { percentFull } from "./fill";
+import { sessionFor } from "../../test/tokens";
 
-const session = {
-  accessToken: "test-token",
-  expiresAtUtc: new Date(Date.now() + 3_600_000).toISOString(),
-  userName: "k.perera",
-};
+const session = sessionFor("IntakeOfficer");
 
 function tank(overrides: Record<string, unknown> = {}) {
   return {

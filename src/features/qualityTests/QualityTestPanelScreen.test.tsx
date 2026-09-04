@@ -5,6 +5,7 @@ import { SessionProvider } from "../../auth/SessionContext";
 import { SyncProvider } from "../sync/SyncProvider";
 import { emptyQueue } from "../sync/queue";
 import { QualityTestPanelScreen } from "./QualityTestPanelScreen";
+import { sessionFor } from "../../test/tokens";
 
 const consignment = {
   id: "c1",
@@ -50,11 +51,7 @@ const failingPreview = {
   meetsStandard: false,
 };
 
-const session = {
-  accessToken: "test-token",
-  expiresAtUtc: new Date(Date.now() + 3_600_000).toISOString(),
-  userName: "k.perera",
-};
+const session = sessionFor("IntakeOfficer");
 
 let fetchMock: ReturnType<typeof vi.fn>;
 

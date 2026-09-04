@@ -8,6 +8,7 @@ import { match, useNavigation } from "./app/navigationStore";
 import { NotPermitted } from "./components/ui/Feedback";
 import { DashboardScreen } from "./features/dashboard/DashboardScreen";
 import { RegisterConsignmentScreen } from "./features/consignments/RegisterConsignmentScreen";
+import { ConsignmentHistoryScreen } from "./features/consignments/ConsignmentHistoryScreen";
 import { QualityTestPanelScreen } from "./features/qualityTests/QualityTestPanelScreen";
 import { PendingQueueScreen } from "./features/sync/PendingQueueScreen";
 import { TankListScreen } from "./features/tanks/TankListScreen";
@@ -85,6 +86,15 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
           }
         />
       ),
+    };
+  }
+
+  if (match("/consignments/history", path)) {
+    return {
+      tab: "consignments",
+      title: "Deliveries",
+      parent: "/consignments",
+      element: <ConsignmentHistoryScreen />,
     };
   }
 

@@ -43,10 +43,11 @@ export function UserProfileScreen() {
           <PersonIcon width={30} height={30} />
         </span>
         <span>
-          <h1 className="profilecard__name">{session?.userName ?? "Officer"}</h1>
+          <h1 className="profilecard__name">{session?.displayName ?? "Officer"}</h1>
           <p className="profilecard__id">
             <BadgeIcon width={14} height={14} />
-            Signed in at this centre
+            {session?.userName}
+            {session?.facility ? ` · ${session.facility}` : ""}
           </p>
         </span>
       </section>

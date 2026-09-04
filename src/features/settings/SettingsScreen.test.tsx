@@ -6,12 +6,9 @@ import { NavigationProvider } from "../../app/navigation";
 import { SyncProvider } from "../sync/SyncProvider";
 import { emptyQueue } from "../sync/queue";
 import { SettingsScreen } from "./SettingsScreen";
+import { sessionFor } from "../../test/tokens";
 
-const session = {
-  accessToken: "test-token",
-  expiresAtUtc: new Date(Date.now() + 3_600_000).toISOString(),
-  userName: "k.perera",
-};
+const session = sessionFor("MccManager");
 
 const societies = [
   {

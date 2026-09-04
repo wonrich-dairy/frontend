@@ -3,12 +3,9 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { SessionProvider } from "../../auth/SessionContext";
 import { TraceBatchScreen } from "./TraceBatchScreen";
+import { sessionFor } from "../../test/tokens";
 
-const session = {
-  accessToken: "test-token",
-  expiresAtUtc: new Date(Date.now() + 3_600_000).toISOString(),
-  userName: "k.perera",
-};
+const session = sessionFor("QualityAnalyst");
 
 const trace = {
   batchReference: "BAT-782-991",

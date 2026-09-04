@@ -6,6 +6,9 @@ export interface Session {
   accessToken: string;
   expiresAtUtc: string;
   userName: string;
+  displayName: string;
+  role: string;
+  facility: string | null;
 }
 
 interface TokenResponse {
@@ -13,6 +16,10 @@ interface TokenResponse {
   expiresAtUtc: string;
   refreshToken: string;
   refreshExpiresAtUtc: string;
+  userName: string;
+  displayName: string;
+  role: string;
+  facility: string | null;
 }
 
 export async function signIn(userName: string, password: string): Promise<Session> {
@@ -36,7 +43,14 @@ export async function signIn(userName: string, password: string): Promise<Sessio
 
   const tokens = (await response.json()) as TokenResponse;
 
-  return { accessToken: tokens.accessToken, expiresAtUtc: tokens.expiresAtUtc, userName };
+  return {
+    accessToken: tokens.accessToken,
+    expiresAtUtc: tokens.expiresAtUtc,
+    userName: tokens.userName ?? userName,
+    displayName: tokens.displayName ?? tokens.userName ?? userName,
+    role: tokens.role ?? "",
+    facility: tokens.facility ?? null,
+  };
 }
 
 export function loadSession(): Session | null {

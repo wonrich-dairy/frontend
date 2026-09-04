@@ -6,12 +6,9 @@ import { SyncProvider } from "./SyncProvider";
 import { PendingQueueScreen } from "./PendingQueueScreen";
 import { emptyQueue, enqueue, type NewRecord, type SyncQueue } from "./queue";
 import { useSync } from "./syncStore";
+import { sessionFor } from "../../test/tokens";
 
-const session = {
-  accessToken: "test-token",
-  expiresAtUtc: new Date(Date.now() + 3_600_000).toISOString(),
-  userName: "k.perera",
-};
+const session = sessionFor("IntakeOfficer");
 
 const sheet = (summary = "Kobeigane - 1 can"): NewRecord => ({
   kind: "RegisterConsignment",

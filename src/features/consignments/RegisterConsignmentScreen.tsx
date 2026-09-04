@@ -5,6 +5,7 @@ import { listSocieties } from "../../api/societies";
 import type { Consignment, Society } from "../../api/types";
 import { ArrowRightIcon, CheckIcon, CloudOffIcon, PlusCircleIcon, WarningIcon } from "../../components/icons";
 import { useSession } from "../../auth/sessionStore";
+import { useNavigation } from "../../app/navigationStore";
 import { useSync } from "../sync/syncStore";
 import { CanRow } from "./CanRow";
 import { SocietyPicker } from "./SocietyPicker";
@@ -28,6 +29,7 @@ export function RegisterConsignmentScreen({
   onProceedToQualityTest?: (reference: string) => void;
 } = {}) {
   const { session, signOut } = useSession();
+  const { navigate } = useNavigation();
   const { online, enqueue: queueRecord } = useSync();
   const token = session?.accessToken ?? null;
 
@@ -157,6 +159,17 @@ export function RegisterConsignmentScreen({
           {loadFailure}
         </p>
       ) : null}
+
+      <header className="pagehead pagehead--split">
+        <h1 className="pagehead__title">Register Consignment</h1>
+        <button
+          type="button"
+          className="linkbutton"
+          onClick={() => navigate("/consignments/history")}
+        >
+          Deliveries
+        </button>
+      </header>
 
       <SocietyPicker
         societies={societies}

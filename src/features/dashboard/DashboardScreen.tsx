@@ -6,6 +6,7 @@ import { useSession } from "../../auth/sessionStore";
 import { can, roleFromToken } from "../../auth/permissions";
 import { useNavigation } from "../../app/navigationStore";
 import {
+  ClipboardIcon,
   CalendarIcon,
   ClockIcon,
   DropletIcon,
@@ -60,7 +61,7 @@ export function DashboardScreen() {
   return (
     <>
       <section className="shiftbar">
-        <p className="shiftbar__name">{session?.userName ?? "Officer"}</p>
+        <p className="shiftbar__name">{session?.displayName ?? "Officer"}</p>
         <p className="shiftbar__meta">
           <span>
             <CalendarIcon width={14} height={14} />
@@ -101,6 +102,12 @@ export function DashboardScreen() {
               onClick={() => navigate("/consignments")}
             />
           ) : null}
+          <Action
+            icon={<ClipboardIcon width={20} height={20} />}
+            title="Deliveries"
+            detail="Review consignments and filter them by status."
+            onClick={() => navigate("/consignments/history")}
+          />
           <Action
             icon={<DropletIcon width={20} height={20} />}
             title="Chilling Tanks"

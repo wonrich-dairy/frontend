@@ -5,6 +5,7 @@ import { SessionProvider } from "../../auth/SessionContext";
 import { SyncProvider } from "../sync/SyncProvider";
 import { emptyQueue } from "../sync/queue";
 import { PourScreen } from "./PourScreen";
+import { sessionFor } from "../../test/tokens";
 
 const tanks = [
   {
@@ -42,11 +43,7 @@ const pourable = [
   },
 ];
 
-const session = {
-  accessToken: "test-token",
-  expiresAtUtc: new Date(Date.now() + 3_600_000).toISOString(),
-  userName: "k.perera",
-};
+const session = sessionFor("IntakeOfficer");
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {

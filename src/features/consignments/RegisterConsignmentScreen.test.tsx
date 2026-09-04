@@ -2,9 +2,11 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SessionProvider } from "../../auth/SessionContext";
+import { NavigationProvider } from "../../app/navigation";
 import { SyncProvider } from "../sync/SyncProvider";
 import { emptyQueue } from "../sync/queue";
 import { RegisterConsignmentScreen } from "./RegisterConsignmentScreen";
+import { sessionFor } from "../../test/tokens";
 
 const society = {
   id: "6f0f6f1a-0001-4a2b-9c3d-000000000001",
@@ -33,11 +35,7 @@ const registered = {
   cans: [{ canLabel: "KG 01", canNumber: 1, quantityKg: 40.5, quantityLitres: 39.32 }],
 };
 
-const session = {
-  accessToken: "test-token",
-  expiresAtUtc: new Date(Date.now() + 3_600_000).toISOString(),
-  userName: "k.perera",
-};
+const session = sessionFor("IntakeOfficer");
 
 function stubFetch(post: () => Promise<Response> | Response) {
   return vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -60,11 +58,13 @@ function stubFetch(post: () => Promise<Response> | Response) {
 
 function renderScreen() {
   return render(
-    <SessionProvider initialSession={session}>
-      <SyncProvider initialQueue={emptyQueue()}>
-        <RegisterConsignmentScreen />
-      </SyncProvider>
-    </SessionProvider>,
+    <NavigationProvider>
+      <SessionProvider initialSession={session}>
+        <SyncProvider initialQueue={emptyQueue()}>
+          <RegisterConsignmentScreen />
+        </SyncProvider>
+      </SessionProvider>
+    </NavigationProvider>,
   );
 }
 

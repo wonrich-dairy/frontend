@@ -21,10 +21,48 @@ export interface PagedResult<T> {
   totalPages: number;
 }
 
+export const CONSIGNMENT_STATUSES = ["Registered", "Accepted", "Rejected"] as const;
+
+export type ConsignmentStatus = (typeof CONSIGNMENT_STATUSES)[number];
+
+export interface ConsignmentSearch {
+  status?: ConsignmentStatus | null;
+  societyCode?: string | null;
+  date?: string | null;
+  reference?: string | null;
+  page?: number;
+  pageSize?: number;
+}
+
 export function searchConsignments(
   token: string | null,
   signal?: AbortSignal,
-  pageSize = 100,
+  search: ConsignmentSearch | number = {},
 ): Promise<PagedResult<Consignment>> {
-  return request<PagedResult<Consignment>>(`/api/consignments?pageSize=${pageSize}`, { token, signal });
+  const options: ConsignmentSearch = typeof search === "number" ? { pageSize: search } : search;
+  const query = new URLSearchParams();
+
+  query.set("pageSize", String(options.pageSize ?? 100));
+
+  if (options.page && options.page > 1) {
+    query.set("page", String(options.page));
+  }
+
+  if (options.status) {
+    query.set("status", options.status);
+  }
+
+  if (options.societyCode) {
+    query.set("societyCode", options.societyCode);
+  }
+
+  if (options.date) {
+    query.set("date", options.date);
+  }
+
+  if (options.reference) {
+    query.set("reference", options.reference);
+  }
+
+  return request<PagedResult<Consignment>>(`/api/consignments?${query}`, { token, signal });
 }
