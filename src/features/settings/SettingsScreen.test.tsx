@@ -1,0 +1,174 @@
+import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { SessionProvider } from "../../auth/SessionContext";
+import { NavigationProvider } from "../../app/navigation";
+import { SyncProvider } from "../sync/SyncProvider";
+import { emptyQueue } from "../sync/queue";
+import { SettingsScreen } from "./SettingsScreen";
+import { sessionFor } from "../../test/tokens";
+
+const session = sessionFor("MccManager");
+
+const societies = [
+  {
+    id: "s1",
+    code: "KG",
+    name: "Kobeigane",
+    canLabelPrefix: "KG",
+    contactPerson: "Sunil Perera",
+    contactNumber: null,
+    isActive: true,
+  },
+  {
+    id: "s2",
+    code: "MG",
+    name: "Maningamuwa",
+    canLabelPrefix: "MG",
+    contactPerson: null,
+    contactNumber: null,
+    isActive: false,
+  },
+];
+
+const tanks = [
+  {
+    code: "T1",
+    name: "Primary Cooler",
+    capacityLitres: 5000,
+    totalQuantityLitres: 4100,
+    totalQuantityKg: 4223,
+    availableQuantityLitres: 900,
+    consignmentCount: 6,
+    fillNumber: 3,
+    lastClosedAtUtc: null,
+    status: "Active",
+    latestTemperature: null,
+  },
+];
+
+function stubFetch() {
+  return vi.fn(async (input: RequestInfo | URL) => {
+    const url = String(input);
+    const body = url.includes("/api/societies") ? societies : url.includes("/api/tanks") ? tanks : null;
+
+    if (!body) {
+      throw new Error(`Unexpected request: ${url}`);
+    }
+
+    return new Response(JSON.stringify(body), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  });
+}
+
+function renderScreen() {
+  return render(
+    <NavigationProvider>
+      <SessionProvider initialSession={session}>
+        <SyncProvider initialQueue={emptyQueue()}>
+          <SettingsScreen />
+        </SyncProvider>
+      </SessionProvider>
+    </NavigationProvider>,
+  );
+}
+
+beforeEach(() => {
+  window.history.replaceState({ depth: 0 }, "", "/settings");
+  vi.stubGlobal("fetch", stubFetch());
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
+
+describe("settings", () => {
+  it("lists the societies with their tag and leader", async () => {
+    renderScreen();
+
+    expect(await screen.findByText("Kobeigane")).toBeInTheDocument();
+    expect(screen.getByText("Sunil Perera")).toBeInTheDocument();
+    expect(screen.getByText("KG")).toBeInTheDocument();
+  });
+
+  it("names a society with no leader rather than leaving the row blank", async () => {
+    renderScreen();
+
+    expect(await screen.findByText("Not recorded")).toBeInTheDocument();
+  });
+
+  it("marks a retired society, because it is still resolvable but not offered at the gate", async () => {
+    renderScreen();
+
+    expect(await screen.findByText("Retired")).toBeInTheDocument();
+  });
+
+  it("opens the form for a society being edited", async () => {
+    const user = userEvent.setup();
+    renderScreen();
+
+    await user.click(await screen.findByRole("button", { name: /Edit Kobeigane/ }));
+
+    expect(window.location.pathname).toBe("/settings/societies/s1");
+  });
+
+  it("opens the empty form from Add Society", async () => {
+    const user = userEvent.setup();
+    renderScreen();
+
+    await user.click(await screen.findByRole("button", { name: /Add Society/ }));
+
+    expect(window.location.pathname).toBe("/settings/societies/new");
+  });
+
+  it("shows a tank's capacity and how full it is", async () => {
+    renderScreen();
+
+    expect(await screen.findByText("5000 L")).toBeInTheDocument();
+    expect(screen.getByText("4100 L (82%)")).toBeInTheDocument();
+  });
+
+  it("offers tank management to a manager", async () => {
+    const user = userEvent.setup();
+    renderScreen();
+
+    await screen.findByText("Primary Cooler");
+
+    expect(screen.getByRole("button", { name: /Add Tank/ })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /Options for Primary Cooler/ }));
+
+    const sheet = await screen.findByRole("dialog", { name: "Tank Options" });
+    expect(within(sheet).getByRole("button", { name: /Edit Tank/ })).toBeInTheDocument();
+    expect(within(sheet).getByRole("button", { name: /Take Out of Service/ })).toBeInTheDocument();
+  });
+
+  it("withholds tank management from a role that cannot carry it out", async () => {
+    render(
+      <NavigationProvider>
+        <SessionProvider initialSession={sessionFor("IntakeOfficer")}>
+          <SettingsScreen />
+        </SessionProvider>
+      </NavigationProvider>,
+    );
+
+    await screen.findByText("Primary Cooler");
+
+    expect(screen.queryByRole("button", { name: /Add Tank/ })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /Options for Primary Cooler/ }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows no settings rows with nothing behind them", async () => {
+    renderScreen();
+
+    await screen.findByText("Primary Cooler");
+
+    expect(screen.queryByRole("button", { name: /App Preferences/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Notification Settings/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Help & Support/ })).not.toBeInTheDocument();
+  });
+});
