@@ -123,7 +123,7 @@ export function DashboardScreen() {
               onClick={() => navigate("/dispatch")}
             />
           ) : null}
-          {can(role, "readProcessing") ? (
+          {/* {can(role, "readProcessing") ? (
             <Action
               icon={<TankIcon width={20} height={20} />}
               title="Factory Tanks"
@@ -138,7 +138,7 @@ export function DashboardScreen() {
               detail="Record a bowser load into a storing tank."
               onClick={() => navigate("/processing/unloads")}
             />
-          ) : null}
+          ) : null} */}
           {can(role, "traceBatches") ? (
             <Action
               icon={<TraceIcon width={20} height={20} />}
