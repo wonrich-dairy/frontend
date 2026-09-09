@@ -11,7 +11,6 @@ import {
   ClockIcon,
   DropletIcon,
   GridPlusIcon,
-  TankIcon,
   TraceIcon,
   TruckIcon,
   UsersIcon,
