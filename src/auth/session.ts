@@ -1,4 +1,4 @@
-const authBaseUrl = (import.meta.env.VITE_AUTH_API_URL ?? "http://localhost:5238").replace(/\/$/, "");
+const authBaseUrl = (import.meta.env.VITE_AUTH_API_URL ?? "https://wonrich-auth-app-f4dndrgcgzgjb5h4.malaysiawest-01.azurewebsites.net").replace(/\/$/, "");
 
 const STORAGE_KEY = "wonrich.session";
 
