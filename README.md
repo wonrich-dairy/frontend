@@ -32,7 +32,7 @@ npm run dev
 ## Configuration
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `VITE_INTAKE_API_URL` | `http://localhost:5237` | MCC & Intake Service |
+| `VITE_INTAKE_API_URL` | `https://wonrich-mcc-app-abhgfsaxc6a3eqfa.malaysiawest-01.azurewebsites.net` | MCC & Intake Service |
 | `VITE_AUTH_API_URL` | `https://wonrich-auth-app-f4dndrgcgzgjb5h4.malaysiawest-01.azurewebsites.net` | Auth service issuing the bearer token |
 
 ## Screens

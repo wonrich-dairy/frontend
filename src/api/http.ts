@@ -14,7 +14,7 @@ export class ApiError extends Error {
   }
 }
 
-const intakeBaseUrl = (import.meta.env.VITE_INTAKE_API_URL ?? "http://localhost:5237").replace(/\/$/, "");
+const intakeBaseUrl = (import.meta.env.VITE_INTAKE_API_URL ?? "https://wonrich-mcc-app-abhgfsaxc6a3eqfa.malaysiawest-01.azurewebsites.net").replace(/\/$/, "");
 
 const processingBaseUrl = (
   import.meta.env.VITE_PROCESSING_API_URL ?? "http://localhost:5239"
