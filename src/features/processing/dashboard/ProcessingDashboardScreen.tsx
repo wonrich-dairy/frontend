@@ -78,27 +78,7 @@ export function ProcessingDashboardScreen() {
         </div>
       </div>
 
-      <div className="section">
-        <div className="section__head">
-          <h2 className="section__title">Tanks Status</h2>
-          <span className="section__count">{tanks?.length ?? 0} tanks</span>
-        </div>
-        {tanks?.length === 0 && <p className="emptystate">No tanks configured. Seed has 3 storing + 3 mixing.</p>}
-        {tanks?.map((tank) => (
-          <div key={tank.id} className="tankcard" onClick={() => navigate(`/processing/tanks/${tank.code}`)}>
-            <div className="tankcard__head">
-              <div>
-                <span className="tankcard__code">{tank.code}</span>
-                <span className="tankcard__name">{tank.name}</span>
-              </div>
-              <span className={`pill ${tank.status === "Active" ? "" : "pill--offline"}`}>{tank.status}</span>
-            </div>
-            <span className="tankcard__figure">{tank.remainingKg.toFixed(0)} KG / {tank.capacityKg.toFixed(0)} KG</span>
-            <span className="tankcard__bar"><span className="tankcard__fill" style={{ width: `${Math.min(100, (tank.remainingKg / tank.capacityKg) * 100)}%` }} /></span>
-            <span className="tankcard__foot">{tank.availableKg.toFixed(0)} KG free • {tank.kind}</span>
-          </div>
-        ))}
-      </div>
+      {/* Tank Status section removed per requirement - will be replaced by current batch processing cards in future (needs ProcessingRun/Allocation/Stage APIs) */}
     </>
   );
 }

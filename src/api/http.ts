@@ -87,16 +87,16 @@ async function readJson(response: Response): Promise<unknown> {
 }
 
 function toApiError(status: number, payload: unknown): ApiError {
-  const problem = (payload ?? {}) as ProblemDetails;
+  const problem = (payload ?? {}) as any;
 
-  const fieldErrors = Object.values(problem.errors ?? {})
+  const fieldErrors = Object.values((problem.errors ?? {}) as Record<string, string[]>)
     .flat()
     .filter(Boolean);
 
   const message =
     fieldErrors.length > 0
       ? fieldErrors.join(" ")
-      : problem.detail ?? problem.title ?? defaultMessage(status);
+      : problem.message ?? problem.Message ?? problem.detail ?? problem.title ?? defaultMessage(status);
 
   return new ApiError(status, problem.code, message, problem);
 }

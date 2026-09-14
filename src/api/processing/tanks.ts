@@ -38,10 +38,23 @@ export function normalizeTankCode(input: string): string {
   if (!input || input.trim() === "") throw new Error("Tank number is required");
   const cleaned = input.trim().replace(/-/g, "").toUpperCase();
   if (cleaned.length < 3) throw new Error(`Code "${input}" too short. Use ST1 format`);
-  const letters = cleaned.replace(/[^A-Z]/g, "");
-  const numbers = cleaned.replace(/[^0-9]/g, "");
+
+  // Take leading letters only, then trailing numbers - same as backend Tank.NormalizeCode
+  const lettersMatch = cleaned.match(/^[A-Z]+/);
+  const letters = lettersMatch ? lettersMatch[0] : "";
+  const numbersPart = cleaned.slice(letters.length);
+  const numbers = numbersPart.replace(/[^0-9]/g, ""); // only digits after letters
+
   if (!letters || !numbers) throw new Error(`Code "${input}" invalid. Use ST1`);
+
+  // Fix: only 2 letters allowed, only ST or MT
+  if (letters.length !== 2) throw new Error(`Code "${input}" invalid. Only 2 letters allowed. Use ST-01 or MT-02`);
+  if (letters !== "ST" && letters !== "MT") throw new Error(`Code "${input}" invalid. Only ST or MT allowed`);
+
   const num = parseInt(numbers, 10);
+  if (isNaN(num)) throw new Error(`Code "${input}" number part invalid`);
+  if (num < 1 || num > 99) throw new Error(`Code "${input}" number must be between 1 and 99`);
+
   return `${letters}-${num.toString().padStart(2, "0")}`;
 }
 
@@ -63,14 +76,6 @@ export function listTanks(token: string | null, signal?: AbortSignal, kind?: Tan
 
 export function getTank(id: string, token: string | null): Promise<ProcessingTank> {
   return request<ProcessingTank>(`/api/tanks/${encodeURIComponent(id)}`, { token, service: "processing" });
-}
-
-export function getTankByCode(code: string, token: string | null, signal?: AbortSignal): Promise<ProcessingTank> {
-  return listTanks(token, signal).then((tanks) => {
-    const found = tanks.find((t) => t.code === code);
-    if (!found) throw new Error(`Tank ${code} not found`);
-    return found;
-  });
 }
 
 export function createTank(body: CreateTankRequest, token: string | null): Promise<ProcessingTank> {
