@@ -19,9 +19,13 @@ import { TraceBatchScreen } from "./features/trace/TraceBatchScreen";
 import { SettingsScreen } from "./features/settings/SettingsScreen";
 import { SocietyFormScreen } from "./features/settings/SocietyFormScreen";
 import { TankFormScreen } from "./features/settings/TankFormScreen";
-import { ProcessingTanksScreen } from "./features/processing/ProcessingTanksScreen";
-import { ProcessingTankFormScreen } from "./features/processing/ProcessingTankFormScreen";
-import { UnloadScreen } from "./features/processing/UnloadScreen";
+import { ProcessingTanksScreen } from "./features/processing/tanks/ProcessingTanksScreen";
+import { ProcessingTankFormScreen } from "./features/processing/tanks/ProcessingTankFormScreen";
+import { ProcessingDashboardScreen } from "./features/processing/dashboard/ProcessingDashboardScreen";
+import { ProcessingUnloadScreen } from "./features/processing/unloads/ProcessingUnloadScreen";
+import { ProcessingSettingsScreen } from "./features/processing/settings/ProcessingSettingsScreen";
+import { ServiceSelectionScreen } from "./features/serviceSelection/ServiceSelectionScreen";
+import { ProcessingAppShell, type ProcessingTab } from "./components/processing/ProcessingAppShell";
 import { UserProfileScreen } from "./features/profile/UserProfileScreen";
 import { SyncProvider } from "./features/sync/SyncProvider";
 import "./styles/app.css";
@@ -41,10 +45,13 @@ export function App() {
 
 interface Screen {
   tab: Tab;
+  processingTab?: ProcessingTab;
   title?: string;
   parent?: string;
   needs?: Permission;
   element: React.ReactNode;
+  isProcessing?: boolean;
+  isServiceSelection?: boolean;
 }
 
 function Screens() {
@@ -60,8 +67,41 @@ function Screens() {
   }
 
   const role = roleFromToken(session?.accessToken);
+  const isProcessingRole = role === "ProcessingTechnician";
+  const isProcessingPath = path.startsWith("/processing");
+  const isServiceSelectionPath = path === "/select-service";
+
+  if (isServiceSelectionPath) {
+    return <ServiceSelectionScreen />;
+  }
+
+  if (isProcessingRole && path === "/") {
+    window.history.replaceState(window.history.state, "", "/processing");
+    return (
+      <ProcessingAppShell current="factory" title={undefined} onBack={undefined}>
+        <ProcessingDashboardScreen />
+      </ProcessingAppShell>
+    );
+  }
+
   const screen = resolve(path, query, navigate);
   const allowed = !screen.needs || can(role, screen.needs);
+
+  if (screen.isServiceSelection) {
+    return screen.element as React.ReactNode;
+  }
+
+  if (isProcessingRole || screen.isProcessing || isProcessingPath) {
+    return (
+      <ProcessingAppShell
+        current={screen.processingTab ?? (path === "/processing" ? "factory" : path.startsWith("/processing/tanks") ? "processingTanks" : path.startsWith("/processing/unloads") ? "unloads" : "processingSettings")}
+        title={screen.title}
+        onBack={screen.title ? () => back(screen.parent ?? "/processing") : undefined}
+      >
+        {allowed ? screen.element : <NotPermitted role={role} />}
+      </ProcessingAppShell>
+    );
+  }
 
   return (
     <AppShell
@@ -75,6 +115,10 @@ function Screens() {
 }
 
 function resolve(path: string, query: URLSearchParams, navigate: (to: string) => void): Screen {
+  if (match("/select-service", path)) {
+    return { tab: "home", isServiceSelection: true, element: <ServiceSelectionScreen /> };
+  }
+
   if (match("/", path)) {
     return { tab: "home", element: <DashboardScreen /> };
   }
@@ -201,11 +245,17 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
     };
   }
 
+  if (match("/processing", path)) {
+    return { tab: "home", processingTab: "factory", isProcessing: true, needs: "readProcessing", element: <ProcessingDashboardScreen /> };
+  }
+
   if (match("/processing/tanks", path)) {
     return {
-      tab: "home",
+      tab: "tanks",
+      processingTab: "processingTanks",
+      isProcessing: true,
       title: "Factory Tanks",
-      parent: "/",
+      parent: "/processing",
       needs: "readProcessing",
       element: <ProcessingTanksScreen />,
     };
@@ -213,7 +263,9 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
 
   if (match("/processing/tanks/new", path)) {
     return {
-      tab: "home",
+      tab: "tanks",
+      processingTab: "processingTanks",
+      isProcessing: true,
       title: "Add Factory Tank",
       parent: "/processing/tanks",
       needs: "manageProcessingTanks",
@@ -225,7 +277,9 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
 
   if (processingTank) {
     return {
-      tab: "home",
+      tab: "tanks",
+      processingTab: "processingTanks",
+      isProcessing: true,
       title: `Edit ${processingTank.code}`,
       parent: "/processing/tanks",
       needs: "manageProcessingTanks",
@@ -235,11 +289,25 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
 
   if (match("/processing/unloads", path)) {
     return {
-      tab: "home",
+      tab: "tanks",
+      processingTab: "unloads",
+      isProcessing: true,
       title: "Unloading Bay",
-      parent: "/",
+      parent: "/processing",
       needs: "readProcessing",
-      element: <UnloadScreen />,
+      element: <ProcessingUnloadScreen />,
+    };
+  }
+
+  if (match("/processing/settings", path)) {
+    return {
+      tab: "settings",
+      processingTab: "processingSettings",
+      isProcessing: true,
+      title: "Factory Settings",
+      parent: "/processing",
+      needs: "readProcessing",
+      element: <ProcessingSettingsScreen />,
     };
   }
 

@@ -5,6 +5,7 @@ export const ROLES = [
   "QualityAnalyst",
   "FactoryIntakeOfficer",
   "ProductionManager",
+  "ProcessingTechnician",
 ] as const;
 
 export type Role = (typeof ROLES)[number];
@@ -31,13 +32,14 @@ const GRANTS: Record<Permission, readonly Role[]> = {
   recordDispatchNotes: ["SystemAdministrator", "MccManager"],
   traceBatches: ["SystemAdministrator", "ProductionManager", "QualityAnalyst"],
   manageTanks: ["SystemAdministrator", "MccManager"],
-  manageProcessingTanks: ["SystemAdministrator", "ProductionManager"],
-  recordUnloads: ["SystemAdministrator", "ProductionManager", "FactoryIntakeOfficer"],
+  manageProcessingTanks: ["SystemAdministrator", "ProductionManager", "ProcessingTechnician"],
+  recordUnloads: ["SystemAdministrator", "ProductionManager", "FactoryIntakeOfficer", "ProcessingTechnician"],
   readProcessing: [
     "SystemAdministrator",
     "ProductionManager",
     "FactoryIntakeOfficer",
     "QualityAnalyst",
+    "ProcessingTechnician",
   ],
 };
 

@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { signIn } from "../auth/session";
 import { useSession } from "../auth/sessionStore";
+import { useNavigation } from "../app/navigationStore";
+import { roleFromToken } from "../auth/permissions";
 import { BadgeIcon, LockIcon, LoginIcon, LogoMark, WarningIcon } from "./icons";
 
 export function SignInScreen() {
   const { setSession } = useSession();
+  const { navigate } = useNavigation();
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [failure, setFailure] = useState<string | null>(null);
@@ -22,7 +25,16 @@ export function SignInScreen() {
     setBusy(true);
 
     try {
-      setSession(await signIn(userName.trim(), password));
+      const sess = await signIn(userName.trim(), password);
+      setSession(sess);
+      const role = roleFromToken(sess.accessToken);
+      if (role === "SystemAdministrator") {
+        navigate("/select-service");
+      } else if (role === "ProcessingTechnician") {
+        navigate("/processing");
+      } else {
+        navigate("/");
+      }
     } catch (error: unknown) {
       setFailure(error instanceof Error ? error.message : "Sign-in failed. Try again.");
     } finally {
