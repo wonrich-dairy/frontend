@@ -24,6 +24,7 @@ import { ProcessingTankFormScreen } from "./features/processing/tanks/Processing
 import { ProcessingDashboardScreen } from "./features/processing/dashboard/ProcessingDashboardScreen";
 import { ProcessingUnloadScreen } from "./features/processing/unloads/ProcessingUnloadScreen";
 import { ProcessingSettingsScreen } from "./features/processing/settings/ProcessingSettingsScreen";
+import { QualityMockScreen } from "./features/processing/quality/QualityMockScreen";
 import { ServiceSelectionScreen } from "./features/serviceSelection/ServiceSelectionScreen";
 import { ProcessingAppShell, type ProcessingTab } from "./components/processing/ProcessingAppShell";
 import { UserProfileScreen } from "./features/profile/UserProfileScreen";
@@ -155,7 +156,7 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
   }
 
   if (match("/queue", path)) {
-    return { tab: "home", title: "Pending Uploads", parent: "/", element: <PendingQueueScreen /> };
+    return { tab: "home", title: "Pending Uploads", parent: "/queue", element: <PendingQueueScreen /> };
   }
 
   if (match("/tanks", path)) {
@@ -296,6 +297,18 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
       parent: "/processing",
       needs: "readProcessing",
       element: <ProcessingUnloadScreen />,
+    };
+  }
+
+  if (match("/processing/quality-mock", path)) {
+    return {
+      tab: "settings",
+      processingTab: "processingSettings",
+      isProcessing: true,
+      title: "Quality Lab (Mock)",
+      parent: "/processing/settings",
+      needs: "readProcessing",
+      element: <QualityMockScreen />,
     };
   }
 

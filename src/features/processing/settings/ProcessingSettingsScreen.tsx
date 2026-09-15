@@ -56,6 +56,17 @@ export function ProcessingSettingsScreen() {
         </section>
       )}
 
+      {(role === "SystemAdministrator" || role === "QualityAnalyst") && (
+        <section className="card" style={{ marginTop: 16 }}>
+          <h3 style={{ margin: 0, fontSize: 14 }}>Quality Lab (Mock) - Quality Tech Only</h3>
+          <p className="card__footnote" style={{ marginTop: 8 }}>Mock quality technician flow. Only SystemAdmin + Quality Tech can enter results. Processing Tech sees readonly status only.</p>
+          <button type="button" className="button button--ghost button--wide" style={{ marginTop: 12 }} onClick={() => navigate("/processing/quality-mock")}>
+            Open Quality Lab Mock
+          </button>
+          <p className="card__footnote" style={{ marginTop: 8 }}>Direct URL: /processing/quality-mock</p>
+        </section>
+      )}
+
       <button type="button" className="button button--ghost button--wide" style={{ marginTop: 16 }} onClick={() => doSignOut()}>
         Sign Out
       </button>
