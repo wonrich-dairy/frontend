@@ -10,6 +10,7 @@ const DISPLAY_NAMES: Record<Role, string> = {
   QualityAnalyst: "Quality Analyst",
   FactoryIntakeOfficer: "Factory Intake Officer",
   ProductionManager: "Production Manager",
+  ProcessingTechnician: "Processing Technician",
 };
 
 export function accessTokenFor(role: Role, userName = "k.perera"): string {
