@@ -66,7 +66,7 @@ export function QualityPanelReadonly({ status, panel }: Props) {
 
           {/* Alcohol Cascade */}
           <div style={{ padding: 10, background: "#eff6ff", border: "1px solid #93c5fd", borderRadius: 8, marginBottom: 10 }}>
-            <span className="microlabel" style={{ fontWeight: 700 }}>Alcohol Cascade (Positive=clotted=BAD, Negative=good)</span>
+            <span className="microlabel" style={{ fontWeight: 700 }}>STEP 1 - Alcohol Cascade (Positive=clotted=BAD, Negative=good)</span>
             <div style={{ marginTop: 8, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
               <div><span className="microlabel">80%</span><p style={{ margin: "2px 0 0", fontWeight: 700, fontSize: 13 }}>{cascade?.Alcohol80 ?? cascade?.["80"] ?? "Not tested"}</p></div>
               <div><span className="microlabel">75%</span><p style={{ margin: "2px 0 0", fontWeight: 700, fontSize: 13 }}>{cascade?.Alcohol75 ?? cascade?.["75"] ?? (cascade?.Alcohol80 === "Negative" ? "STOP - not needed" : "Not tested")}</p></div>
@@ -79,7 +79,7 @@ export function QualityPanelReadonly({ status, panel }: Props) {
 
           {/* KQ */}
           <div style={{ padding: 10, background: "#f5f3ff", border: "1px solid #c4b5fd", borderRadius: 8, marginBottom: 10 }}>
-            <span className="microlabel" style={{ fontWeight: 700 }}>KQ Keeping Quality</span>
+            <span className="microlabel" style={{ fontWeight: 700 }}>STEP 2 - KQ Keeping Quality - 7 colours</span>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6 }}>
               {kqMeta && <div style={{ width: 20, height: 20, background: kqMeta.hex, border: "1px solid #ccc", borderRadius: 4 }} />}
               <span style={{ fontWeight: 700, fontSize: 13 }}>{panel.kqColour} {kqMeta ? `- ${kqMeta.meaning} - ${kqMeta.hex}` : ""}</span>
@@ -88,7 +88,7 @@ export function QualityPanelReadonly({ status, panel }: Props) {
 
           {/* Physical + Calculated */}
           <div style={{ padding: 10, background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 8, marginBottom: 10 }}>
-            <span className="microlabel" style={{ fontWeight: 700 }}>Milk Quality Parameters</span>
+            <span className="microlabel" style={{ fontWeight: 700 }}>STEP 3 & 4 - Physical (entered) + Calculated (auto-derived)</span>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 8 }}>
               <div><span className="microlabel">Fat % (entered)</span><p style={{ margin: "4px 0 0", fontWeight: 700 }}>{panel.fatPercent.toFixed(2)}</p></div>
               <div><span className="microlabel">Raw CLR (entered)</span><p style={{ margin: "4px 0 0", fontWeight: 700 }}>{panel.rawLactometerReading.toFixed(2)}</p></div>

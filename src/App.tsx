@@ -21,6 +21,7 @@ import { SocietyFormScreen } from "./features/settings/SocietyFormScreen";
 import { TankFormScreen } from "./features/settings/TankFormScreen";
 import { ProcessingTanksScreen } from "./features/processing/tanks/ProcessingTanksScreen";
 import { ProcessingTankFormScreen } from "./features/processing/tanks/ProcessingTankFormScreen";
+import { ProcessingTankDetailScreen } from "./features/processing/tanks/ProcessingTankDetailScreen";
 import { ProcessingDashboardScreen } from "./features/processing/dashboard/ProcessingDashboardScreen";
 import { ProcessingUnloadScreen } from "./features/processing/unloads/ProcessingUnloadScreen";
 import { ProcessingSettingsScreen } from "./features/processing/settings/ProcessingSettingsScreen";
@@ -274,6 +275,20 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
     };
   }
 
+  const processingTankEdit = match("/processing/tanks/:code/edit", path);
+
+  if (processingTankEdit) {
+    return {
+      tab: "tanks",
+      processingTab: "processingTanks",
+      isProcessing: true,
+      title: `Edit ${processingTankEdit.code}`,
+      parent: `/processing/tanks/${encodeURIComponent(processingTankEdit.code)}`,
+      needs: "manageProcessingTanks",
+      element: <ProcessingTankFormScreen code={processingTankEdit.code} />,
+    };
+  }
+
   const processingTank = match("/processing/tanks/:code", path);
 
   if (processingTank) {
@@ -281,10 +296,10 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
       tab: "tanks",
       processingTab: "processingTanks",
       isProcessing: true,
-      title: `Edit ${processingTank.code}`,
+      title: `${processingTank.code}`,
       parent: "/processing/tanks",
-      needs: "manageProcessingTanks",
-      element: <ProcessingTankFormScreen code={processingTank.code} />,
+      needs: "readProcessing",
+      element: <ProcessingTankDetailScreen code={processingTank.code} />,
     };
   }
 

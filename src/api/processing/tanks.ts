@@ -34,20 +34,33 @@ export interface UpdateTankRequest {
   rowVersion?: string;
 }
 
+export interface TankTemperatureLogDto {
+  id: string;
+  tankId: string;
+  temperatureC: number;
+  note?: string;
+  recordedAtUtc: string;
+  recordedBy: string;
+  createdAtUtc: string;
+}
+
+export interface CreateTempLogRequest {
+  temperatureC: number;
+  note?: string;
+}
+
 export function normalizeTankCode(input: string): string {
   if (!input || input.trim() === "") throw new Error("Tank number is required");
   const cleaned = input.trim().replace(/-/g, "").toUpperCase();
   if (cleaned.length < 3) throw new Error(`Code "${input}" too short. Use ST1 format`);
 
-  // Take leading letters only, then trailing numbers - same as backend Tank.NormalizeCode
   const lettersMatch = cleaned.match(/^[A-Z]+/);
   const letters = lettersMatch ? lettersMatch[0] : "";
   const numbersPart = cleaned.slice(letters.length);
-  const numbers = numbersPart.replace(/[^0-9]/g, ""); // only digits after letters
+  const numbers = numbersPart.replace(/[^0-9]/g, "");
 
   if (!letters || !numbers) throw new Error(`Code "${input}" invalid. Use ST1`);
 
-  // Fix: only 2 letters allowed, only ST or MT
   if (letters.length !== 2) throw new Error(`Code "${input}" invalid. Only 2 letters allowed. Use ST-01 or MT-02`);
   if (letters !== "ST" && letters !== "MT") throw new Error(`Code "${input}" invalid. Only ST or MT allowed`);
 
@@ -92,6 +105,18 @@ export function changeTankStatus(id: string, status: TankStatus, rowVersion: str
 
 export function deleteTank(id: string, token: string | null): Promise<void> {
   return request<void>(`/api/tanks/${encodeURIComponent(id)}`, { method: "DELETE", token, service: "processing" });
+}
+
+export function listTemperatureLogs(tankId: string, token: string | null, signal?: AbortSignal): Promise<TankTemperatureLogDto[]> {
+  return request<TankTemperatureLogDto[]>(`/api/tanks/${encodeURIComponent(tankId)}/temperature-logs`, { token, signal, service: "processing" });
+}
+
+export function getLastTemperatureLog(tankId: string, token: string | null, signal?: AbortSignal): Promise<TankTemperatureLogDto> {
+  return request<TankTemperatureLogDto>(`/api/tanks/${encodeURIComponent(tankId)}/temperature-logs/last`, { token, signal, service: "processing" });
+}
+
+export function createTemperatureLog(tankId: string, body: CreateTempLogRequest, token: string | null): Promise<TankTemperatureLogDto> {
+  return request<TankTemperatureLogDto>(`/api/tanks/${encodeURIComponent(tankId)}/temperature-logs`, { method: "POST", body, token, service: "processing" });
 }
 
 export const listProcessingTanks = listTanks;
