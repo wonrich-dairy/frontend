@@ -31,7 +31,7 @@ export function ProcessingTanksScreen() {
     <>
       <div className="pagehead">
         <h1 className="pagehead__title">Factory Tanks</h1>
-        <p className="pagehead__detail">Storing tanks take bowser milk. Mixing tanks take allocations. Capacity in KG.</p>
+        <p className="pagehead__detail">Storing tanks take bowser milk. Mixing tanks take allocations. Capacity in KG. Touch card to log temperature and pour to mixing tank.</p>
       </div>
 
       <div className="filterbar">
@@ -44,14 +44,15 @@ export function ProcessingTanksScreen() {
       {tanks?.length === 0 && !failure && (<p className="emptystate">{kind ? `No ${kind.toLowerCase()} tank configured` : "No tank configured yet. Seed has 3 storing + 3 mixing."}</p>)}
 
       {tanks?.map((tank) => (
-        <article key={tank.id} className="tankrow">
+        <article key={tank.id} className="tankrow" onClick={() => navigate(`/processing/tanks/${encodeURIComponent(tank.code)}`)} style={{ cursor: "pointer" }}>
           <header className="tankrow__head">
             <h2 className="tankrow__name">{tank.name}</h2>
-            {mayManage && (<button type="button" className="iconbutton" onClick={() => setSelectedTank(tank)} title={`Options for ${tank.code}`}>...</button>)}
+            {mayManage && (<button type="button" className="iconbutton" onClick={(e) => { e.stopPropagation(); setSelectedTank(tank); }} title={`Options for ${tank.code}`}>...</button>)}
           </header>
           <p className="tankrow__status"><span className={tank.status === "Active" ? "dot dot--active" : "dot"} />{tank.status}<span className="tankrow__code">{tank.code} - {tank.kind}</span></p>
           <dl className="tankrow__facts"><div><dt className="microlabel">Capacity</dt><dd>{tank.capacityKg.toFixed(0)} KG</dd></div><div><dt className="microlabel">Holding</dt><dd>{tank.remainingKg.toFixed(0)} KG - {tank.availableKg.toFixed(0)} KG free</dd></div></dl>
           <div className="meter" style={{ marginTop: 8 }}><span className="meter__fill" style={{ width: `${Math.min(100, (tank.remainingKg / tank.capacityKg) * 100)}%` }} /></div>
+          <p className="microlabel" style={{ marginTop: 8 }}>Touch to log temperature, view history, and {tank.kind === "Storing" ? "pour to mixing tank" : "view batch"}</p>
         </article>
       ))}
 
@@ -61,7 +62,7 @@ export function ProcessingTanksScreen() {
         onClose={() => setSelectedTank(null)}
         onStatusChanged={() => setReloads((c) => c + 1)}
         onDeleted={() => setReloads((c) => c + 1)}
-        onEdit={(code) => { setSelectedTank(null); navigate(`/processing/tanks/${code}`); }}
+        onEdit={(code) => { setSelectedTank(null); navigate(`/processing/tanks/${code}/edit`); }}
         onError={(msg) => setFailure(msg)}
       />
     </>

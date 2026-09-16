@@ -318,13 +318,13 @@ export function ProcessingUnloadScreen() {
       <form onSubmit={submit} noValidate>
         <section className="card">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <h3 style={{ margin: 0, fontSize: 14 }}>Unload a Bowser</h3>
+            <h3 style={{ margin: 0, fontSize: 14 }}>Unload a Bowser - SCRUM 62 + Partial Unload</h3>
             <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12 }}>
               <input type="checkbox" checked={autoRefresh} onChange={(e) => setAutoRefresh(e.target.checked)} />
               Auto-refresh {lastRefresh ? `(${lastRefresh.toLocaleTimeString()})` : ""}
             </label>
           </div>
-          <p className="card__footnote">Sensory must PASS before unload. Dispatch ID live validated against MCC with remaining quantity. Supports splitting one dispatch across multiple tanks if tank capacity exceeded.</p>
+          <p className="card__footnote">Sensory must PASS before unload. Dispatch ID live validated against MCC with remaining quantity. Supports splitting one dispatch across multiple tanks if tank capacity exceeded. Auto-refresh every 10s.</p>
 
           <label className="field">
             <span className="field__label">Dispatch Note (MCC Reference like DN-20260910-02)</span>
@@ -355,7 +355,7 @@ export function ProcessingUnloadScreen() {
               )
             )}
             {!dispatchId && recentDispatches && recentDispatches.length > 0 && (
-              <span className="field__hint">Available MCC dispatches (not fully unloaded): {recentDispatches.slice(0, 3).map((d) => d.reference).join(", ")} - Supports partial unload</span>
+              <span className="field__hint">Available MCC dispatches (not fully unloaded): {recentDispatches.slice(0, 3).map((d) => d.reference).join(", ")} - Auto-refresh every 10s - Supports partial unload</span>
             )}
             {!dispatchId && recentDispatches?.length === 0 && (
               <span className="field__hint">No available MCC dispatches - all have been fully unloaded or none in mccdb</span>
@@ -410,7 +410,7 @@ export function ProcessingUnloadScreen() {
           </label>
 
           <label className="field">
-            <span className="field__label">Quantity measured (KG) - up to 2 decimal {remainingKg != null ? `- Max ${remainingKg.toFixed(0)} KG remaining` : ""}</span>
+            <span className="field__label">Quantity measured (KG) - 2 decimal {remainingKg != null ? `- Max ${remainingKg.toFixed(0)} KG remaining` : ""}</span>
             <div className="field__wrap"><input value={quantityKg} inputMode="decimal" placeholder={remainingKg != null ? remainingKg.toFixed(0) : "1500"} onChange={(e) => setQuantityKg(e.target.value)} disabled={saving} /></div>
             {selectedTank && quantityKg && !quantityOk && (
               <span className="field__hint field__hint--warning">
@@ -450,7 +450,7 @@ export function ProcessingUnloadScreen() {
                 <span className={`badge ${r.qualityTestStatus === "Passed" ? "badge--good" : r.qualityTestStatus === "Failed" ? "badge--bad" : ""}`}>{r.qualityTestStatus}</span>
               </header>
               <p className="tankrow__status">{r.quantityKg.toFixed(0)} KG to {r.storingTankCode ?? "tank"} - {r.state} - {new Date(r.createdAtUtc).toLocaleString()} {isPartial ? ` - Total for ${r.dispatchNumber}: ${totalForThisDispatch.toFixed(0)} KG across tanks` : ""}</p>
-              <p className="microlabel" style={{ marginTop: 4 }}>Click to view quality status and readonly panel{isPartial ? "- This dispatch was split across multiple tanks" : ""}</p>
+              <p className="microlabel" style={{ marginTop: 4 }}>Click to view quality status and readonly panel - auto-refresh every 10s {isPartial ? "- This dispatch was split across multiple tanks" : ""}</p>
             </article>
           );
         })}
