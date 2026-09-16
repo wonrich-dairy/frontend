@@ -212,8 +212,6 @@ export function ProcessingUnloadScreen() {
 
   const complete = dispatchValid && sensoryOk && tankOk && quantityOk && tempOk;
 
-  const remainingAfter = remainingKg != null && Number.isFinite(quantity) && quantity > 0 ? Math.max(0, remainingKg - quantity) : remainingKg;
-
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!complete || saving) return;
@@ -327,7 +325,7 @@ export function ProcessingUnloadScreen() {
           </div>
 
           <label className="field">
-            <span className="field__label">Dispatch Code</span>
+            <span className="field__label">Dispatch Note</span>
             <div className="field__wrap">
               <input
                 value={dispatchId}
