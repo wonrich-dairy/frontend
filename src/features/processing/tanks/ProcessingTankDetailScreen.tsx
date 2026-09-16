@@ -12,16 +12,16 @@ const PRODUCT_OPTIONS: { value: ProductType; label: string }[] = [
   { value: "FLM", label: "FLM" },
   { value: "SY", label: "SY" },
   { value: "SK", label: "SK" },
-  { value: "DK", label: "DK" },
+  { value: "DY", label: "DY" },
 ];
 
 const STAGE_ORDER: StageType[] = ["Heating", "Homogeniser", "Pasteuriser", "Cooling"];
 
 function getPreSelected(alcoholResult?: string): ProductType[] {
-  if (!alcoholResult) return ["SY", "SK", "FM", "FLM", "DK"];
+  if (!alcoholResult) return ["SY", "SK", "FM", "FLM", "DY"];
   if (alcoholResult.includes("80%")) return ["FM", "FLM"];
-  if (alcoholResult.includes("75%") || alcoholResult.includes("68%") || alcoholResult.includes("COB")) return ["SY", "SK", "DK"];
-  return ["SY", "SK", "FM", "FLM", "DK"];
+  if (alcoholResult.includes("75%") || alcoholResult.includes("68%") || alcoholResult.includes("COB")) return ["SY", "SK", "DY"];
+  return ["SY", "SK", "FM", "FLM", "DY"];
 }
 
 function getNextStage(stages: ProcessingStageDto[]): StageType | null {

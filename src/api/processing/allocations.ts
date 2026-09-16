@@ -1,6 +1,6 @@
 import { request } from "../http";
 
-export type ProductType = "SY" | "SK" | "FM" | "FLM" | "DK";
+export type ProductType = "SY" | "SK" | "FM" | "FLM" | "DY";
 
 export interface CreateAllocationRequest {
   sourceStoringTankId: string;

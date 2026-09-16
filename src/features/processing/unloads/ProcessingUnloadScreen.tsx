@@ -17,7 +17,6 @@ export function ProcessingUnloadScreen() {
   const [failure, setFailure] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // Form
   const [dispatchId, setDispatchId] = useState("");
   const [dispatchValidation, setDispatchValidation] = useState<DispatchValidationDto | null>(null);
   const [dispatchChecking, setDispatchChecking] = useState(false);
@@ -32,20 +31,18 @@ export function ProcessingUnloadScreen() {
 
   const [recentRuns, setRecentRuns] = useState<ProcessingRunDto[] | null>(null);
 
-  // Auto-refresh for Problem 3
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const [statusChangedNotification, setStatusChangedNotification] = useState<string | null>(null);
   const prevStatusRef = useRef<string | null>(null);
+  const prevRunsStatusRef = useRef<Map<string, string>>(new Map());
 
-  // Selected dispatch quality view
   const selectedDispatchParam = query.get("dispatch");
   const [qualityStatus, setQualityStatus] = useState<QualityStatusDto | null>(null);
   const [qualityPanel, setQualityPanel] = useState<QualityPanelDto | null>(null);
   const [qualityLoading, setQualityLoading] = useState(false);
   const [qualityFailure, setQualityFailure] = useState<string | null>(null);
 
-  // Load tanks
   useEffect(() => {
     const abort = new AbortController();
     listTanks(token, abort.signal, "Storing", true)
@@ -54,7 +51,6 @@ export function ProcessingUnloadScreen() {
     return () => abort.abort();
   }, [token]);
 
-  // Load recent MCC dispatches
   const loadRecentDispatches = () => {
     const abort = new AbortController();
     listRecentDispatches(token, abort.signal, 20)
@@ -65,11 +61,23 @@ export function ProcessingUnloadScreen() {
 
   useEffect(() => { return loadRecentDispatches(); }, [token]);
 
-  // Load recent unloads
   const loadRuns = () => {
     const abort = new AbortController();
     listRuns(token, abort.signal)
       .then((runs) => {
+        // Check for status changes in recent runs for notification
+        runs.forEach(r => {
+          const prev = prevRunsStatusRef.current.get(r.dispatchNumber);
+          if (prev && prev !== r.qualityTestStatus) {
+            setStatusChangedNotification(`Quality for ${r.dispatchNumber}: ${prev} → ${r.qualityTestStatus} - lab ${r.qualityTestStatus === "InProgress" ? "started test" : r.qualityTestStatus === "Passed" ? "passed" : r.qualityTestStatus === "Failed" ? "failed" : "updated"}`);
+            setTimeout(() => setStatusChangedNotification(null), 8000);
+          }
+        });
+        // Update map
+        const newMap = new Map<string, string>();
+        runs.forEach(r => newMap.set(r.dispatchNumber, r.qualityTestStatus));
+        prevRunsStatusRef.current = newMap;
+
         setRecentRuns(runs);
         setLastRefresh(new Date());
       })
@@ -79,7 +87,6 @@ export function ProcessingUnloadScreen() {
 
   useEffect(() => { return loadRuns(); }, [token]);
 
-  // Problem 3 FIX: Auto-refresh polling every 10s for recent unloads + recent dispatches
   useEffect(() => {
     if (!autoRefresh) return;
     const interval = setInterval(() => {
@@ -89,7 +96,6 @@ export function ProcessingUnloadScreen() {
     return () => clearInterval(interval);
   }, [token, autoRefresh]);
 
-  // Calculate already unloaded per dispatch from recentRuns for partial unload support
   const unloadedByDispatch = useMemo(() => {
     const map = new Map<string, number>();
     recentRuns?.forEach(r => {
@@ -99,7 +105,6 @@ export function ProcessingUnloadScreen() {
     return map;
   }, [recentRuns]);
 
-  // Live dispatch validation with debounce + PARTIAL UNLOAD support
   useEffect(() => {
     if (!dispatchId.trim()) {
       setDispatchValidation(null);
@@ -129,10 +134,9 @@ export function ProcessingUnloadScreen() {
         setDispatchChecking(false);
       }
     }, 400);
-    return () => { clearTimeout(timer); controller.abort(); };
+    return () => { clearTimeout(timer); controller.abort(); }
   }, [dispatchId, token]);
 
-  // Load quality status for selected dispatch
   const loadQualityForSelected = (showLoading = true) => {
     if (!selectedDispatchParam) return;
     const dispatch = selectedDispatchParam.trim().toUpperCase();
@@ -143,8 +147,8 @@ export function ProcessingUnloadScreen() {
     getQualityStatus(dispatch, token, abort.signal)
       .then((status) => {
         if (prevStatusRef.current && prevStatusRef.current !== status.qualityTestStatus) {
-          setStatusChangedNotification(`Quality status for ${status.dispatchNumber} changed: ${prevStatusRef.current} → ${status.qualityTestStatus}`);
-          setTimeout(() => setStatusChangedNotification(null), 6000);
+          setStatusChangedNotification(`Quality status for ${status.dispatchNumber} changed: ${prevStatusRef.current} → ${status.qualityTestStatus} - ${status.qualityTestStatus === "InProgress" ? "lab started test" : status.qualityTestStatus}`);
+          setTimeout(() => setStatusChangedNotification(null), 8000);
         }
         prevStatusRef.current = status.qualityTestStatus;
         setQualityStatus(status);
@@ -195,7 +199,6 @@ export function ProcessingUnloadScreen() {
   const quantity = Number(quantityKg);
   const temperature = Number(temperatureC);
 
-  // Partial unload logic
   const alreadyUnloadedKg = dispatchValidation?.alreadyUnloadedKg ?? unloadedByDispatch.get(dispatchId.trim().toUpperCase()) ?? 0;
   const remainingKg = dispatchValidation?.remainingKg;
   const isFullyUnloaded = dispatchValidation?.isFullyUnloaded ?? false;
@@ -208,9 +211,6 @@ export function ProcessingUnloadScreen() {
   const tempOk = temperatureC.trim() !== "" && Number.isFinite(temperature);
 
   const complete = dispatchValid && sensoryOk && tankOk && quantityOk && tempOk;
-
-  // Fix button remaining: should show remaining AFTER this unload, not before
-  const remainingAfter = remainingKg != null && Number.isFinite(quantity) && quantity > 0 ? Math.max(0, remainingKg - quantity) : remainingKg;
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -260,7 +260,7 @@ export function ProcessingUnloadScreen() {
     <>
       <div className="pagehead">
         <h1 className="pagehead__title">Unloading Bay</h1>
-        <p className="pagehead__detail">Bowser arrival, sensory BEFORE unload, dispatch ID must exist in MCC, unload to storing tank in KG - supports splitting one dispatch across multiple tanks</p>
+        <p className="pagehead__detail">Bowser arrival, sensory BEFORE unload, dispatch ID must exist in MCC</p>
       </div>
 
       {failure && <p className="notice notice--error">{failure}</p>}
@@ -276,7 +276,7 @@ export function ProcessingUnloadScreen() {
       {selectedDispatchParam && (
         <section className="card" style={{ marginBottom: 16, border: "1.5px solid var(--navy-800)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <h3 style={{ margin: 0, fontSize: 14 }}>Selected Unload: {selectedDispatchParam.toUpperCase()}</h3>
+            <h3 style={{ margin: 0, fontSize: 14 }}>Selected: {selectedDispatchParam.toUpperCase()}</h3>
             <button type="button" className="iconbutton" onClick={clearSelectedDispatch} title="Close">X</button>
           </div>
 
@@ -285,7 +285,6 @@ export function ProcessingUnloadScreen() {
           {qualityFailure && (
             <div style={{ marginTop: 12 }}>
               <p className="notice notice--error">{qualityFailure}</p>
-              <p className="card__footnote">This dispatch has no quality test yet. It may still be Pending.</p>
               <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
                 <button type="button" className="button button--ghost button--small" onClick={clearSelectedDispatch}>Close</button>
               </div>
@@ -296,12 +295,12 @@ export function ProcessingUnloadScreen() {
             <>
               {qualityStatus.qualityTestStatus === "Pending" && (
                 <p className="notice" style={{ marginTop: 12, background: "#fffbeb", border: "1px solid #fcd34d", color: "#92400e", padding: 12, borderRadius: 8 }}>
-                  Quality test not yet started for {qualityStatus.dispatchNumber}. Lab has not opened this card yet. Status: Pending - waiting for quality technician. Auto-refresh every 5s.
+                  Quality test not yet started for {qualityStatus.dispatchNumber}. Status: Pending - waiting for quality tech.
                 </p>
               )}
               {qualityStatus.qualityTestStatus === "InProgress" && (
                 <p className="notice" style={{ marginTop: 12, background: "#eff6ff", border: "1px solid #93c5fd", color: "#1e40af", padding: 12, borderRadius: 8 }}>
-                  Lab is currently testing {qualityStatus.dispatchNumber}. Status: In Progress - please wait. Auto-refresh every 5s.
+                  Lab started test for {qualityStatus.dispatchNumber}. Status: In Progress - lab is testing.
                 </p>
               )}
               <div style={{ marginTop: 12 }}>
@@ -318,16 +317,15 @@ export function ProcessingUnloadScreen() {
       <form onSubmit={submit} noValidate>
         <section className="card">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <h3 style={{ margin: 0, fontSize: 14 }}>Unload a Bowser - SCRUM 62 + Partial Unload</h3>
+            <h3 style={{ margin: 0, fontSize: 14 }}>Unload a Bowser</h3>
             <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12 }}>
               <input type="checkbox" checked={autoRefresh} onChange={(e) => setAutoRefresh(e.target.checked)} />
               Auto-refresh {lastRefresh ? `(${lastRefresh.toLocaleTimeString()})` : ""}
             </label>
           </div>
-          <p className="card__footnote">Sensory must PASS before unload. Dispatch ID live validated against MCC with remaining quantity. Supports splitting one dispatch across multiple tanks if tank capacity exceeded. Auto-refresh every 10s.</p>
 
           <label className="field">
-            <span className="field__label">Dispatch Note (MCC Reference like DN-20260910-02)</span>
+            <span className="field__label">Dispatch Note</span>
             <div className="field__wrap">
               <input
                 value={dispatchId}
@@ -348,40 +346,32 @@ export function ProcessingUnloadScreen() {
               ) : dispatchValidation ? (
                 <span className={`field__hint ${dispatchValidation.exists && !isFullyUnloaded ? "" : "field__hint--warning"}`}>
                   {dispatchValidation.message}
-                  {alreadyUnloadedKg > 0 && totalDispatchKg > 0 && !isFullyUnloaded && ` - You can unload up to ${remainingKg?.toFixed(0)} KG more to another tank`}
                 </span>
               ) : (
-                <span className="field__hint">Type dispatch ID like DN-20260910-02</span>
+                <span className="field__hint">Type dispatch ID</span>
               )
-            )}
-            {!dispatchId && recentDispatches && recentDispatches.length > 0 && (
-              <span className="field__hint">Available MCC dispatches (not fully unloaded): {recentDispatches.slice(0, 3).map((d) => d.reference).join(", ")} - Auto-refresh every 10s - Supports partial unload</span>
-            )}
-            {!dispatchId && recentDispatches?.length === 0 && (
-              <span className="field__hint">No available MCC dispatches - all have been fully unloaded or none in mccdb</span>
             )}
           </label>
 
           {alreadyUnloadedKg > 0 && remainingKg != null && remainingKg > 0.01 && !isFullyUnloaded && (
             <div style={{ marginTop: 12, padding: 10, background: "#eff6ff", border: "1px solid #93c5fd", borderRadius: 8 }}>
-              <span className="field__label" style={{ fontWeight: 700 }}>Partial Unload Detected</span>
+              <span className="field__label" style={{ fontWeight: 700 }}>Partial Unload</span>
               <p className="microlabel" style={{ marginTop: 4 }}>
-                Dispatch {dispatchId.toUpperCase()} - Total: {totalDispatchKg.toFixed(0)} KG, Already unloaded: {alreadyUnloadedKg.toFixed(0)} KG, Remaining: {remainingKg?.toFixed(0)} KG
+                Total: {totalDispatchKg.toFixed(0)} KG, Already: {alreadyUnloadedKg.toFixed(0)} KG, Remaining: {remainingKg?.toFixed(0)} KG
               </p>
-              <p className="card__footnote" style={{ marginTop: 4 }}>This dispatch was previously split. You can unload remaining {remainingKg?.toFixed(0)} KG to another tank. If tank capacity exceeded, split again.</p>
             </div>
           )}
-          {isFullyUnloaded && alreadyUnloadedKg > 0 && (
+          {isFullyUnloaded && (
             <div style={{ marginTop: 12, padding: 10, background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8 }}>
               <span className="field__label" style={{ fontWeight: 700, color: "#dc2626" }}>Fully Unloaded</span>
               <p className="microlabel" style={{ marginTop: 4, color: "#dc2626" }}>
-                Dispatch {dispatchId.toUpperCase()} - Total: {totalDispatchKg.toFixed(0)} KG, Already unloaded: {alreadyUnloadedKg.toFixed(0)} KG, Remaining: 0 KG - Cannot unload again
+                Dispatch {dispatchId.toUpperCase()} fully unloaded
               </p>
             </div>
           )}
 
           <div style={{ marginTop: 16, padding: 12, border: "1px solid var(--border)", borderRadius: 8, background: "var(--surface-sunken)" }}>
-            <span className="field__label">Sensory Checks BEFORE Unload (must all pass)</span>
+            <span className="field__label">Sensory Checks BEFORE Unload</span>
             <label style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8 }}>
               <input type="checkbox" checked={smellOk} onChange={(e) => setSmellOk(e.target.checked)} disabled={saving} />
               <span style={{ fontSize: 14 }}>Smell OK</span>
@@ -394,41 +384,30 @@ export function ProcessingUnloadScreen() {
               <input type="checkbox" checked={tasteOk} onChange={(e) => setTasteOk(e.target.checked)} disabled={saving} />
               <span style={{ fontSize: 14 }}>Taste OK</span>
             </label>
-            {!sensoryOk && <span className="field__hint field__hint--warning" style={{ marginTop: 8, display: "block" }}>All 3 sensory must pass before unload per real process</span>}
           </div>
 
           <label className="field" style={{ marginTop: 16 }}>
-            <span className="field__label">Storing Tank (Active only, must have free space)</span>
+            <span className="field__label">Storing Tank</span>
             <select value={storingTankId} onChange={(e) => setStoringTankId(e.target.value)} disabled={saving}>
               <option value="">Choose a tank...</option>
               {tanks?.map((t) => (
-                <option key={t.id} value={t.id}>{t.code} - {t.name} - {t.availableKg.toFixed(0)} KG free / {t.capacityKg.toFixed(0)} KG</option>
+                <option key={t.id} value={t.id}>{t.code} - {t.availableKg.toFixed(0)} KG free</option>
               ))}
             </select>
-            {tanks?.length === 0 && <span className="field__hint field__hint--warning">No storing tank is in service. Add one in Settings.</span>}
-            {selectedTank && <span className="field__hint">Selected {selectedTank.code} - {selectedTank.availableKg.toFixed(0)} KG free {remainingKg != null ? ` - Dispatch remaining ${remainingKg.toFixed(0)} KG` : ""}</span>}
           </label>
 
           <label className="field">
-            <span className="field__label">Quantity measured (KG) - 2 decimal {remainingKg != null ? `- Max ${remainingKg.toFixed(0)} KG remaining` : ""}</span>
+            <span className="field__label">Quantity KG</span>
             <div className="field__wrap"><input value={quantityKg} inputMode="decimal" placeholder={remainingKg != null ? remainingKg.toFixed(0) : "1500"} onChange={(e) => setQuantityKg(e.target.value)} disabled={saving} /></div>
-            {selectedTank && quantityKg && !quantityOk && (
-              <span className="field__hint field__hint--warning">
-                {quantity > selectedTank.availableKg ? `Exceeds free space ${selectedTank.availableKg.toFixed(0)} KG - split to another tank` : remainingKg != null && quantity > remainingKg ? `Exceeds dispatch remaining ${remainingKg.toFixed(0)} KG` : ""}
-              </span>
-            )}
           </label>
 
           <label className="field">
-            <span className="field__label">Arrival temperature (C) - 1-3°C ideal, deviation flagged</span>
+            <span className="field__label">Temperature °C</span>
             <div className="field__wrap"><input value={temperatureC} inputMode="decimal" placeholder="2.5" onChange={(e) => setTemperatureC(e.target.value)} disabled={saving} /></div>
-            {temperatureC && Number.isFinite(temperature) && (temperature < 1 || temperature > 3) && (
-              <span className="field__hint field__hint--warning">Deviation flagged: {temperature}°C not in 1-3°C ideal, but not blocked</span>
-            )}
           </label>
 
           <button type="submit" className="button button--wide" style={{ marginTop: 12 }} disabled={!complete || saving}>
-            {saving ? "Recording..." : remainingKg != null && alreadyUnloadedKg > 0 ? `Record Partial Unload - ${quantityKg || "0"} KG to ${selectedTank?.code || "tank"} (Remaining ${remainingAfter?.toFixed(0) ?? remainingKg.toFixed(0)} KG after)` : remainingKg != null ? `Record Unload - ${quantityKg || "0"} KG (Remaining ${remainingAfter?.toFixed(0) ?? remainingKg.toFixed(0)} KG after)` : "Record Unload"}
+            {saving ? "Recording..." : `Record Unload - ${quantityKg || "0"} KG`}
           </button>
         </section>
       </form>
@@ -439,21 +418,16 @@ export function ProcessingUnloadScreen() {
           <span className="section__count">{recentRuns?.length ?? 0} {lastRefresh ? `• ${lastRefresh.toLocaleTimeString()}` : ""}</span>
         </div>
         {!recentRuns && <p className="loading">Loading...</p>}
-        {recentRuns?.length === 0 && <p className="emptystate">Nothing unloaded yet. Use dispatch IDs DN-20260910-01 to 04 from mccdb.</p>}
-        {recentRuns?.map((r) => {
-          const totalForThisDispatch = unloadedByDispatch.get(r.dispatchNumber.toUpperCase()) ?? r.quantityKg;
-          const isPartial = totalForThisDispatch !== r.quantityKg;
-          return (
-            <article key={r.id} className="tankrow" onClick={() => navigate(`/processing/unloads?dispatch=${encodeURIComponent(r.dispatchNumber)}`)} style={{ cursor: "pointer" }}>
-              <header className="tankrow__head">
-                <h2 className="tankrow__name">{r.dispatchNumber} {isPartial ? "(Split)" : ""}</h2>
-                <span className={`badge ${r.qualityTestStatus === "Passed" ? "badge--good" : r.qualityTestStatus === "Failed" ? "badge--bad" : ""}`}>{r.qualityTestStatus}</span>
-              </header>
-              <p className="tankrow__status">{r.quantityKg.toFixed(0)} KG to {r.storingTankCode ?? "tank"} - {r.state} - {new Date(r.createdAtUtc).toLocaleString()} {isPartial ? ` - Total for ${r.dispatchNumber}: ${totalForThisDispatch.toFixed(0)} KG across tanks` : ""}</p>
-              <p className="microlabel" style={{ marginTop: 4 }}>Click to view quality status and readonly panel - auto-refresh every 10s {isPartial ? "- This dispatch was split across multiple tanks" : ""}</p>
-            </article>
-          );
-        })}
+        {recentRuns?.length === 0 && <p className="emptystate">Nothing unloaded yet</p>}
+        {recentRuns?.map((r) => (
+          <article key={r.id} className="tankrow" onClick={() => navigate(`/processing/unloads?dispatch=${encodeURIComponent(r.dispatchNumber)}`)} style={{ cursor: "pointer" }}>
+            <header className="tankrow__head">
+              <h2 className="tankrow__name">{r.dispatchNumber}</h2>
+              <span className={`badge ${r.qualityTestStatus === "Passed" ? "badge--good" : r.qualityTestStatus === "Failed" ? "badge--bad" : r.qualityTestStatus === "InProgress" ? "badge--warn" : ""}`}>{r.qualityTestStatus}</span>
+            </header>
+            <p className="tankrow__status">{r.quantityKg.toFixed(0)} KG to {r.storingTankCode ?? "tank"} - {r.state} - {new Date(r.createdAtUtc).toLocaleString()}</p>
+          </article>
+        ))}
       </div>
     </>
   );
