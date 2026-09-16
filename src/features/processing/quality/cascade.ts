@@ -1,6 +1,7 @@
 /**
  * Real lab process - Alcohol Test Cascade + Calculated Values
  * Never lose this logic - per user 2026-09-15
+ * FIXED: CLR is instrument reading, no temperature correction per user 2026-09-16
  * 
  * Terminology:
  * - Positive = clotted = BAD/FAIL
@@ -33,15 +34,10 @@ export function getKqMeta(colour: string) {
   return KQ_COLOURS.find(c => c.value.toLowerCase() === colour.trim().toLowerCase()) ?? null;
 }
 
-// Calculated values - never entered manually
-export function calculateCorrectedClr(rawClr: number, temperature: number): number {
-  // Corrected CLR = raw CLR + 0.2 x (temperature - 27)
-  return rawClr + 0.2 * (temperature - 27);
-}
-
-export function calculateSnf(fatPercent: number, correctedClr: number): number {
-  // SNF % = (Fat x 0.22) + (Corrected CLR x 0.25) + 0.72
-  return (fatPercent * 0.22) + (correctedClr * 0.25) + 0.72;
+// Calculated values - CLR is instrument reading, not corrected per user
+export function calculateSnf(fatPercent: number, clr: number): number {
+  // SNF % = (Fat x 0.22) + (CLR x 0.25) + 0.72 - using raw CLR reading
+  return (fatPercent * 0.22) + (clr * 0.25) + 0.72;
 }
 
 export function calculateTs(snf: number, fatPercent: number): number {
@@ -127,10 +123,10 @@ export function determineVerdict(params: {
   fatPercent: number;
   snf: number;
   waterPercent: number;
-  correctedClr: number;
+  clr: number;
   kqColour: string;
 }): VerdictResult {
-  const { smellOk, colourOk, tasteOk, cascade, fatPercent, snf, waterPercent, correctedClr, kqColour } = params;
+  const { smellOk, colourOk, tasteOk, cascade, fatPercent, snf, waterPercent, kqColour } = params;
 
   if (!smellOk) return { verdict: "Reject", failedParameter: "Smell", failedValue: "Not OK", reason: "Sensory smell failed - immediate reject" };
   if (!colourOk) return { verdict: "Reject", failedParameter: "Colour", failedValue: "Not OK", reason: "Sensory colour failed - immediate reject" };
@@ -147,9 +143,11 @@ export function determineVerdict(params: {
 
   if (fatPercent < 3.0) return { verdict: "Reject", failedParameter: "FatPercent", failedValue: `${fatPercent.toFixed(2)} < 3.0 min`, reason: "Fat below minimum 3.0%" };
   if (fatPercent > 6.0) return { verdict: "Reject", failedParameter: "FatPercent", failedValue: `${fatPercent.toFixed(2)} > 6.0 max`, reason: "Fat above maximum 6.0%" };
-  if (snf < 8.0) return { verdict: "Reject", failedParameter: "SNF", failedValue: `${snf.toFixed(2)} < 8.0 min`, reason: `SNF ${snf.toFixed(2)} below minimum 8.0% (Fat ${fatPercent} + CLR ${correctedClr.toFixed(2)})` };
+  if (snf < 8.0) return { verdict: "Reject", failedParameter: "SNF", failedValue: `${snf.toFixed(2)} < 8.0 min`, reason: `SNF ${snf.toFixed(2)} below minimum 8.0%` };
   if (waterPercent > 1.0) return { verdict: "Reject", failedParameter: "WaterPercent", failedValue: `${waterPercent.toFixed(2)} > 1.0 max`, reason: "Added water above 1.0% max" };
-  if (correctedClr < 26 || correctedClr > 32) return { verdict: "Reject", failedParameter: "CorrectedCLR", failedValue: `${correctedClr.toFixed(2)} out of 26-32`, reason: `Corrected CLR ${correctedClr.toFixed(2)} out of typical 26-32 range` };
+
+  // FIXED: CLR is instrument reading, not blocking pass - lab tech decides accept/reject via selection
+  // Removed auto-reject for CLR out of 26-32 range
 
   return { verdict: "Accept", reason: `All checks passed - ${deriveAlcoholResult(cascade)} - ${deriveProductLine(cascade)}` };
 }

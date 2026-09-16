@@ -8,14 +8,14 @@ const PRODUCT_OPTIONS: { value: ProductType; label: string; desc: string }[] = [
   { value: "SK", label: "SK - Set Kiri", desc: "Yogurt, acceptable quality" },
   { value: "FM", label: "FM - Fresh Milk", desc: "Fresh, best quality Passed 80%" },
   { value: "FLM", label: "FLM - Flavored Milk", desc: "Flavored, best quality Passed 80%" },
-  { value: "DK", label: "DK - Drinking Yogurt", desc: "Yogurt, acceptable quality" },
+  { value: "DY", label: "DY - Drinking Yogurt", desc: "Yogurt, acceptable quality" },
 ];
 
 function getPreSelectedProducts(alcoholResult?: string): ProductType[] {
-  if (!alcoholResult) return ["SY", "SK", "FM", "FLM", "DK"];
+  if (!alcoholResult) return ["SY", "SK", "FM", "FLM", "DY"];
   if (alcoholResult.includes("80%")) return ["FM", "FLM"];
-  if (alcoholResult.includes("75%") || alcoholResult.includes("68%") || alcoholResult.includes("COB")) return ["SY", "SK", "DK"];
-  return ["SY", "SK", "FM", "FLM", "DK"];
+  if (alcoholResult.includes("75%") || alcoholResult.includes("68%") || alcoholResult.includes("COB")) return ["SY", "SK", "DY"];
+  return ["SY", "SK", "FM", "FLM", "DY"];
 }
 
 export function AllocationScreen() {
@@ -143,7 +143,7 @@ export function AllocationScreen() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
             <h1 className="pagehead__title">Allocation - Storing → Mixing</h1>
-            <p className="pagehead__detail">Allocate released milk to mixing tank, batch code [day]-[product]-[letter] e.g., 258-FM-A, product pre-selected from alcohol result Passed 80%→FM/FLM, 75%/68%/COB→SY/SK/DK</p>
+            <p className="pagehead__detail">Allocate released milk to mixing tank, batch code [day]-[product]-[letter] e.g., 258-FM-A, product pre-selected from alcohol result Passed 80%→FM/FLM, 75%/68%/COB→SY/SK/DY</p>
           </div>
           <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12 }}>
             <input type="checkbox" checked={autoRefresh} onChange={(e) => setAutoRefresh(e.target.checked)} />
