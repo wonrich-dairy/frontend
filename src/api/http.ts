@@ -20,12 +20,18 @@ const processingBaseUrl = (
   import.meta.env.VITE_PROCESSING_API_URL ?? "http://localhost:5239"
 ).replace(/\/$/, "");
 
-export type ServiceName = "intake" | "processing";
+const qualityLabBaseUrl = (
+  import.meta.env.VITE_QUALITY_LAB_API_URL ?? "http://localhost:5003"
+).replace(/\/$/, "");
+
+export type ServiceName = "intake" | "processing" | "qualityLab";
 
 const BASE_URLS: Record<ServiceName, string> = {
   intake: intakeBaseUrl,
   processing: processingBaseUrl,
+  qualityLab: qualityLabBaseUrl,
 };
+
 
 interface RequestOptions {
   method?: string;
