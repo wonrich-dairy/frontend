@@ -11,6 +11,8 @@ import {
   type ChemicalPanelDto,
   type ProductLine,
 } from "../../../api/qualityLab/panels";
+import { getSensory, type SensoryEvaluationDto } from "../../../api/qualityLab/sensory";
+import { SensoryEvaluationForm } from "../sensory/SensoryEvaluationForm";
 import "./QualityLabPanelScreen.css";
 
 export function QualityLabPanelScreen() {
@@ -39,6 +41,7 @@ export function QualityLabPanelScreen() {
   const [ph, setPh] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [panelResult, setPanelResult] = useState<ChemicalPanelDto | null>(null);
+  const [existingSensory, setExistingSensory] = useState<SensoryEvaluationDto | null>(null);
 
   const abortRef = useRef<AbortController | undefined>(undefined);
 
@@ -109,7 +112,7 @@ export function QualityLabPanelScreen() {
     }
   };
 
-  const selectBatch = (batch: BatchWorkItemDto) => {
+  const selectBatch = async (batch: BatchWorkItemDto) => {
     setSelectedBatch(batch);
     setPanelResult(null);
     setFatPercent("");
@@ -117,6 +120,13 @@ export function QualityLabPanelScreen() {
     setTemperatureCelsius("");
     setPh("");
     setError(null);
+    // Load existing sensory for this batch
+    try {
+      const s = await getSensory(batch.batchCode, token);
+      setExistingSensory(s);
+    } catch {
+      setExistingSensory(null);
+    }
   };
 
   const liquid = selectedBatch ? isLiquid(selectedBatch.productLine) : false;
@@ -267,6 +277,24 @@ export function QualityLabPanelScreen() {
                     </tbody>
                   </table>
                 </div>
+              )}
+
+              {/* Sensory evaluation — show when batch has panels */}
+              {selectedBatch.hasPanels && (
+                <SensoryEvaluationForm
+                  batchCode={selectedBatch.batchCode}
+                  productLine={selectedBatch.productLine}
+                  existing={existingSensory}
+                  onComplete={async () => {
+                    await fetchQueue();
+                    try {
+                      const s = await getSensory(selectedBatch.batchCode, token);
+                      setExistingSensory(s);
+                    } catch {
+                      setExistingSensory(null);
+                    }
+                  }}
+                />
               )}
             </>
           )}
