@@ -88,6 +88,17 @@ function Screens() {
     );
   }
 
+  const isQualityAnalystRole = role === "QualityAnalyst";
+
+  if (isQualityAnalystRole && path === "/") {
+    window.history.replaceState(window.history.state, "", "/quality-lab/panels");
+    return (
+      <AppShell current="home" title="Quality Lab — Chemical Panels" onBack={undefined}>
+        <QualityLabPanelScreen />
+      </AppShell>
+    );
+  }
+
   const screen = resolve(path, query, navigate);
   const allowed = !screen.needs || can(role, screen.needs);
 
