@@ -12,7 +12,9 @@ import {
   type ProductLine,
 } from "../../../api/qualityLab/panels";
 import { getSensory, type SensoryEvaluationDto } from "../../../api/qualityLab/sensory";
+import { getDetermination, type DeterminationDto } from "../../../api/qualityLab/determinations";
 import { SensoryEvaluationForm } from "../sensory/SensoryEvaluationForm";
+import { DeterminationForm } from "../determination/DeterminationForm";
 import "./QualityLabPanelScreen.css";
 
 export function QualityLabPanelScreen() {
@@ -42,6 +44,7 @@ export function QualityLabPanelScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [panelResult, setPanelResult] = useState<ChemicalPanelDto | null>(null);
   const [existingSensory, setExistingSensory] = useState<SensoryEvaluationDto | null>(null);
+  const [existingDetermination, setExistingDetermination] = useState<DeterminationDto | null>(null);
 
   const abortRef = useRef<AbortController | undefined>(undefined);
 
@@ -126,6 +129,13 @@ export function QualityLabPanelScreen() {
       setExistingSensory(s);
     } catch {
       setExistingSensory(null);
+    }
+    // Load existing determination
+    try {
+      const d = await getDetermination(batch.batchCode, token);
+      setExistingDetermination(d);
+    } catch {
+      setExistingDetermination(null);
     }
   };
 
@@ -292,6 +302,24 @@ export function QualityLabPanelScreen() {
                       setExistingSensory(s);
                     } catch {
                       setExistingSensory(null);
+                    }
+                  }}
+                />
+              )}
+
+              {/* Determination — show when batch has both panel and sensory */}
+              {selectedBatch.hasPanels && existingSensory && (
+                <DeterminationForm
+                  batchCode={selectedBatch.batchCode}
+                  hasOutOfSpecFlags={panelResult?.hasOutOfSpecFlags ?? false}
+                  existing={existingDetermination}
+                  onComplete={async () => {
+                    await fetchQueue();
+                    try {
+                      const d = await getDetermination(selectedBatch.batchCode, token);
+                      setExistingDetermination(d);
+                    } catch {
+                      setExistingDetermination(null);
                     }
                   }}
                 />
