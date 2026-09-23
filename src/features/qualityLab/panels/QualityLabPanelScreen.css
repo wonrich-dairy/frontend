@@ -1,0 +1,325 @@
+.ql-panel-screen {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.ql-panel-screen__header {
+  margin-bottom: 1.5rem;
+}
+
+.ql-panel-screen__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem;
+}
+
+.ql-panel-screen__subtitle {
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.ql-panel-screen__error {
+  background: #fef2f2;
+  color: #b91c1c;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  border: 1px solid #fecaca;
+}
+
+.ql-panel-screen__layout {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .ql-panel-screen__layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Queue ────────────────────────────────────────────────────────────────── */
+
+.ql-panel-screen__queue {
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.ql-panel-screen__queue-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.ql-panel-screen__queue-header h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.ql-panel-screen__new-batch {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.ql-panel-screen__new-batch input,
+.ql-panel-screen__new-batch select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+}
+
+.ql-panel-screen__loading,
+.ql-panel-screen__empty {
+  color: #9ca3af;
+  font-size: 0.875rem;
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.ql-panel-screen__queue-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.ql-panel-screen__queue-item {
+  padding: 0.625rem 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border: 1px solid transparent;
+}
+
+.ql-panel-screen__queue-item:hover {
+  background: #f3f4f6;
+}
+
+.ql-panel-screen__queue-item--selected {
+  background: #eff6ff;
+  border-color: #3b82f6;
+}
+
+.ql-panel-screen__queue-item-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.125rem;
+}
+
+.ql-panel-screen__queue-item-main strong {
+  font-size: 0.875rem;
+}
+
+.ql-panel-screen__queue-item-detail {
+  display: flex;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.ql-panel-screen__badge {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+}
+
+.ql-panel-screen__badge--awaitingpanel {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.ql-panel-screen__badge--panelrecorded {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.ql-panel-screen__badge--cleared {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.ql-panel-screen__badge--failed {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* ── Form area ────────────────────────────────────────────────────────────── */
+
+.ql-panel-screen__form-area {
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.ql-panel-screen__form-area h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.ql-panel-screen__product-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #ede9fe;
+  color: #5b21b6;
+  padding: 0.125rem 0.5rem;
+  border-radius: 6px;
+}
+
+.ql-panel-screen__form-info {
+  color: #6b7280;
+  font-size: 0.8125rem;
+  margin: 0 0 1rem;
+}
+
+.ql-panel-screen__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: #9ca3af;
+  font-size: 0.875rem;
+}
+
+.ql-panel-screen__form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+@media (max-width: 600px) {
+  .ql-panel-screen__form {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ql-panel-screen__form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.ql-panel-screen__form input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  transition: border-color 0.15s;
+}
+
+.ql-panel-screen__form input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+
+.ql-panel-screen__btn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.ql-panel-screen__btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ql-panel-screen__btn--primary {
+  background: #3b82f6;
+  color: #fff;
+}
+
+.ql-panel-screen__btn--primary:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.ql-panel-screen__btn--secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border-color: #d1d5db;
+}
+
+.ql-panel-screen__btn--secondary:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+.ql-panel-screen__btn--submit {
+  grid-column: 1 / -1;
+  margin-top: 0.5rem;
+  padding: 0.625rem 1.5rem;
+}
+
+/* ── Result ───────────────────────────────────────────────────────────────── */
+
+.ql-panel-screen__result {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+}
+
+.ql-panel-screen__result h3 {
+  font-size: 0.9375rem;
+  margin: 0 0 0.75rem;
+  color: #166534;
+}
+
+.ql-panel-screen__result-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.ql-panel-screen__result-table td {
+  padding: 0.375rem 0.5rem;
+  border-bottom: 1px solid #dcfce7;
+}
+
+.ql-panel-screen__result-table td:first-child {
+  font-weight: 500;
+  color: #374151;
+  width: 40%;
+}
+
+.ql-panel-screen__result-table td:last-child {
+  color: #111827;
+}

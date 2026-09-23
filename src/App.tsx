@@ -29,6 +29,7 @@ import { QualityMockScreen } from "./features/processing/quality/QualityMockScre
 import { ServiceSelectionScreen } from "./features/serviceSelection/ServiceSelectionScreen";
 import { ProcessingAppShell, type ProcessingTab } from "./components/processing/ProcessingAppShell";
 import { UserProfileScreen } from "./features/profile/UserProfileScreen";
+import { QualityLabPanelScreen } from "./features/qualityLab/panels/QualityLabPanelScreen";
 import { SyncProvider } from "./features/sync/SyncProvider";
 import "./styles/app.css";
 import "./styles/screens.css";
@@ -336,6 +337,16 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
       parent: "/processing",
       needs: "readProcessing",
       element: <ProcessingSettingsScreen />,
+    };
+  }
+
+  if (match("/quality-lab/panels", path)) {
+    return {
+      tab: "home",
+      title: "Quality Lab — Chemical Panels",
+      parent: "/",
+      needs: "recordLabPanels",
+      element: <QualityLabPanelScreen />,
     };
   }
 
