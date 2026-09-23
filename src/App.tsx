@@ -30,6 +30,7 @@ import { ServiceSelectionScreen } from "./features/serviceSelection/ServiceSelec
 import { ProcessingAppShell, type ProcessingTab } from "./components/processing/ProcessingAppShell";
 import { UserProfileScreen } from "./features/profile/UserProfileScreen";
 import { QualityLabPanelScreen } from "./features/qualityLab/panels/QualityLabPanelScreen";
+import { SpecThresholdScreen } from "./features/qualityLab/specs/SpecThresholdScreen";
 import { SyncProvider } from "./features/sync/SyncProvider";
 import "./styles/app.css";
 import "./styles/screens.css";
@@ -347,6 +348,16 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
       parent: "/",
       needs: "recordLabPanels",
       element: <QualityLabPanelScreen />,
+    };
+  }
+
+  if (match("/quality-lab/specs", path)) {
+    return {
+      tab: "home",
+      title: "Quality Lab — Spec Thresholds",
+      parent: "/",
+      needs: "manageLabSpecs",
+      element: <SpecThresholdScreen />,
     };
   }
 
