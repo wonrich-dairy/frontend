@@ -32,6 +32,8 @@ export function SignInScreen() {
         navigate("/select-service");
       } else if (role === "ProcessingTechnician") {
         navigate("/processing");
+      } else if (role === "QualityAnalyst") {
+        navigate("/quality-lab/panels");
       } else {
         navigate("/");
       }
