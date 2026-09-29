@@ -120,7 +120,7 @@ export function SensoryEvaluationForm({ batchCode, productLine, existing, onComp
   return (
     <div className="sensory-form">
       <h3 className="sensory-form__title">
-        {locked ? "🔒 Sensory Evaluation (Locked)" : isUpdate ? "✏️ Edit Sensory Evaluation" : "🧪 Sensory Evaluation"}
+        {locked ? "Sensory Evaluation (Locked)" : isUpdate ? "Edit Sensory Evaluation" : "Sensory Evaluation"}
       </h3>
 
       {error && <div className="sensory-form__error">{error}</div>}
