@@ -29,6 +29,7 @@ import { QualityMockScreen } from "./features/processing/quality/QualityMockScre
 import { ServiceSelectionScreen } from "./features/serviceSelection/ServiceSelectionScreen";
 import { ProcessingAppShell, type ProcessingTab } from "./components/processing/ProcessingAppShell";
 import { UserProfileScreen } from "./features/profile/UserProfileScreen";
+import { QualityLabPanelScreen } from "./features/qualityLab/panels/QualityLabPanelScreen";
 import { SyncProvider } from "./features/sync/SyncProvider";
 import "./styles/app.css";
 import "./styles/screens.css";
@@ -83,6 +84,16 @@ function Screens() {
       <ProcessingAppShell current="factory" title={undefined} onBack={undefined}>
         <ProcessingDashboardScreen />
       </ProcessingAppShell>
+    );
+  }
+
+  // Quality Analyst → Quality Lab panels (SCRUM-20)
+  if (role === "QualityAnalyst" && path === "/") {
+    window.history.replaceState(window.history.state, "", "/quality-lab/panels");
+    return (
+      <AppShell current="home" title="Quality Lab — Chemical Panels" onBack={undefined}>
+        <QualityLabPanelScreen />
+      </AppShell>
     );
   }
 
@@ -336,6 +347,16 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
       parent: "/processing",
       needs: "readProcessing",
       element: <ProcessingSettingsScreen />,
+    };
+  }
+
+  if (match("/quality-lab/panels", path)) {
+    return {
+      tab: "home",
+      title: "Quality Lab — Chemical Panels",
+      parent: "/",
+      needs: "recordLabPanels",
+      element: <QualityLabPanelScreen />,
     };
   }
 
