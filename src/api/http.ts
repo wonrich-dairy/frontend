@@ -21,7 +21,7 @@ const processingBaseUrl = (
 ).replace(/\/$/, "");
 
 const qualityLabBaseUrl = (
-  import.meta.env.VITE_QUALITY_LAB_API_URL ?? "http://localhost:5003"
+  import.meta.env.VITE_QUALITY_LAB_API_URL ?? "http://localhost:5069"
 ).replace(/\/$/, "");
 
 export type ServiceName = "intake" | "processing" | "qualityLab";
