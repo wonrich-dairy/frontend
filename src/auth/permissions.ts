@@ -22,6 +22,7 @@ export type Permission =
   | "recordUnloads"
   | "readProcessing"
   | "recordLabPanels"
+  | "viewLabSpecs"
   | "manageLabSpecs";
 
 const ROLE_CLAIM = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
@@ -44,6 +45,7 @@ const GRANTS: Record<Permission, readonly Role[]> = {
     "ProcessingTechnician",
   ],
   recordLabPanels: ["SystemAdministrator", "QualityAnalyst"],
+  viewLabSpecs: ["SystemAdministrator", "QualityAnalyst", "ProductionManager"],
   manageLabSpecs: ["SystemAdministrator", "ProductionManager"],
 };
 

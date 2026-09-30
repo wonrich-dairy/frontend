@@ -30,6 +30,8 @@ import { ServiceSelectionScreen } from "./features/serviceSelection/ServiceSelec
 import { ProcessingAppShell, type ProcessingTab } from "./components/processing/ProcessingAppShell";
 import { UserProfileScreen } from "./features/profile/UserProfileScreen";
 import { QualityLabPanelScreen } from "./features/qualityLab/panels/QualityLabPanelScreen";
+import { SpecThresholdScreen } from "./features/qualityLab/specs/SpecThresholdScreen";
+import { QualityLabSettingsScreen } from "./features/qualityLab/settings/QualityLabSettingsScreen";
 import { SyncProvider } from "./features/sync/SyncProvider";
 import "./styles/app.css";
 import "./styles/screens.css";
@@ -88,10 +90,14 @@ function Screens() {
   }
 
   // Quality Analyst → Quality Lab panels (SCRUM-20)
-  if (role === "QualityAnalyst" && path === "/") {
+  const isQualityAnalystRole = role === "QualityAnalyst";
+  const qaHiddenTabs: Tab[] = ["consignments", "tanks"];
+  const qaTabOverrides: Partial<Record<Tab, string>> = { settings: "/quality-lab/settings", home: "/quality-lab/panels" };
+
+  if (isQualityAnalystRole && path === "/") {
     window.history.replaceState(window.history.state, "", "/quality-lab/panels");
     return (
-      <AppShell current="home" title="Quality Lab — Chemical Panels" onBack={undefined}>
+      <AppShell current="home" hiddenTabs={qaHiddenTabs} tabPathOverrides={qaTabOverrides}>
         <QualityLabPanelScreen />
       </AppShell>
     );
@@ -121,6 +127,8 @@ function Screens() {
       current={screen.tab}
       title={screen.title}
       onBack={screen.title ? () => back(screen.parent ?? "/") : undefined}
+      hiddenTabs={isQualityAnalystRole ? qaHiddenTabs : undefined}
+      tabPathOverrides={isQualityAnalystRole ? qaTabOverrides : undefined}
     >
       {allowed ? screen.element : <NotPermitted role={role} />}
     </AppShell>
@@ -220,6 +228,15 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
 
   if (match("/settings", path)) {
     return { tab: "settings", element: <SettingsScreen /> };
+  }
+
+  // QA-specific settings route — show QA settings for analyst role
+  if (match("/quality-lab/settings", path)) {
+    return {
+      tab: "settings",
+      needs: "recordLabPanels",
+      element: <QualityLabSettingsScreen />,
+    };
   }
 
   if (match("/settings/societies/new", path)) {
@@ -353,10 +370,20 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
   if (match("/quality-lab/panels", path)) {
     return {
       tab: "home",
-      title: "Quality Lab — Chemical Panels",
+      title: "Quality Lab - Chemical Panels",
       parent: "/",
       needs: "recordLabPanels",
       element: <QualityLabPanelScreen />,
+    };
+  }
+
+  if (match("/quality-lab/specs", path)) {
+    return {
+      tab: "home",
+      title: "Quality Lab - Specification Thresholds",
+      parent: "/",
+      needs: "viewLabSpecs",
+      element: <SpecThresholdScreen />,
     };
   }
 
