@@ -88,9 +88,8 @@ function Screens() {
     );
   }
 
-  const isQualityAnalystRole = role === "QualityAnalyst";
-
-  if (isQualityAnalystRole && path === "/") {
+  // Quality Analyst → Quality Lab panels (SCRUM-20)
+  if (role === "QualityAnalyst" && path === "/") {
     window.history.replaceState(window.history.state, "", "/quality-lab/panels");
     return (
       <AppShell current="home" title="Quality Lab — Chemical Panels" onBack={undefined}>
@@ -365,7 +364,7 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
   if (match("/quality-lab/specs", path)) {
     return {
       tab: "home",
-      title: "Quality Lab — Spec Thresholds",
+      title: "Quality Lab - Spec Thresholds",
       parent: "/",
       needs: "manageLabSpecs",
       element: <SpecThresholdScreen />,
