@@ -44,7 +44,7 @@ export function ServiceSelectionScreen() {
               <span style={{ width: 44, height: 44, background: "#dbeafe", borderRadius: 12, display: "grid", placeItems: "center", fontSize: 20, flexShrink: 0 }}>QLS</span>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <span style={{ fontSize: 15, fontWeight: 700, color: "var(--ink)", display: "block" }}>Quality Lab Service</span>
-                <span style={{ fontSize: 12, color: "var(--ink-muted)", display: "block", marginTop: 4, lineHeight: 1.4 }}>Quality Laboratory • Chemical Panels, Sensory Evaluations, Spec Thresholds, Determinations</span>
+                <span style={{ fontSize: 12, color: "var(--ink-muted)", display: "block", marginTop: 4, lineHeight: 1.4 }}>Quality Laboratory • Chemical Panels, Sensory Evaluations, Specification Thresholds, Determinations</span>
                 <span style={{ fontSize: 11, color: "var(--navy-800)", display: "block", marginTop: 8, fontWeight: 600 }}>→ Go to Quality Lab</span>
               </div>
             </div>

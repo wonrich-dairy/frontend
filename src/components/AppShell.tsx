@@ -26,11 +26,15 @@ export function AppShell({
   current,
   title,
   onBack,
+  hiddenTabs,
+  tabPathOverrides,
 }: {
   children: ReactNode;
   current: Tab;
   title?: string;
   onBack?: () => void;
+  hiddenTabs?: Tab[];
+  tabPathOverrides?: Partial<Record<Tab, string>>;
 }) {
   const { online, syncing, pendingCount } = useSync();
   const { navigate, path } = useNavigation();
@@ -77,14 +81,14 @@ export function AppShell({
       <main className="shell__body">{children}</main>
 
       <nav className="tabbar" aria-label="Sections">
-        {tabs.map((tab) => (
+        {tabs.filter((tab) => !hiddenTabs?.includes(tab.id)).map((tab) => (
           <TabButton
             key={tab.id}
             label={tab.label}
             icon={tab.icon}
             badge={tab.id === "home" ? pendingCount : 0}
             current={current === tab.id}
-            onClick={() => navigate(tab.path)}
+            onClick={() => navigate(tabPathOverrides?.[tab.id] ?? tab.path)}
           />
         ))}
       </nav>
