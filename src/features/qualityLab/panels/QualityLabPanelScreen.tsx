@@ -308,7 +308,7 @@ export function QualityLabPanelScreen() {
                   <input type="number" step="0.01" min="0" max="15" placeholder="e.g. 3.8" value={fatPercent} onChange={(e) => setFatPercent(e.target.value)} />
                   {fatFlag && (
                     <span className="ql-panel-screen__spec-warn">
-                      OUT OF SPEC — {fatFlag.limit === "Min" ? "Minimum" : "Maximum"} {fatFlag.limitValue}%
+                      OUT OF SPEC - {fatFlag.limit === "Min" ? "Minimum" : "Maximum"} {fatFlag.limitValue}%
                     </span>
                   )}
                 </label>
@@ -331,7 +331,7 @@ export function QualityLabPanelScreen() {
                   <input type="number" step="0.01" min="2.5" max="9.0" placeholder={liquid ? "e.g. 6.7" : "e.g. 4.4"} value={ph} onChange={(e) => setPh(e.target.value)} />
                   {phFlag && (
                     <span className="ql-panel-screen__spec-warn">
-                      OUT OF SPEC — {phFlag.limit === "Min" ? "Minimum" : "Maximum"} {phFlag.limitValue}
+                      OUT OF SPEC - {phFlag.limit === "Min" ? "Minimum" : "Maximum"} {phFlag.limitValue}
                     </span>
                   )}
                 </label>
