@@ -13,8 +13,10 @@ import {
   type ProductLine,
 } from "../../../api/qualityLab/panels";
 import { getSensory, type SensoryEvaluationDto } from "../../../api/qualityLab/sensory";
+import { getDetermination, type DeterminationDto } from "../../../api/qualityLab/determinations";
 import { getSpec, type SpecThresholdDto } from "../../../api/qualityLab/specs";
 import { SensoryEvaluationForm } from "../sensory/SensoryEvaluationForm";
+import { DeterminationForm } from "../determination/DeterminationForm";
 import "./QualityLabPanelScreen.css";
 
 // ── Client-side spec evaluation (mirrors Wonrich.QualityPanel.SpecEvaluator) ─
@@ -74,6 +76,7 @@ export function QualityLabPanelScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [panelResult, setPanelResult] = useState<ChemicalPanelDto | null>(null);
   const [existingSensory, setExistingSensory] = useState<SensoryEvaluationDto | null>(null);
+  const [existingDetermination, setExistingDetermination] = useState<DeterminationDto | null>(null);
 
   // Spec threshold for the selected product line (G1: real-time flagging)
   const [spec, setSpec] = useState<SpecThresholdDto | null>(null);
@@ -182,6 +185,13 @@ export function QualityLabPanelScreen() {
       setExistingSensory(s);
     } catch {
       setExistingSensory(null);
+    }
+    // Load existing determination
+    try {
+      const d = await getDetermination(batch.batchCode, token);
+      setExistingDetermination(d);
+    } catch {
+      setExistingDetermination(null);
     }
   };
 
@@ -379,6 +389,32 @@ export function QualityLabPanelScreen() {
                       setExistingSensory(s);
                     } catch {
                       setExistingSensory(null);
+                    }
+                  }}
+                />
+              )}
+
+              {/* Determination — show when batch has both panel and sensory */}
+              {selectedBatch.hasPanels && existingSensory && (
+                <DeterminationForm
+                  batchCode={selectedBatch.batchCode}
+                  productLine={selectedBatch.productLine}
+                  hasOutOfSpecFlags={panelResult?.hasOutOfSpecFlags ?? false}
+                  hasSensoryIssues={
+                    existingSensory.taste !== "Acceptable" ||
+                    existingSensory.smell !== "Acceptable" ||
+                    existingSensory.colour !== "Acceptable" ||
+                    existingSensory.appearance !== "Acceptable" ||
+                    (existingSensory.texture != null && existingSensory.texture !== "Acceptable")
+                  }
+                  existing={existingDetermination}
+                  onComplete={async () => {
+                    await fetchQueue();
+                    try {
+                      const d = await getDetermination(selectedBatch.batchCode, token);
+                      setExistingDetermination(d);
+                    } catch {
+                      setExistingDetermination(null);
                     }
                   }}
                 />
