@@ -36,6 +36,30 @@ export function DeterminationForm({ batchCode, productLine, hasOutOfSpecFlags, h
   const [error, setError] = useState<string | null>(null);
   const [superseding, setSuperseding] = useState(false);
 
+  // G1: Filter reason codes by product line — hooks must run before any early return
+  const liquid = isLiquid(productLine);
+  const filteredReasonCodes = useMemo(
+    () => REASON_CODES.filter((r) => {
+      if (LIQUID_ONLY_CODES.has(r.code) && !liquid) return false;
+      if (FERMENTED_ONLY_CODES.has(r.code) && liquid) return false;
+      return true;
+    }),
+    [liquid]
+  );
+
+  const needsOverride = result === "Pass" && (hasOutOfSpecFlags || hasSensoryIssues);
+
+  const canSubmit =
+    result !== null &&
+    (result === "Pass" || reasonCodes.length > 0) &&
+    (!needsOverride || overrideReason.trim().length > 0);
+
+  const toggleReason = (code: string) => {
+    setReasonCodes((prev) =>
+      prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code]
+    );
+  };
+
   // Show existing determination
   if (existing && !superseding) {
     const isPass = existing.result === "Pass";
@@ -63,7 +87,7 @@ export function DeterminationForm({ batchCode, productLine, hasOutOfSpecFlags, h
           </p>
         )}
         <p className="determination-result__detail">
-          <strong>By:</strong> {existing.determinedBy} · {new Date(existing.determinedAtUtc).toLocaleString()}
+          <strong>Determined:</strong> {new Date(existing.determinedAtUtc).toLocaleString()}
         </p>
         <button
           className="determination-result__supersede-btn"
@@ -74,30 +98,6 @@ export function DeterminationForm({ batchCode, productLine, hasOutOfSpecFlags, h
       </div>
     );
   }
-
-  const toggleReason = (code: string) => {
-    setReasonCodes((prev) =>
-      prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code]
-    );
-  };
-
-  // G1: Filter reason codes by product line
-  const liquid = isLiquid(productLine);
-  const filteredReasonCodes = useMemo(
-    () => REASON_CODES.filter((r) => {
-      if (LIQUID_ONLY_CODES.has(r.code) && !liquid) return false;
-      if (FERMENTED_ONLY_CODES.has(r.code) && liquid) return false;
-      return true;
-    }),
-    [liquid]
-  );
-
-  const needsOverride = result === "Pass" && (hasOutOfSpecFlags || hasSensoryIssues);
-
-  const canSubmit =
-    result !== null &&
-    (result === "Pass" || reasonCodes.length > 0) &&
-    (!needsOverride || overrideReason.trim().length > 0);
 
   const handleSubmit = async () => {
     if (!result || !canSubmit) return;

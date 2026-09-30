@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "../../../auth/sessionStore";
 import {
   getWorkQueue,
   createBatch,
   recordPanel,
+  getLatestPanel,
   isLiquid,
   PRODUCT_LINES,
   PRODUCT_LINE_LABEL,
@@ -13,9 +14,40 @@ import {
 } from "../../../api/qualityLab/panels";
 import { getSensory, type SensoryEvaluationDto } from "../../../api/qualityLab/sensory";
 import { getDetermination, type DeterminationDto } from "../../../api/qualityLab/determinations";
+import { getSpec, type SpecThresholdDto } from "../../../api/qualityLab/specs";
 import { SensoryEvaluationForm } from "../sensory/SensoryEvaluationForm";
 import { DeterminationForm } from "../determination/DeterminationForm";
 import "./QualityLabPanelScreen.css";
+
+// ── Client-side spec evaluation (mirrors Wonrich.QualityPanel.SpecEvaluator) ─
+interface LiveFlag {
+  parameter: string;
+  actual: number;
+  limit: string;
+  limitValue: number;
+}
+
+function evaluateLive(
+  fat: number | null,
+  ph: number | null,
+  spec: SpecThresholdDto | null,
+): LiveFlag[] {
+  if (!spec) return [];
+  const flags: LiveFlag[] = [];
+  if (fat != null) {
+    if (spec.minFatPercent != null && fat < spec.minFatPercent)
+      flags.push({ parameter: "Fat %", actual: fat, limit: "Min", limitValue: spec.minFatPercent });
+    if (spec.maxFatPercent != null && fat > spec.maxFatPercent)
+      flags.push({ parameter: "Fat %", actual: fat, limit: "Max", limitValue: spec.maxFatPercent });
+  }
+  if (ph != null) {
+    if (spec.minPh != null && ph < spec.minPh)
+      flags.push({ parameter: "pH", actual: ph, limit: "Min", limitValue: spec.minPh });
+    if (spec.maxPh != null && ph > spec.maxPh)
+      flags.push({ parameter: "pH", actual: ph, limit: "Max", limitValue: spec.maxPh });
+  }
+  return flags;
+}
 
 export function QualityLabPanelScreen() {
   const { session } = useSession();
@@ -45,6 +77,9 @@ export function QualityLabPanelScreen() {
   const [panelResult, setPanelResult] = useState<ChemicalPanelDto | null>(null);
   const [existingSensory, setExistingSensory] = useState<SensoryEvaluationDto | null>(null);
   const [existingDetermination, setExistingDetermination] = useState<DeterminationDto | null>(null);
+
+  // Spec threshold for the selected product line (G1: real-time flagging)
+  const [spec, setSpec] = useState<SpecThresholdDto | null>(null);
 
   const abortRef = useRef<AbortController | undefined>(undefined);
 
@@ -123,6 +158,27 @@ export function QualityLabPanelScreen() {
     setTemperatureCelsius("");
     setPh("");
     setError(null);
+    setExistingSensory(null);
+    setSpec(null);
+
+    // Load spec for this product line (G1)
+    try {
+      const s = await getSpec(batch.productLine, token);
+      setSpec(s);
+    } catch {
+      setSpec(null);
+    }
+
+    // Load existing panel for this batch
+    if (batch.hasPanels) {
+      try {
+        const p = await getLatestPanel(batch.batchCode, token);
+        setPanelResult(p);
+      } catch {
+        setPanelResult(null);
+      }
+    }
+
     // Load existing sensory for this batch
     try {
       const s = await getSensory(batch.batchCode, token);
@@ -141,10 +197,20 @@ export function QualityLabPanelScreen() {
 
   const liquid = selectedBatch ? isLiquid(selectedBatch.productLine) : false;
 
+  // G1: Real-time out-of-spec warnings
+  const liveFlags = useMemo(() => {
+    const fat = fatPercent ? parseFloat(fatPercent) : null;
+    const phVal = ph ? parseFloat(ph) : null;
+    return evaluateLive(isNaN(fat as any) ? null : fat, isNaN(phVal as any) ? null : phVal, spec);
+  }, [fatPercent, ph, spec]);
+
+  const fatFlag = liveFlags.find((f) => f.parameter === "Fat %");
+  const phFlag = liveFlags.find((f) => f.parameter === "pH");
+
   return (
     <div className="ql-panel-screen">
       <div className="ql-panel-screen__header">
-        <h1 className="ql-panel-screen__title">🔬 Quality Lab — Chemical Panels</h1>
+        <h1 className="ql-panel-screen__title">Quality Lab - Chemical Panels</h1>
         <p className="ql-panel-screen__subtitle">
           Record final product chemical test results per batch
         </p>
@@ -222,7 +288,7 @@ export function QualityLabPanelScreen() {
         <div className="ql-panel-screen__form-area">
           {!selectedBatch ? (
             <div className="ql-panel-screen__placeholder">
-              <p>← Select a batch from the queue to record a chemical panel</p>
+              <p>Select a batch from the queue to record a chemical panel</p>
             </div>
           ) : (
             <>
@@ -232,14 +298,19 @@ export function QualityLabPanelScreen() {
               </h2>
               <p className="ql-panel-screen__form-info">
                 {liquid
-                  ? "Liquid line — fields: Fat%, Lactometer Reading, Temperature, pH → CLR, SNF, TS derived"
-                  : "Fermented line — fields: Fat%, pH only"}
+                  ? "Liquid line - fields: Fat%, Lactometer Reading, Temperature, pH → CLR, SNF, TS derived"
+                  : "Fermented line - fields: Fat%, pH only"}
               </p>
 
               <div className="ql-panel-screen__form">
                 <label>
                   Fat %
                   <input type="number" step="0.01" min="0" max="15" placeholder="e.g. 3.8" value={fatPercent} onChange={(e) => setFatPercent(e.target.value)} />
+                  {fatFlag && (
+                    <span className="ql-panel-screen__spec-warn">
+                      OUT OF SPEC — {fatFlag.limit === "Min" ? "Minimum" : "Maximum"} {fatFlag.limitValue}%
+                    </span>
+                  )}
                 </label>
 
                 {liquid && (
@@ -258,6 +329,11 @@ export function QualityLabPanelScreen() {
                 <label>
                   pH
                   <input type="number" step="0.01" min="2.5" max="9.0" placeholder={liquid ? "e.g. 6.7" : "e.g. 4.4"} value={ph} onChange={(e) => setPh(e.target.value)} />
+                  {phFlag && (
+                    <span className="ql-panel-screen__spec-warn">
+                      OUT OF SPEC — {phFlag.limit === "Min" ? "Minimum" : "Maximum"} {phFlag.limitValue}
+                    </span>
+                  )}
                 </label>
 
                 <button
@@ -272,7 +348,7 @@ export function QualityLabPanelScreen() {
               {/* ── Result ──────────────────────────────────────── */}
               {panelResult && (
                 <div className="ql-panel-screen__result">
-                  <h3>✅ Panel Recorded (Version {panelResult.version})</h3>
+                  <h3>Panel Recorded</h3>
                   <table className="ql-panel-screen__result-table">
                     <tbody>
                       <tr><td>Fat %</td><td>{panelResult.fatPercent}</td></tr>
@@ -282,16 +358,27 @@ export function QualityLabPanelScreen() {
                       {panelResult.correctedClr != null && <tr><td>Corrected CLR</td><td>{panelResult.correctedClr}</td></tr>}
                       {panelResult.snf != null && <tr><td>SNF</td><td>{panelResult.snf}</td></tr>}
                       {panelResult.ts != null && <tr><td>TS</td><td>{panelResult.ts}</td></tr>}
-                      <tr><td>Tested By</td><td>{panelResult.testedBy}</td></tr>
-                      <tr><td>Tested At</td><td>{new Date(panelResult.testedAtUtc).toLocaleString()}</td></tr>
                     </tbody>
                   </table>
+
+                  {/* Show saved out-of-spec flags */}
+                  {panelResult.hasOutOfSpecFlags && panelResult.outOfSpecFlagsJson && (
+                    <div className="ql-panel-screen__oos-flags">
+                      <h4>Out of Specification</h4>
+                      {(JSON.parse(panelResult.outOfSpecFlagsJson) as Array<{ Parameter: string; ActualValue: number; Limit: string; LimitValue: number }>).map((f, i) => (
+                        <div key={i} className="ql-panel-screen__oos-flag">
+                          <strong>{f.Parameter}</strong>: {f.ActualValue} — {f.Limit === "Min" ? "Minimum" : "Maximum"} {f.LimitValue}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 
-              {/* Sensory evaluation — show when batch has panels */}
-              {selectedBatch.hasPanels && (
+              {/* Sensory evaluation — show when panel exists (recorded before or just now) */}
+              {(selectedBatch.hasPanels || panelResult) && (
                 <SensoryEvaluationForm
+                  key={selectedBatch.batchCode + (existingSensory?.id ?? "")}
                   batchCode={selectedBatch.batchCode}
                   productLine={selectedBatch.productLine}
                   existing={existingSensory}

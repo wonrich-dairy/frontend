@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useSession } from "../../../auth/sessionStore";
+import { can, roleFromToken } from "../../../auth/permissions";
 import {
   getAllSpecs,
   updateSpec,
@@ -12,6 +13,8 @@ import "./SpecThresholdScreen.css";
 export function SpecThresholdScreen() {
   const { session } = useSession();
   const token = session?.accessToken ?? null;
+  const role = roleFromToken(token);
+  const canEdit = can(role, "manageLabSpecs");
 
   const [specs, setSpecs] = useState<SpecThresholdDto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -82,8 +85,8 @@ export function SpecThresholdScreen() {
   return (
     <div className="spec-screen">
       <div className="spec-screen__header">
-        <h1 className="spec-screen__title">⚙️ Spec Thresholds</h1>
-        <p className="spec-screen__subtitle">Configure acceptable ranges per product type</p>
+        <h1 className="spec-screen__title">Specification Thresholds</h1>
+        <p className="spec-screen__subtitle">{canEdit ? "Configure acceptable ranges per product type" : "View acceptable ranges per product type"}</p>
       </div>
 
       {error && <div className="spec-screen__error">{error}</div>}
@@ -116,9 +119,6 @@ export function SpecThresholdScreen() {
                 </div>
 
                 <div className="spec-screen__card-footer">
-                  <span className="spec-screen__updated">
-                    Updated by {spec.updatedBy} · {new Date(spec.updatedAtUtc).toLocaleDateString()}
-                  </span>
                   {isEditing ? (
                     <div className="spec-screen__btn-group">
                       <button className="spec-screen__btn spec-screen__btn--secondary" onClick={cancelEdit}>Cancel</button>
@@ -126,9 +126,9 @@ export function SpecThresholdScreen() {
                         {saving ? "Saving…" : "Save"}
                       </button>
                     </div>
-                  ) : (
+                  ) : canEdit ? (
                     <button className="spec-screen__btn spec-screen__btn--secondary" onClick={() => startEdit(spec)}>Edit</button>
-                  )}
+                  ) : null}
                 </div>
               </div>
             );
