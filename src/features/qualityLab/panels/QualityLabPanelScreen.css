@@ -323,3 +323,38 @@
 .ql-panel-screen__result-table td:last-child {
   color: #111827;
 }
+
+/* ── Real-time spec warning ─────────────────────────────────────── */
+.ql-panel-screen__spec-warn {
+  display: block;
+  margin-top: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  color: #b91c1c;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* ── Saved out-of-spec flags ────────────────────────────────────── */
+.ql-panel-screen__oos-flags {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+}
+
+.ql-panel-screen__oos-flags h4 {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  color: #b91c1c;
+}
+
+.ql-panel-screen__oos-flag {
+  font-size: 0.8125rem;
+  padding: 0.25rem 0;
+  color: #991b1b;
+}
