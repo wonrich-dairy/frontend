@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useSession } from "../../../auth/sessionStore";
+import { isLiquid, type ProductLine } from "../../../api/qualityLab/panels";
 import {
   submitDetermination,
   supersedeDetermination,
@@ -9,14 +10,21 @@ import {
 } from "../../../api/qualityLab/determinations";
 import "./DeterminationForm.css";
 
+// Reason codes that only apply to liquid lines (FM, FLM)
+const LIQUID_ONLY_CODES = new Set(["LOW_SNF", "LOW_CLR"]);
+// Reason codes that only apply to fermented lines (SY, SK, DY, CD)
+const FERMENTED_ONLY_CODES = new Set(["SENSORY_TEXTURE"]);
+
 interface Props {
   batchCode: string;
+  productLine: ProductLine;
   hasOutOfSpecFlags: boolean;
+  hasSensoryIssues: boolean;
   existing: DeterminationDto | null;
   onComplete: () => void;
 }
 
-export function DeterminationForm({ batchCode, hasOutOfSpecFlags, existing, onComplete }: Props) {
+export function DeterminationForm({ batchCode, productLine, hasOutOfSpecFlags, hasSensoryIssues, existing, onComplete }: Props) {
   const { session } = useSession();
   const token = session?.accessToken ?? null;
 
@@ -34,9 +42,9 @@ export function DeterminationForm({ batchCode, hasOutOfSpecFlags, existing, onCo
     return (
       <div className={`determination-result determination-result--${isPass ? "pass" : "fail"}`}>
         <div className="determination-result__header">
-          <span className="determination-form__title">🏷️ Determination</span>
+          <span className="determination-form__title">Determination</span>
           <span className={`determination-result__badge determination-result__badge--${isPass ? "pass" : "fail"}`}>
-            {existing.result === "Pass" ? "✅ PASSED" : "❌ FAILED"}
+            {existing.result === "Pass" ? "PASSED" : "FAILED"}
           </span>
         </div>
         {existing.reasonCodes.length > 0 && (
@@ -73,7 +81,18 @@ export function DeterminationForm({ batchCode, hasOutOfSpecFlags, existing, onCo
     );
   };
 
-  const needsOverride = result === "Pass" && hasOutOfSpecFlags;
+  // G1: Filter reason codes by product line
+  const liquid = isLiquid(productLine);
+  const filteredReasonCodes = useMemo(
+    () => REASON_CODES.filter((r) => {
+      if (LIQUID_ONLY_CODES.has(r.code) && !liquid) return false;
+      if (FERMENTED_ONLY_CODES.has(r.code) && liquid) return false;
+      return true;
+    }),
+    [liquid]
+  );
+
+  const needsOverride = result === "Pass" && (hasOutOfSpecFlags || hasSensoryIssues);
 
   const canSubmit =
     result !== null &&
@@ -114,7 +133,7 @@ export function DeterminationForm({ batchCode, hasOutOfSpecFlags, existing, onCo
   return (
     <div className="determination-form">
       <h4 className="determination-form__title">
-        {superseding ? "↻ Supersede Determination" : "🏷️ Submit Determination"}
+        {superseding ? "Supersede Determination" : "Submit Determination"}
       </h4>
 
       {error && <div className="determination-form__error">{error}</div>}
@@ -124,13 +143,13 @@ export function DeterminationForm({ batchCode, hasOutOfSpecFlags, existing, onCo
           className={`determination-form__result-btn ${result === "Pass" ? "determination-form__result-btn--pass" : ""}`}
           onClick={() => setResult("Pass")}
         >
-          ✅ Pass
+          Pass
         </button>
         <button
           className={`determination-form__result-btn ${result === "Fail" ? "determination-form__result-btn--fail" : ""}`}
           onClick={() => setResult("Fail")}
         >
-          ❌ Fail
+          Fail
         </button>
       </div>
 
@@ -138,7 +157,7 @@ export function DeterminationForm({ batchCode, hasOutOfSpecFlags, existing, onCo
         <div className="determination-form__reason-section">
           <span className="determination-form__reason-label">Select reason codes (at least one):</span>
           <div className="determination-form__reasons">
-            {REASON_CODES.map((r) => (
+            {filteredReasonCodes.map((r) => (
               <button
                 key={r.code}
                 className={`determination-form__reason-chip ${reasonCodes.includes(r.code) ? "determination-form__reason-chip--selected" : ""}`}
@@ -154,7 +173,7 @@ export function DeterminationForm({ batchCode, hasOutOfSpecFlags, existing, onCo
       {needsOverride && (
         <div className="determination-form__override">
           <span className="determination-form__override-label">
-            ⚠️ Override reason required (batch has out-of-spec flags):
+            Override reason required (batch has out-of-spec flags or sensory issues):
           </span>
           <textarea
             className="determination-form__textarea"

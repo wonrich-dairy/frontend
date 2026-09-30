@@ -311,7 +311,15 @@ export function QualityLabPanelScreen() {
               {selectedBatch.hasPanels && existingSensory && (
                 <DeterminationForm
                   batchCode={selectedBatch.batchCode}
+                  productLine={selectedBatch.productLine}
                   hasOutOfSpecFlags={panelResult?.hasOutOfSpecFlags ?? false}
+                  hasSensoryIssues={
+                    existingSensory.taste !== "Acceptable" ||
+                    existingSensory.smell !== "Acceptable" ||
+                    existingSensory.colour !== "Acceptable" ||
+                    existingSensory.appearance !== "Acceptable" ||
+                    (existingSensory.texture != null && existingSensory.texture !== "Acceptable")
+                  }
                   existing={existingDetermination}
                   onComplete={async () => {
                     await fetchQueue();
