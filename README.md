@@ -2,7 +2,9 @@
 
 React client for the Wonrich Dairy Quality Monitoring & Traceability System. The screens follow
 the Figma designs, which are drawn at 390px: the officer works on a phone at the gate, so the
-shell is mobile-first and simply centres itself on a wider screen.
+styles are mobile-first. Wider screens get more room: from 768px forms stay at a readable width
+and list and dashboard screens lay their cards out in a grid (routes flagged `wide` in
+`App.tsx`), and from 1024px the bottom tab bar becomes a rail down the left.
 
 ## Tech stack
 - React 19 + TypeScript, built with Vite
@@ -33,6 +35,7 @@ npm run dev
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `VITE_INTAKE_API_URL` | `https://wonrich-mcc-app-abhgfsaxc6a3eqfa.malaysiawest-01.azurewebsites.net` | MCC & Intake Service |
+| `VITE_TRACEABILITY_API_URL` | `http://localhost:5300` | Traceability & QC Dashboard Service |
 | `VITE_AUTH_API_URL` | `https://wonrich-auth-app-f4dndrgcgzgjb5h4.malaysiawest-01.azurewebsites.net` | Auth service issuing the bearer token |
 
 ## Screens

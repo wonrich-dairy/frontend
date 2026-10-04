@@ -47,9 +47,11 @@ export function TankListScreen() {
         <EmptyState>No chilling tanks are configured at this centre.</EmptyState>
       ) : null}
 
-      {tanks?.map((tank) => (
-        <TankCard key={tank.code} tank={tank} onOpen={() => navigate(`/tanks/${tank.code}`)} />
-      ))}
+      <div className="cardgrid">
+        {tanks?.map((tank) => (
+          <TankCard key={tank.code} tank={tank} onOpen={() => navigate(`/tanks/${tank.code}`)} />
+        ))}
+      </div>
     </>
   );
 }

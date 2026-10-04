@@ -16,16 +16,18 @@ export function ProcessingAppShell({
   current,
   title,
   onBack,
+  wide = false,
 }: {
   children: ReactNode;
   current: ProcessingTab;
   title?: string;
   onBack?: () => void;
+  wide?: boolean;
 }) {
   const { navigate, path } = useNavigation();
 
   return (
-    <div className="shell">
+    <div className="shell shell--nav">
       {title ? (
         <header className="topbar topbar--compact">
           <button type="button" className="iconbutton" onClick={onBack} title="Back">
@@ -63,7 +65,7 @@ export function ProcessingAppShell({
         </header>
       )}
 
-      <main className="shell__body">{children}</main>
+      <main className={`shell__body${wide ? " shell__body--wide" : ""}`}>{children}</main>
 
       <nav className="tabbar" aria-label="Factory Sections">
         {tabs.map((tab) => (

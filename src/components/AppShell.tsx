@@ -26,21 +26,19 @@ export function AppShell({
   current,
   title,
   onBack,
-  hiddenTabs,
-  tabPathOverrides,
+  wide = false,
 }: {
   children: ReactNode;
   current: Tab;
   title?: string;
   onBack?: () => void;
-  hiddenTabs?: Tab[];
-  tabPathOverrides?: Partial<Record<Tab, string>>;
+  wide?: boolean;
 }) {
   const { online, syncing, pendingCount } = useSync();
   const { navigate, path } = useNavigation();
 
   return (
-    <div className="shell">
+    <div className="shell shell--nav">
       {title ? (
         <header className="topbar topbar--compact">
           <button type="button" className="iconbutton" onClick={onBack} title="Back">
@@ -78,17 +76,17 @@ export function AppShell({
         </header>
       )}
 
-      <main className="shell__body">{children}</main>
+      <main className={`shell__body${wide ? " shell__body--wide" : ""}`}>{children}</main>
 
       <nav className="tabbar" aria-label="Sections">
-        {tabs.filter((tab) => !hiddenTabs?.includes(tab.id)).map((tab) => (
+        {tabs.map((tab) => (
           <TabButton
             key={tab.id}
             label={tab.label}
             icon={tab.icon}
             badge={tab.id === "home" ? pendingCount : 0}
             current={current === tab.id}
-            onClick={() => navigate(tabPathOverrides?.[tab.id] ?? tab.path)}
+            onClick={() => navigate(tab.path)}
           />
         ))}
       </nav>

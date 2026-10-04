@@ -124,13 +124,13 @@
 }
 
 .stat--good {
-  border-color: #b7e4c7;
-  background: var(--success-tint);
+  border-color: var(--status-cleared-border);
+  background: var(--status-cleared-tint);
 }
 
 .stat--bad {
-  border-color: var(--danger-border);
-  background: var(--danger-tint);
+  border-color: var(--status-failed-border);
+  background: var(--status-failed-tint);
 }
 
 .stat__label {
@@ -143,11 +143,11 @@
 }
 
 .stat--good .stat__label {
-  color: #15803d;
+  color: var(--status-cleared);
 }
 
 .stat--bad .stat__label {
-  color: var(--danger);
+  color: var(--status-failed);
 }
 
 .stat__value {
@@ -158,11 +158,11 @@
 }
 
 .stat--good .stat__value {
-  color: #15803d;
+  color: var(--status-cleared);
 }
 
 .stat--bad .stat__value {
-  color: var(--danger);
+  color: var(--status-failed);
 }
 
 .actions {
@@ -199,6 +199,20 @@
 .action__icon--solid {
   background: var(--navy-900);
   color: #fff;
+}
+
+/* Wider screens: the day's figures sit in one row and the quick actions form a grid. */
+@media (min-width: 768px) {
+  .stats {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: var(--space-4);
+  }
+
+  .actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+    gap: var(--space-4);
+  }
 }
 
 .action__body {
@@ -241,13 +255,13 @@
   place-items: center;
   width: 34px;
   height: 34px;
-  border: 1.5px solid var(--navy-800);
   border-radius: 999px;
-  color: var(--navy-800);
+  background: var(--chill-tint);
+  color: var(--chill);
 }
 
 .tankcard--alert .tankcard__mark {
-  border-color: var(--danger);
+  background: var(--danger-tint);
   color: var(--danger);
 }
 
@@ -285,11 +299,12 @@
   color: var(--navy-900);
 }
 
+/* Tank level: chilled milk, so the cold-chain blue rather than the navy of the chrome. */
 .meter {
   display: block;
   height: 10px;
   border-radius: 999px;
-  background: var(--navy-100);
+  background: var(--chill-tint);
   overflow: hidden;
 }
 
@@ -297,7 +312,7 @@
   display: block;
   height: 100%;
   border-radius: 999px;
-  background: var(--navy-800);
+  background: var(--chill);
 }
 
 .tankcard--alert .meter__fill {
@@ -515,7 +530,7 @@
 .tankrow {
   margin-bottom: var(--space-3);
   padding: var(--space-4);
-  border: 1.5px solid var(--navy-800);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-lg);
   background: var(--surface);
   box-shadow: var(--shadow-card);
@@ -624,7 +639,7 @@
 
 .settingslist {
   margin-top: var(--space-6);
-  border: 1.5px solid var(--navy-800);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius);
   background: var(--surface);
   overflow: hidden;
@@ -755,7 +770,7 @@
   width: 100%;
   max-width: 360px;
   max-height: 86vh;
-  border: 1.5px solid var(--navy-800);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-lg);
   background: var(--surface);
   box-shadow: var(--shadow-raised);
@@ -770,7 +785,7 @@
   justify-content: space-between;
   gap: var(--space-3);
   padding: var(--space-4);
-  border-bottom: 1.5px solid var(--navy-800);
+  border-bottom: 1px solid var(--border);
 }
 
 .modal__title {
@@ -814,7 +829,7 @@
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-3);
-  border: 1.5px solid var(--navy-800);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius);
 }
 
@@ -845,7 +860,7 @@
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-4);
-  border-bottom: 1.5px solid var(--navy-800);
+  border-bottom: 1px solid var(--border);
 }
 
 .confirm__mark {
@@ -908,6 +923,24 @@
   box-shadow: var(--shadow-raised);
 }
 
+/* A bottom sheet the width of a desk screen is a long reach for the mouse; there it opens
+   as a centred dialog instead. */
+@media (min-width: 768px) {
+  .scrim--bottom {
+    align-items: center;
+    padding: var(--space-4);
+  }
+
+  .sheet {
+    max-width: 420px;
+    border-radius: var(--radius-lg);
+  }
+
+  .sheet .sheet__grip {
+    display: none;
+  }
+}
+
 .sheet__grip {
   display: block;
   width: 44px;
@@ -936,7 +969,7 @@
 
 .sheet__actions {
   margin-bottom: var(--space-3);
-  border: 1.5px solid var(--navy-800);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius);
   overflow: hidden;
 }
@@ -948,7 +981,7 @@
   width: 100%;
   padding: var(--space-4);
   border: 0;
-  border-bottom: 1.5px solid var(--navy-800);
+  border-bottom: 1px solid var(--border);
   background: var(--surface-sunken);
   color: var(--navy-900);
   font-size: 15px;
@@ -1001,7 +1034,7 @@
 }
 
 .accordion__card {
-  border: 1.5px solid var(--navy-800);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius);
   background: var(--surface);
   box-shadow: var(--shadow-card);
@@ -1038,7 +1071,7 @@
 
 .accordion__body {
   padding: 0 var(--space-4) var(--space-4);
-  border-top: 1.5px solid var(--navy-800);
+  border-top: 1px solid var(--border);
 }
 
 .facts {
@@ -1115,21 +1148,34 @@
   font-weight: 700;
 }
 
+/* Status badges use the shared status colours, so a verdict reads the same in every module. */
 .badge {
   padding: 3px 10px;
   border-radius: 999px;
+  background: var(--surface-sunken);
+  color: var(--ink-muted);
   font-size: 11px;
   font-weight: 700;
 }
 
 .badge--good {
-  background: var(--success-tint);
-  color: #15803d;
+  background: var(--status-cleared-tint);
+  color: var(--status-cleared);
 }
 
 .badge--bad {
-  background: var(--danger-tint);
-  color: var(--danger);
+  background: var(--status-failed-tint);
+  color: var(--status-failed);
+}
+
+.badge--pending {
+  background: var(--status-pending-tint);
+  color: var(--status-pending);
+}
+
+.badge--warn {
+  background: var(--status-hold-tint);
+  color: var(--status-hold);
 }
 
 /* Profile ----------------------------------------------------------------- */
@@ -1139,7 +1185,7 @@
   align-items: center;
   gap: var(--space-4);
   padding: var(--space-4);
-  border: 1.5px solid var(--navy-800);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-lg);
   background: var(--surface);
   box-shadow: var(--shadow-card);
@@ -1305,9 +1351,24 @@
   margin-top: var(--space-3);
   padding: var(--space-4);
   border: 1px solid var(--border);
+  border-left: 4px solid var(--border-strong);
   border-radius: var(--radius);
   background: var(--surface);
   box-shadow: var(--shadow-card);
+}
+
+/* A stripe in the status colour, so a list of deliveries can be read for its verdicts at a
+   glance before any text is. */
+.deliveryrow--accepted {
+  border-left-color: var(--status-cleared);
+}
+
+.deliveryrow--rejected {
+  border-left-color: var(--status-failed);
+}
+
+.deliveryrow--pending {
+  border-left-color: var(--status-pending);
 }
 
 .deliveryrow__head {
@@ -1353,7 +1414,7 @@
 }
 
 .dot--warn {
-  background: #f79009;
+  background: var(--status-hold);
 }
 
 .tankrow__code {
@@ -1362,3 +1423,330 @@
   font-weight: 600;
 }
 
+
+/* QCO dashboard (SCRUM-136) ----------------------------------------------- */
+
+.qcohead__fresh {
+  margin: var(--space-1) 0 0;
+  color: var(--ink-muted);
+  font-size: 13px;
+}
+
+.qcofilters {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+/* On a phone the filters fold into one line that says what is shown, so they do not push the
+   panels down on every tab. Wider screens always show the form and never the line. */
+.qcofilters__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 13px;
+  text-align: left;
+}
+
+.qcofilters__summary {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.qcofilters__action {
+  color: var(--navy-800);
+  font-weight: 700;
+}
+
+.qcofilters__toggle + .qcofilters {
+  margin-top: var(--space-2);
+}
+
+@media (max-width: 767px) {
+  .qcofilters--folded {
+    display: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .qcofilters__toggle {
+    display: none;
+  }
+
+  .qcofilters__toggle + .qcofilters {
+    margin-top: var(--space-4);
+  }
+}
+
+/* The fields sit in a grid, so the stacked-form spacing would push every second one down. */
+.qcofilters .field + .field {
+  margin-top: 0;
+}
+
+.qcofilters .field {
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-muted);
+}
+
+.qcofilters .field input,
+.qcofilters .field select {
+  width: 100%;
+  min-width: 0;
+}
+
+.qcofilters__actions {
+  grid-column: 1 / -1;
+}
+
+.qcofilters__actions .notice {
+  margin-top: 0;
+  margin-bottom: var(--space-3);
+}
+
+.qcogrid {
+  display: grid;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.qcopanel {
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+}
+
+.qcopanel__title {
+  margin: 0 0 var(--space-3);
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--navy-900);
+}
+
+.qcopanel__note {
+  margin: var(--space-3) 0 0;
+  color: var(--ink-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.qcopanel .loading,
+.qcopanel .emptystate {
+  margin: var(--space-4) 0;
+}
+
+.qcopanel .notice {
+  margin-top: 0;
+}
+
+@media (min-width: 900px) {
+  .qcofilters {
+    grid-template-columns: 2fr 1fr 1fr 1fr auto;
+    align-items: end;
+  }
+
+  .qcofilters__actions {
+    grid-column: auto;
+  }
+
+  .qcogrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .qcopanel--full,
+  .qcopanel:only-child {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Status counts */
+
+.statusgroup + .statusgroup {
+  margin-top: var(--space-4);
+}
+
+.statusgroup__label {
+  margin: 0 0 var(--space-2);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.statusgrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+@media (min-width: 600px) {
+  .statusgrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.statustile {
+  display: flex;
+  flex-direction: column-reverse;
+  margin: 0;
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+}
+
+.statustile dt {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.statustile dd {
+  margin: 0 0 var(--space-1);
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.statustile--pending { background: var(--status-pending-tint); color: var(--status-pending); }
+.statustile--cleared { background: var(--status-cleared-tint); color: var(--status-cleared); }
+.statustile--failed { background: var(--status-failed-tint); color: var(--status-failed); }
+.statustile--hold { background: var(--status-hold-tint); color: var(--status-hold); }
+
+/* Tables with inline bars: the chart and its text alternative in one. */
+
+.bartable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.bartable th,
+.bartable td {
+  padding: var(--space-2) var(--space-1);
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.bartable thead th {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.bartable__num {
+  text-align: right !important;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.bartable__bar {
+  width: 40%;
+}
+
+.bartable__date {
+  white-space: nowrap;
+}
+
+.bar {
+  display: block;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--navy-050);
+}
+
+.bar__fill {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: var(--navy-800);
+}
+
+.bar__fill--failed {
+  background: var(--status-failed);
+}
+
+/* Trend product-line selector */
+
+.linepicker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: 0 0 var(--space-3);
+  padding: 0;
+  border: 0;
+}
+
+.linepicker button {
+  padding: 6px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.linepicker button[aria-pressed="true"] {
+  border-color: var(--navy-900);
+  background: var(--navy-900);
+  color: var(--surface);
+}
+
+/* Recent failures */
+
+.failurelist {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.failurelist li {
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.failurelist li:last-child {
+  border-bottom: 0;
+}
+
+.failurelist__code {
+  font-weight: 800;
+  color: var(--navy-900);
+}
+
+.failurelist__meta,
+.failurelist__reasons {
+  display: block;
+  margin-top: 2px;
+  color: var(--ink-muted);
+  font-size: 12px;
+}
+
+.failurelist__reasons {
+  color: var(--status-failed);
+}

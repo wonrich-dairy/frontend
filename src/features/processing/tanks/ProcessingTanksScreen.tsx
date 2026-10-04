@@ -43,18 +43,20 @@ export function ProcessingTanksScreen() {
       {!tanks && <p className="loading">Loading tanks...</p>}
       {tanks?.length === 0 && !failure && (<p className="emptystate">{kind ? `No ${kind.toLowerCase()} tank configured` : "No tank configured yet. Seed has 3 storing + 3 mixing."}</p>)}
 
-      {tanks?.map((tank) => (
-        <article key={tank.id} className="tankrow" onClick={() => navigate(`/processing/tanks/${encodeURIComponent(tank.code)}`)} style={{ cursor: "pointer" }}>
-          <header className="tankrow__head">
-            <h2 className="tankrow__name">{tank.name}</h2>
-            {mayManage && (<button type="button" className="iconbutton" onClick={(e) => { e.stopPropagation(); setSelectedTank(tank); }} title={`Options for ${tank.code}`}>...</button>)}
-          </header>
-          <p className="tankrow__status"><span className={tank.status === "Active" ? "dot dot--active" : "dot"} />{tank.status}<span className="tankrow__code">{tank.code} - {tank.kind}</span></p>
-          <dl className="tankrow__facts"><div><dt className="microlabel">Capacity</dt><dd>{tank.capacityKg.toFixed(0)} KG</dd></div><div><dt className="microlabel">Holding</dt><dd>{tank.remainingKg.toFixed(0)} KG - {tank.availableKg.toFixed(0)} KG free</dd></div></dl>
-          <div className="meter" style={{ marginTop: 8 }}><span className="meter__fill" style={{ width: `${Math.min(100, (tank.remainingKg / tank.capacityKg) * 100)}%` }} /></div>
-          <p className="microlabel" style={{ marginTop: 8 }}>Touch to log temperature, view history, and {tank.kind === "Storing" ? "pour to mixing tank" : "view batch"}</p>
-        </article>
-      ))}
+      <div className="cardgrid">
+        {tanks?.map((tank) => (
+          <article key={tank.id} className="tankrow" onClick={() => navigate(`/processing/tanks/${encodeURIComponent(tank.code)}`)} style={{ cursor: "pointer" }}>
+            <header className="tankrow__head">
+              <h2 className="tankrow__name">{tank.name}</h2>
+              {mayManage && (<button type="button" className="iconbutton" onClick={(e) => { e.stopPropagation(); setSelectedTank(tank); }} title={`Options for ${tank.code}`}>...</button>)}
+            </header>
+            <p className="tankrow__status"><span className={tank.status === "Active" ? "dot dot--active" : tank.status === "UnderMaintenance" ? "dot dot--warn" : "dot"} />{tank.status}<span className="tankrow__code">{tank.code} - {tank.kind}</span></p>
+            <dl className="tankrow__facts"><div><dt className="microlabel">Capacity</dt><dd>{tank.capacityKg.toFixed(0)} KG</dd></div><div><dt className="microlabel">Holding</dt><dd>{tank.remainingKg.toFixed(0)} KG - {tank.availableKg.toFixed(0)} KG free</dd></div></dl>
+            <div className="meter" style={{ marginTop: 8 }}><span className="meter__fill" style={{ width: `${Math.min(100, (tank.remainingKg / tank.capacityKg) * 100)}%` }} /></div>
+            <p className="microlabel" style={{ marginTop: 8 }}>Touch to log temperature, view history, and {tank.kind === "Storing" ? "pour to mixing tank" : "view batch"}</p>
+          </article>
+        ))}
+      </div>
 
       <ProcessingTankPopup
         tank={selectedTank}

@@ -6,7 +6,9 @@ import { useNavigation } from "../../app/navigationStore";
 import { BadgeIcon, ClipboardIcon, ClockIcon, LogOutIcon, PersonIcon } from "../../components/icons";
 import { useSync } from "../sync/syncStore";
 
-export function UserProfileScreen() {
+// The intake count is the MCC officer's figure. The lab and QCO open the profile without it,
+// which also saves them a call to the MCC service.
+export function UserProfileScreen({ showIntake = true }: { showIntake?: boolean }) {
   const { session, signOut } = useSession();
   const { navigate } = useNavigation();
   const { pendingCount } = useSync();
@@ -15,6 +17,10 @@ export function UserProfileScreen() {
   const [consignments, setConsignments] = useState<Consignment[]>([]);
 
   useEffect(() => {
+    if (!showIntake) {
+      return;
+    }
+
     const abort = new AbortController();
 
     searchConsignments(token, abort.signal)
@@ -26,7 +32,7 @@ export function UserProfileScreen() {
       });
 
     return () => abort.abort();
-  }, [token]);
+  }, [token, showIntake]);
 
   const mine = useMemo(() => {
     const today = localDate();
@@ -55,11 +61,13 @@ export function UserProfileScreen() {
       <h2 className="microlabel microlabel--section">Shift Summary</h2>
 
       <Fact icon={<ClockIcon width={16} height={16} />} label="Current Shift" value={shiftFor(new Date())} />
-      <Fact
-        icon={<ClipboardIcon width={16} height={16} />}
-        label="Intake Count"
-        value={`${mine} ${mine === 1 ? "consignment" : "consignments"}`}
-      />
+      {showIntake ? (
+        <Fact
+          icon={<ClipboardIcon width={16} height={16} />}
+          label="Intake Count"
+          value={`${mine} ${mine === 1 ? "consignment" : "consignments"}`}
+        />
+      ) : null}
       {pendingCount > 0 ? (
         <Fact
           icon={<ClipboardIcon width={16} height={16} />}

@@ -16,7 +16,7 @@ export function ServiceSelectionScreen() {
           <p style={{ fontSize: 12, color: "var(--ink-faint)", marginTop: 4 }}>Select a service to continue</p>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div className="cardgrid">
           <button type="button" className="card" style={{ textAlign: "left", cursor: "pointer", border: "2px solid var(--navy-900)", padding: 16 }} onClick={() => navigate("/")}>
             <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
               <span style={{ width: 44, height: 44, background: "var(--navy-050)", borderRadius: 12, display: "grid", placeItems: "center", fontSize: 20, flexShrink: 0 }}>MCC</span>
@@ -49,10 +49,21 @@ export function ServiceSelectionScreen() {
               </div>
             </div>
           </button>
+
+          <button type="button" className="card" style={{ textAlign: "left", cursor: "pointer", border: "2px solid var(--border)", padding: 16 }} onClick={() => navigate("/qco")}>
+            <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+              <span style={{ width: 44, height: 44, background: "var(--success-tint)", borderRadius: 12, display: "grid", placeItems: "center", fontSize: 20, flexShrink: 0 }}>QCO</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <span style={{ fontSize: 15, fontWeight: 700, color: "var(--ink)", display: "block" }}>Quality Control</span>
+                <span style={{ fontSize: 12, color: "var(--ink-muted)", display: "block", marginTop: 4, lineHeight: 1.4 }}>Traceability • Batch Status, Fail-Rate Trends, Failure Reasons, Checkpoint Deviations, Recent Failures</span>
+                <span style={{ fontSize: 11, color: "var(--navy-800)", display: "block", marginTop: 8, fontWeight: 600 }}>→ Go to QCO Dashboard</span>
+              </div>
+            </div>
+          </button>
         </div>
 
         <p style={{ fontSize: 11, color: "var(--ink-faint)", textAlign: "center", marginTop: 16, lineHeight: 1.4 }}>
-          ProcessingTechnician goes directly to Factory • MccManager/IntakeOfficer go directly to MCC • Only SystemAdministrator sees this chooser
+          ProcessingTechnician goes directly to Factory • MccManager/IntakeOfficer go directly to MCC • QualityControlOfficer goes directly to QCO • Only SystemAdministrator sees this chooser
         </p>
       </div>
     </div>

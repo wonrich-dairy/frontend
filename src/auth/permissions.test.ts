@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { can, roleFromToken } from "./permissions";
+import { ROLES, can, roleFromToken } from "./permissions";
 
 function tokenFor(claims: Record<string, unknown>): string {
   const body = btoa(JSON.stringify(claims))
@@ -45,6 +45,15 @@ describe("what a role is allowed to do", () => {
     expect(can("QualityAnalyst", "recordQualityTests")).toBe(true);
     expect(can("QualityAnalyst", "traceBatches")).toBe(true);
     expect(can("QualityAnalyst", "pourToTanks")).toBe(false);
+  });
+
+  it("shows the QCO dashboard to the administrator and the QCO only", () => {
+    const allowed = ROLES.filter((role) => can(role, "viewQcoDashboard"));
+
+    expect(allowed).toEqual(["SystemAdministrator", "QualityControlOfficer"]);
+    expect(can("QualityControlOfficer", "viewQcoDashboard")).toBe(true);
+    expect(can("QualityAnalyst", "viewQcoDashboard")).toBe(false);
+    expect(can(null, "viewQcoDashboard")).toBe(false);
   });
 
   it("allows the administrator everything", () => {
