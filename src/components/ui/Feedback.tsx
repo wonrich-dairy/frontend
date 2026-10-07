@@ -106,7 +106,7 @@ const ROLE_NAMES: Record<Role, string> = {
   FactoryIntakeOfficer: "Factory Intake Officer",
   ProductionManager: "Production Manager",
   ProcessingTechnician: "Processing Technician",
-  QualityControlOfficer: "Quality Control Officer"
+  QualityControlOfficer: "Quality Control Officer",
 };
 
 function article(name: string): string {
