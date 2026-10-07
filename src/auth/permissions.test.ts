@@ -20,6 +20,10 @@ describe("reading the role off the access token", () => {
     expect(roleFromToken(tokenFor({ role: "IntakeOfficer" }))).toBe("IntakeOfficer");
   });
 
+  it("reads the quality control officer role", () => {
+    expect(roleFromToken(tokenFor({ [ROLE_CLAIM]: "QualityControlOfficer" }))).toBe("QualityControlOfficer");
+  });
+
   it("returns null for a role the services do not define", () => {
     expect(roleFromToken(tokenFor({ role: "Caretaker" }))).toBeNull();
   });
@@ -54,6 +58,13 @@ describe("what a role is allowed to do", () => {
     expect(can("QualityControlOfficer", "viewQcoDashboard")).toBe(true);
     expect(can("QualityAnalyst", "viewQcoDashboard")).toBe(false);
     expect(can(null, "viewQcoDashboard")).toBe(false);
+  });
+
+  it("gives the quality control officer nothing beyond the QCO dashboard", () => {
+    expect(can("QualityControlOfficer", "recordLabPanels")).toBe(false);
+    expect(can("QualityControlOfficer", "manageLabSpecs")).toBe(false);
+    expect(can("QualityControlOfficer", "readProcessing")).toBe(false);
+    expect(can("QualityControlOfficer", "traceBatches")).toBe(false);
   });
 
   it("allows the administrator everything", () => {
