@@ -31,6 +31,13 @@ export function QualityLabSettingsScreen() {
         <button
           type="button"
           className="button button--onDark button--wide"
+          onClick={() => navigate("/quality-lab/history")}
+        >
+          Lab History
+        </button>
+        <button
+          type="button"
+          className="button button--onDark button--wide"
           onClick={() => navigate("/profile")}
         >
           User Profile

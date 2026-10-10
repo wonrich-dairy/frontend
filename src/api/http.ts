@@ -78,6 +78,39 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   return payload as T;
 }
 
+export interface DownloadedFile {
+  blob: Blob;
+  fileName: string | null;
+}
+
+/** GET a binary/text file with the bearer token; used for CSV export. */
+export async function requestFile(
+  path: string,
+  options: { token?: string | null; signal?: AbortSignal; service?: ServiceName } = {},
+): Promise<DownloadedFile> {
+  const { token, signal, service = "intake" } = options;
+
+  let response: Response;
+
+  try {
+    response = await fetch(`${BASE_URLS[service]}${path}`, {
+      signal,
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+  } catch {
+    throw new ApiError(0, "network_unavailable", "Cannot reach the service. Check the connection and try again.");
+  }
+
+  if (!response.ok) {
+    throw toApiError(response.status, await readJson(response));
+  }
+
+  const disposition = response.headers.get("Content-Disposition") ?? "";
+  const match = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(disposition);
+
+  return { blob: await response.blob(), fileName: match ? decodeURIComponent(match[1]) : null };
+}
+
 async function readJson(response: Response): Promise<unknown> {
   const text = await response.text();
 
