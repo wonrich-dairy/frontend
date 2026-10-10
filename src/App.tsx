@@ -31,6 +31,7 @@ import { ProcessingAppShell, type ProcessingTab } from "./components/processing/
 import { UserProfileScreen } from "./features/profile/UserProfileScreen";
 import { QualityLabPanelScreen } from "./features/qualityLab/panels/QualityLabPanelScreen";
 import { SpecThresholdScreen } from "./features/qualityLab/specs/SpecThresholdScreen";
+import { LabHistoryScreen } from "./features/qualityLab/history/LabHistoryScreen";
 import { QualityLabSettingsScreen } from "./features/qualityLab/settings/QualityLabSettingsScreen";
 import { SyncProvider } from "./features/sync/SyncProvider";
 import "./styles/app.css";
@@ -384,6 +385,16 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
       parent: "/",
       needs: "viewLabSpecs",
       element: <SpecThresholdScreen />,
+    };
+  }
+
+  if (match("/quality-lab/history", path)) {
+    return {
+      tab: "home",
+      title: "Quality Lab - Lab History",
+      parent: "/",
+      needs: "viewLabHistory",
+      element: <LabHistoryScreen />,
     };
   }
 
