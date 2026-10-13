@@ -6,6 +6,7 @@ export const ROLES = [
   "FactoryIntakeOfficer",
   "ProductionManager",
   "ProcessingTechnician",
+  "QualityControlOfficer",
 ] as const;
 
 export type Role = (typeof ROLES)[number];
@@ -24,7 +25,8 @@ export type Permission =
   | "recordLabPanels"
   | "viewLabSpecs"
   | "manageLabSpecs"
-  | "viewLabHistory";
+  | "viewLabHistory"
+  | "viewQcoDashboard";
 
 const ROLE_CLAIM = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
 
@@ -49,6 +51,7 @@ const GRANTS: Record<Permission, readonly Role[]> = {
   viewLabSpecs: ["SystemAdministrator", "QualityAnalyst", "ProductionManager"],
   manageLabSpecs: ["SystemAdministrator", "ProductionManager"],
   viewLabHistory: ["SystemAdministrator", "QualityAnalyst", "ProductionManager"],
+  viewQcoDashboard: ["SystemAdministrator", "QualityControlOfficer"],
 };
 
 export function roleFromToken(accessToken: string | null | undefined): Role | null {

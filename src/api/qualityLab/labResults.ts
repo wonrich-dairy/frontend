@@ -1,4 +1,4 @@
-import { request, requestFile } from "../http";
+import { download, request } from "../http";
 import type { ProductLine } from "./panels";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -122,5 +122,5 @@ export function getLabResultsSummary(filters: LabResultFilters, token: string | 
 
 /** Downloads every matching row (not only the current page) as CSV. */
 export function exportLabResults(filters: LabResultFilters, token: string | null) {
-  return requestFile(`/api/lab-results/export${toQuery(filters)}`, { token, service: "qualityLab" });
+  return download(`/api/lab-results/export${toQuery(filters)}`, { token, service: "qualityLab" });
 }

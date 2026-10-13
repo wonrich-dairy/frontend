@@ -28,6 +28,12 @@ import { ProcessingSettingsScreen } from "./features/processing/settings/Process
 import { QualityMockScreen } from "./features/processing/quality/QualityMockScreen";
 import { ServiceSelectionScreen } from "./features/serviceSelection/ServiceSelectionScreen";
 import { ProcessingAppShell, type ProcessingTab } from "./components/processing/ProcessingAppShell";
+import { QcoAppShell, type QcoTab } from "./components/qco/QcoAppShell";
+import { QualityLabAppShell, type QualityLabTab } from "./components/qualityLab/QualityLabAppShell";
+import { QcoDashboardScreen } from "./features/qco/dashboard/QcoDashboardScreen";
+import { BatchSearchScreen } from "./features/qco/batches/BatchSearchScreen";
+import { BatchTimelineScreen } from "./features/qco/batches/BatchTimelineScreen";
+import { BatchTraceScreen } from "./features/qco/batches/BatchTraceScreen";
 import { UserProfileScreen } from "./features/profile/UserProfileScreen";
 import { QualityLabPanelScreen } from "./features/qualityLab/panels/QualityLabPanelScreen";
 import { SpecThresholdScreen } from "./features/qualityLab/specs/SpecThresholdScreen";
@@ -52,11 +58,17 @@ export function App() {
 interface Screen {
   tab: Tab;
   processingTab?: ProcessingTab;
+  qcoTab?: QcoTab;
+  qualityLabTab?: QualityLabTab;
   title?: string;
   parent?: string;
   needs?: Permission;
+  // List and dashboard screens use the whole shell on wide screens; forms keep a readable width.
+  wide?: boolean;
   element: React.ReactNode;
   isProcessing?: boolean;
+  isQco?: boolean;
+  isQualityLab?: boolean;
   isServiceSelection?: boolean;
 }
 
@@ -84,23 +96,35 @@ function Screens() {
   if (isProcessingRole && path === "/") {
     window.history.replaceState(window.history.state, "", "/processing");
     return (
-      <ProcessingAppShell current="factory" title={undefined} onBack={undefined}>
+      <ProcessingAppShell current="factory" title={undefined} onBack={undefined} wide>
         <ProcessingDashboardScreen />
       </ProcessingAppShell>
     );
   }
 
+  // Quality Control Officer → QCO dashboard (SCRUM-136)
+  const isQcoRole = role === "QualityControlOfficer";
+  const isQcoPath = path === "/qco" || path.startsWith("/qco/");
+
+  if (isQcoRole && path === "/") {
+    window.history.replaceState(window.history.state, "", "/qco");
+    return (
+      <QcoAppShell current="overview" title={undefined} onBack={undefined}>
+        <QcoDashboardScreen section="overview" />
+      </QcoAppShell>
+    );
+  }
+
   // Quality Analyst → Quality Lab panels (SCRUM-20)
   const isQualityAnalystRole = role === "QualityAnalyst";
-  const qaHiddenTabs: Tab[] = ["consignments", "tanks"];
-  const qaTabOverrides: Partial<Record<Tab, string>> = { settings: "/quality-lab/settings", home: "/quality-lab/panels" };
+  const isQualityLabPath = path === "/quality-lab" || path.startsWith("/quality-lab/");
 
   if (isQualityAnalystRole && path === "/") {
     window.history.replaceState(window.history.state, "", "/quality-lab/panels");
     return (
-      <AppShell current="home" hiddenTabs={qaHiddenTabs} tabPathOverrides={qaTabOverrides}>
+      <QualityLabAppShell current="panels" role={role} wide>
         <QualityLabPanelScreen />
-      </AppShell>
+      </QualityLabAppShell>
     );
   }
 
@@ -111,12 +135,43 @@ function Screens() {
     return screen.element as React.ReactNode;
   }
 
+  // Before the processing branch, which a Processing Technician always takes: on /qco they
+  // must be refused inside the QCO shell, not the factory one.
+  if (screen.isQco || isQcoPath) {
+    return (
+      <QcoAppShell
+        current={screen.qcoTab}
+        title={screen.title}
+        onBack={screen.title ? () => back(screen.parent ?? "/qco") : undefined}
+      >
+        {allowed ? screen.element : <NotPermitted role={role} />}
+      </QcoAppShell>
+    );
+  }
+
+  // Also before the processing branch, for the same reason: every role meets the lab
+  // screens in the lab shell, with the lab's own navigation.
+  if (screen.isQualityLab || isQualityLabPath) {
+    return (
+      <QualityLabAppShell
+        current={screen.qualityLabTab ?? "panels"}
+        role={role}
+        title={screen.title}
+        onBack={screen.title ? () => back(screen.parent ?? "/quality-lab/panels") : undefined}
+        wide={screen.wide}
+      >
+        {allowed ? screen.element : <NotPermitted role={role} />}
+      </QualityLabAppShell>
+    );
+  }
+
   if (isProcessingRole || screen.isProcessing || isProcessingPath) {
     return (
       <ProcessingAppShell
         current={screen.processingTab ?? (path === "/processing" ? "factory" : path.startsWith("/processing/tanks") ? "processingTanks" : path.startsWith("/processing/unloads") ? "unloads" : "processingSettings")}
         title={screen.title}
         onBack={screen.title ? () => back(screen.parent ?? "/processing") : undefined}
+        wide={screen.wide}
       >
         {allowed ? screen.element : <NotPermitted role={role} />}
       </ProcessingAppShell>
@@ -128,8 +183,7 @@ function Screens() {
       current={screen.tab}
       title={screen.title}
       onBack={screen.title ? () => back(screen.parent ?? "/") : undefined}
-      hiddenTabs={isQualityAnalystRole ? qaHiddenTabs : undefined}
-      tabPathOverrides={isQualityAnalystRole ? qaTabOverrides : undefined}
+      wide={screen.wide}
     >
       {allowed ? screen.element : <NotPermitted role={role} />}
     </AppShell>
@@ -142,7 +196,7 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
   }
 
   if (match("/", path)) {
-    return { tab: "home", element: <DashboardScreen /> };
+    return { tab: "home", wide: true, element: <DashboardScreen /> };
   }
 
   if (match("/consignments", path)) {
@@ -164,6 +218,7 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
       tab: "consignments",
       title: "Deliveries",
       parent: "/consignments",
+      wide: true,
       element: <ConsignmentHistoryScreen />,
     };
   }
@@ -181,7 +236,7 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
   }
 
   if (match("/tanks", path)) {
-    return { tab: "tanks", element: <TankListScreen /> };
+    return { tab: "tanks", wide: true, element: <TankListScreen /> };
   }
 
   const pour = match("/tanks/:code/pour", path);
@@ -228,13 +283,14 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
   }
 
   if (match("/settings", path)) {
-    return { tab: "settings", element: <SettingsScreen /> };
+    return { tab: "settings", wide: true, element: <SettingsScreen /> };
   }
 
-  // QA-specific settings route — show QA settings for analyst role
   if (match("/quality-lab/settings", path)) {
     return {
       tab: "settings",
+      qualityLabTab: "labSettings",
+      isQualityLab: true,
       needs: "recordLabPanels",
       element: <QualityLabSettingsScreen />,
     };
@@ -277,7 +333,7 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
   }
 
   if (match("/processing", path)) {
-    return { tab: "home", processingTab: "factory", isProcessing: true, needs: "readProcessing", element: <ProcessingDashboardScreen /> };
+    return { tab: "home", processingTab: "factory", isProcessing: true, wide: true, needs: "readProcessing", element: <ProcessingDashboardScreen /> };
   }
 
   if (match("/processing/tanks", path)) {
@@ -287,6 +343,7 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
       isProcessing: true,
       title: "Factory Tanks",
       parent: "/processing",
+      wide: true,
       needs: "readProcessing",
       element: <ProcessingTanksScreen />,
     };
@@ -371,8 +428,9 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
   if (match("/quality-lab/panels", path)) {
     return {
       tab: "home",
-      title: "Quality Lab - Chemical Panels",
-      parent: "/",
+      qualityLabTab: "panels",
+      isQualityLab: true,
+      wide: true,
       needs: "recordLabPanels",
       element: <QualityLabPanelScreen />,
     };
@@ -381,8 +439,9 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
   if (match("/quality-lab/specs", path)) {
     return {
       tab: "home",
-      title: "Quality Lab - Specification Thresholds",
-      parent: "/",
+      qualityLabTab: "specs",
+      isQualityLab: true,
+      wide: true,
       needs: "viewLabSpecs",
       element: <SpecThresholdScreen />,
     };
@@ -395,6 +454,83 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
       parent: "/",
       needs: "viewLabHistory",
       element: <LabHistoryScreen />,
+    };
+  }
+
+  if (match("/qco", path)) {
+    return { tab: "home", qcoTab: "overview", isQco: true, needs: "viewQcoDashboard", element: <QcoDashboardScreen section="overview" /> };
+  }
+
+  // The dashboard's other tabs. Each one is refused to other roles, not merely hidden.
+  for (const section of ["trends", "causes", "societies"] as const) {
+    if (match(`/qco/${section}`, path)) {
+      return {
+        tab: "home",
+        qcoTab: section,
+        isQco: true,
+        needs: "viewQcoDashboard",
+        element: <QcoDashboardScreen section={section} />,
+      };
+    }
+  }
+
+  // Batch search, timeline and backward trace (SCRUM-137). The same permission as the dashboard:
+  // the traceability service refuses every role but the QCO and the administrator.
+  if (match("/qco/batches", path)) {
+    return { tab: "home", qcoTab: "batches", isQco: true, needs: "viewQcoDashboard", element: <BatchSearchScreen /> };
+  }
+
+  const tracedBatch = match("/qco/batches/:batchId/trace", path);
+
+  if (tracedBatch) {
+    return {
+      tab: "home",
+      qcoTab: "batches",
+      isQco: true,
+      title: "Backward Trace",
+      parent: `/qco/batches/${encodeURIComponent(tracedBatch.batchId)}`,
+      needs: "viewQcoDashboard",
+      element: <BatchTraceScreen batchId={tracedBatch.batchId} />,
+    };
+  }
+
+  const batch = match("/qco/batches/:batchId", path);
+
+  if (batch) {
+    return {
+      tab: "home",
+      qcoTab: "batches",
+      isQco: true,
+      title: "Batch Timeline",
+      parent: "/qco/batches",
+      needs: "viewQcoDashboard",
+      element: <BatchTimelineScreen batchId={batch.batchId} />,
+    };
+  }
+
+  // Each module opens the profile under its own prefix, so it renders in that module's shell
+  // rather than the MCC one. Same screen; the MCC-only intake count is left out.
+  if (match("/qco/profile", path)) {
+    return {
+      tab: "home",
+      isQco: true,
+      title: "User Profile",
+      parent: "/qco",
+      needs: "viewQcoDashboard",
+      element: <UserProfileScreen showIntake={false} />,
+    };
+  }
+
+  if (match("/quality-lab/profile", path)) {
+    return {
+      tab: "home",
+      qualityLabTab: "labSettings",
+      isQualityLab: true,
+      title: "User Profile",
+      parent: "/quality-lab/settings",
+      // The one lab permission every lab-shell role holds, the Production Manager included.
+      needs: "viewLabSpecs",
+      element: <UserProfileScreen showIntake={false} />,
     };
   }
 

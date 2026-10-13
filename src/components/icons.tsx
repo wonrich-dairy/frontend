@@ -334,6 +334,15 @@ export function HelpIcon(props: IconProps) {
   );
 }
 
+export function TrendIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M3 17l6-6 4 4 8-8" />
+      <path d="M15 7h6v6" />
+    </svg>
+  );
+}
+
 export function SlidersIcon(props: IconProps) {
   return (
     <svg {...base} {...props}>
@@ -384,6 +393,16 @@ export function PowerIcon(props: IconProps) {
     <svg {...base} {...props}>
       <path d="M12 4v8" />
       <path d="M7.4 7a7 7 0 1 0 9.2 0" />
+    </svg>
+  );
+}
+
+export function DownloadIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M12 4v11" />
+      <path d="m7 10 5 5 5-5" />
+      <path d="M5 20h14" />
     </svg>
   );
 }

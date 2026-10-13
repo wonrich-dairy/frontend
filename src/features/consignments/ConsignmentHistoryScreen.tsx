@@ -17,6 +17,13 @@ const LABELS: Record<ConsignmentStatus, string> = {
   Rejected: "Rejected",
 };
 
+// The shared status colours: a registered delivery is pending its gate test.
+const TONES: Record<ConsignmentStatus, { badge: string; row: string }> = {
+  Registered: { badge: "badge--pending", row: "deliveryrow--pending" },
+  Accepted: { badge: "badge--good", row: "deliveryrow--accepted" },
+  Rejected: { badge: "badge--bad", row: "deliveryrow--rejected" },
+};
+
 export function ConsignmentHistoryScreen() {
   const { session } = useSession();
   const { navigate } = useNavigation();
@@ -132,48 +139,45 @@ export function ConsignmentHistoryScreen() {
         </EmptyState>
       ) : null}
 
-      {shown.map((one) => (
-        <article key={one.reference} className="deliveryrow">
-          <header className="deliveryrow__head">
-            <strong>{one.reference}</strong>
-            <span
-              className={`badge${
-                one.status === "Rejected"
-                  ? " badge--bad"
-                  : one.status === "Accepted"
-                    ? " badge--good"
-                    : ""
-              }`}
-            >
-              {LABELS[one.status as ConsignmentStatus] ?? one.status}
-            </span>
-          </header>
+      <div className="cardgrid">
+        {shown.map((one) => (
+          <article
+            key={one.reference}
+            className={`deliveryrow ${TONES[one.status as ConsignmentStatus]?.row ?? ""}`}
+          >
+            <header className="deliveryrow__head">
+              <strong>{one.reference}</strong>
+              <span className={`badge ${TONES[one.status as ConsignmentStatus]?.badge ?? ""}`}>
+                {LABELS[one.status as ConsignmentStatus] ?? one.status}
+              </span>
+            </header>
 
-          <p className="deliveryrow__society">{one.societyName}</p>
+            <p className="deliveryrow__society">{one.societyName}</p>
 
-          <p className="deliveryrow__meta">
-            <span>
-              {one.canCount} {one.canCount === 1 ? "can" : "cans"}
-            </span>
-            <span>{one.totalQuantityLitres.toFixed(1)} L</span>
-            <span>{one.arrivalDate}</span>
-          </p>
+            <p className="deliveryrow__meta">
+              <span>
+                {one.canCount} {one.canCount === 1 ? "can" : "cans"}
+              </span>
+              <span>{one.totalQuantityLitres.toFixed(1)} L</span>
+              <span>{one.arrivalDate}</span>
+            </p>
 
-          {one.status === "Registered" ? (
-            <button
-              type="button"
-              className="button button--ghost button--small"
-              onClick={() =>
-                navigate(
-                  `/consignments/quality-test?reference=${encodeURIComponent(one.reference)}`,
-                )
-              }
-            >
-              Record the panel
-            </button>
-          ) : null}
-        </article>
-      ))}
+            {one.status === "Registered" ? (
+              <button
+                type="button"
+                className="button button--ghost button--small"
+                onClick={() =>
+                  navigate(
+                    `/consignments/quality-test?reference=${encodeURIComponent(one.reference)}`,
+                  )
+                }
+              >
+                Record the panel
+              </button>
+            ) : null}
+          </article>
+        ))}
+      </div>
     </>
   );
 }

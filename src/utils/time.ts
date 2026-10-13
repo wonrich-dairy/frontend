@@ -1,6 +1,6 @@
 export const COLOMBO_TZ = "Asia/Colombo";
 
-function parseUtc(utcString: string): Date {
+export function parseUtc(utcString: string): Date {
   // Backend returns datetime(6) as "2026-09-15 19:30:00" or "2026-09-15T19:30:00" without Z
   // Force UTC parsing: if no Z and no timezone offset, treat as UTC by adding Z
   let s = utcString.trim();
