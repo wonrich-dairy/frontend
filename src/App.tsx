@@ -447,11 +447,13 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
     };
   }
 
+  // SCRUM-25 lab history: its own tab, so the Production Manager (no Settings tab) can reach it.
   if (match("/quality-lab/history", path)) {
     return {
       tab: "home",
-      title: "Quality Lab - Lab History",
-      parent: "/",
+      qualityLabTab: "history",
+      isQualityLab: true,
+      wide: true,
       needs: "viewLabHistory",
       element: <LabHistoryScreen />,
     };
