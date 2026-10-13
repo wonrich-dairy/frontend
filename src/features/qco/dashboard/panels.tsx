@@ -13,6 +13,8 @@ import {
   type TrendDto,
 } from "../../../api/traceability/dashboard";
 import { formatColombo } from "../../../utils/time";
+import { useNavigation } from "../../../app/navigationStore";
+import { batchPath } from "../batches/search";
 import type { Panel } from "./useQcoDashboard";
 
 // Every chart here is a table with an inline bar, so the figures are always there as text
@@ -119,7 +121,7 @@ export function TrendPanel({ panel, fixedLine }: { panel: Panel<TrendDto>; fixed
         const points = data.points
           .filter((point) => point.productLine === line)
           .sort((a, b) => a.date.localeCompare(b.date));
-        const max = Math.max(0, ...points.map((point) => point.failRate));
+        const max = Math.max(0, ...points.map((point) => point.failRate ?? 0));
 
         return (
           <>
@@ -153,12 +155,13 @@ export function TrendPanel({ panel, fixedLine }: { panel: Panel<TrendDto>; fixed
                       <th scope="row" className="bartable__date">
                         {point.date}
                       </th>
+                      {/* The service's rate is failed / batches, so it always agrees with this count. */}
                       <td className="bartable__num">
                         {point.failedCount} / {point.batchCount}
                       </td>
-                      <td className="bartable__num">{percent(point.failRate)}</td>
+                      <td className="bartable__num">{point.failRate === null ? "No batches" : percent(point.failRate)}</td>
                       <td className="bartable__bar">
-                        <Bar value={point.failRate} max={max} tone="failed" />
+                        {point.failRate === null ? null : <Bar value={point.failRate} max={max} tone="failed" />}
                       </td>
                     </tr>
                   ))}
@@ -194,7 +197,7 @@ export function DeviationsPanel({ panel }: { panel: Panel<DeviationsDto> }) {
             <tbody>
               {data.checkpoints.map((c) => (
                 <tr key={c.checkpoint}>
-                  <th scope="row">{c.checkpoint}</th>
+                  <th scope="row">{c.checkpoint === "Mcc" ? "MCC" : c.checkpoint}</th>
                   <td className="bartable__num">{c.count}</td>
                   <td className="bartable__bar">
                     <Bar value={c.count} max={max} />
@@ -266,19 +269,20 @@ export function MarginalSocietiesPanel({ panel }: { panel: Panel<MarginalSocieti
               {data.societies.map((s) => (
                 <tr key={s.societyCode}>
                   <th scope="row">
-                    {s.societyName}
+                    {s.societyName ?? s.societyCode}
                     <span className="failurelist__meta">
                       {s.societyCode} · {s.consignmentCount} consignments
                     </span>
                   </th>
-                  <td className="bartable__num">{s.tightestMargin.toFixed(2)}</td>
+                  {/* Unscored is said as such: a blank or 0 would read as on the limit. */}
+                  <td className="bartable__num">{s.tightestMargin === null ? "Not scored" : s.tightestMargin.toFixed(2)}</td>
                   <td>{s.tightestMeasure ?? "-"}</td>
                 </tr>
               ))}
             </tbody>
           </table>
           <p className="qcopanel__note">
-            Source: {data.dataSource}. Coverage: {data.coverage}.
+            Source: {data.source}. Coverage: {data.coverage}.
           </p>
         </>
       )}
@@ -288,18 +292,22 @@ export function MarginalSocietiesPanel({ panel }: { panel: Panel<MarginalSocieti
 
 // ── Recent failures ──────────────────────────────────────────────────────────
 
-// Batch codes stay plain text until SCRUM-137 builds a trace route the QCO can open; the
-// existing /trace screen needs traceBatches, which the QCO does not hold.
+// Each batch code opens its timeline (SCRUM-137), one tap from the trace backward action.
 export function RecentFailuresPanel({ panel }: { panel: Panel<RecentFailuresDto> }) {
+  const { navigate } = useNavigation();
+
   return (
     <PanelFrame title="Recent failures" panel={panel} isEmpty={(data) => data.batches.length === 0} empty="No failed batches in this range." full>
       {(data) => (
         <ul className="failurelist">
           {data.batches.map((b) => (
-            <li key={b.batchCode}>
-              <span className="failurelist__code">{b.batchCode}</span>
+            <li key={b.batchId}>
+              <button type="button" className="failurelist__code failurelist__link" onClick={() => navigate(batchPath(b.batchId))}>
+                {b.batchId}
+              </button>
               <span className="failurelist__meta">
-                {b.productLine} · {b.facility} · {formatColombo(b.failedAtUtc)}
+                {b.batchReference ? `${b.batchReference} · ` : ""}
+                {b.productLine} · {b.facility} · {formatColombo(b.failedAt)}
               </span>
               {b.reasonCodes.length > 0 ? (
                 <span className="failurelist__reasons">{b.reasonCodes.map(reasonLabel).join(", ")}</span>

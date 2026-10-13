@@ -3,6 +3,9 @@ import { useNavigation } from "../../../app/navigationStore";
 import { useSession } from "../../../auth/sessionStore";
 import { SlidersIcon } from "../../../components/icons";
 import type { QcoTab } from "../../../components/qco/QcoAppShell";
+
+// The tabs that are dashboard sections; Batches is its own screen.
+export type DashboardSection = Exclude<QcoTab, "batches">;
 import { ErrorNotice } from "../../../components/ui/Feedback";
 import { PRODUCT_LINES, type ProductLine } from "../../../api/traceability/dashboard";
 import { formatColombo } from "../../../utils/time";
@@ -27,7 +30,7 @@ import {
 
 // What each tab shows, grouped by the question the QCO is asking. The panel list drives both
 // what is fetched and what is drawn, so a tab never loads data it does not show.
-const SECTIONS: Record<QcoTab, { panels: PanelKey[]; render: (panels: DashboardPanels, filters: QcoFilters) => ReactNode }> = {
+const SECTIONS: Record<DashboardSection, { panels: PanelKey[]; render: (panels: DashboardPanels, filters: QcoFilters) => ReactNode }> = {
   // What is happening now.
   overview: {
     panels: ["summary", "recentFailures"],
@@ -61,7 +64,7 @@ const SECTIONS: Record<QcoTab, { panels: PanelKey[]; render: (panels: DashboardP
 };
 
 // Read-only: the QCO has no write action anywhere in the module (SCRUM-136).
-export function QcoDashboardScreen({ section = "overview" }: { section?: QcoTab }) {
+export function QcoDashboardScreen({ section = "overview" }: { section?: DashboardSection }) {
   const { session } = useSession();
   const { path, query, replace } = useNavigation();
   const token = session?.accessToken ?? null;

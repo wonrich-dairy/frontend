@@ -149,8 +149,8 @@ export function useQcoDashboard(
 // The oldest freshness time across the panels: every figure on screen is at least that current.
 export function dataAsOf(panels: DashboardPanels): string | null {
   const times = Object.values(panels)
-    .filter((panel): panel is { status: "ready"; data: { dataAsOfUtc: string | null } } => panel.status === "ready")
-    .map((panel) => panel.data.dataAsOfUtc)
+    .filter((panel): panel is { status: "ready"; data: { dataAsOf: string | null } } => panel.status === "ready")
+    .map((panel) => panel.data.dataAsOf)
     .filter((time): time is string => Boolean(time));
 
   if (times.length === 0) {

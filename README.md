@@ -59,6 +59,23 @@ bar is Home / Consignments / Tanks / Settings, as the frames are drawn.
 | `/settings/tanks/new`, `/settings/tanks/:code` | Add and edit a tank | Add tank / Edit tank |
 | `/profile` | Who is signed in, the shift, sign out | User Profile |
 | `/queue` | What is held on the device (SCRUM-10) | *(no frame)* |
+| `/qco/batches` | Find a batch by batch ID, dispatch reference or WR- batch reference (SCRUM-137) | *(no frame)* |
+| `/qco/batches/:batchId` | The batch timeline: checkpoints in stage order, deviations marked, gaps shown as missing (FR8) | *(no frame)* |
+| `/qco/batches/:batchId/trace` | Backward trace: first deviation highlighted, tanks and societies ranked by quantity (FR7) | *(no frame)* |
+
+### Batch search, timeline and backward trace (SCRUM-137)
+`src/features/qco/batches` - the QCO's Batches tab, reading the Traceability Service's
+`GET /api/batches/{batchId}` and `GET /api/batches?dispatchRef=…|batchReference=…`. Only the
+Quality Control Officer and the System Administrator can open it, as the service enforces.
+
+A term starting `WR-` is looked up as factory intake's batch reference, a batch code such as
+`262-FM-B` as a batch ID, and anything else as the MCC dispatch reference. A single match opens
+the batch; a dispatch split across several batches lists them. No match is a message, not an error.
+
+A checkpoint with no data is never left blank: it is marked missing with the reason the service
+gives (not reached yet, the upstream lookup still retrying or unavailable, or an event that never
+arrived), and the backward trace says which checkpoints a "no deviation" result cannot speak for.
+Deviations use the shared `DeviationBadge`, which the Processing stage list uses as well.
 
 ### Where the design asks for more than the service offers
 

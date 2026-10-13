@@ -31,6 +31,9 @@ import { ProcessingAppShell, type ProcessingTab } from "./components/processing/
 import { QcoAppShell, type QcoTab } from "./components/qco/QcoAppShell";
 import { QualityLabAppShell, type QualityLabTab } from "./components/qualityLab/QualityLabAppShell";
 import { QcoDashboardScreen } from "./features/qco/dashboard/QcoDashboardScreen";
+import { BatchSearchScreen } from "./features/qco/batches/BatchSearchScreen";
+import { BatchTimelineScreen } from "./features/qco/batches/BatchTimelineScreen";
+import { BatchTraceScreen } from "./features/qco/batches/BatchTraceScreen";
 import { UserProfileScreen } from "./features/profile/UserProfileScreen";
 import { QualityLabPanelScreen } from "./features/qualityLab/panels/QualityLabPanelScreen";
 import { SpecThresholdScreen } from "./features/qualityLab/specs/SpecThresholdScreen";
@@ -458,6 +461,40 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
         element: <QcoDashboardScreen section={section} />,
       };
     }
+  }
+
+  // Batch search, timeline and backward trace (SCRUM-137). The same permission as the dashboard:
+  // the traceability service refuses every role but the QCO and the administrator.
+  if (match("/qco/batches", path)) {
+    return { tab: "home", qcoTab: "batches", isQco: true, needs: "viewQcoDashboard", element: <BatchSearchScreen /> };
+  }
+
+  const tracedBatch = match("/qco/batches/:batchId/trace", path);
+
+  if (tracedBatch) {
+    return {
+      tab: "home",
+      qcoTab: "batches",
+      isQco: true,
+      title: "Backward Trace",
+      parent: `/qco/batches/${encodeURIComponent(tracedBatch.batchId)}`,
+      needs: "viewQcoDashboard",
+      element: <BatchTraceScreen batchId={tracedBatch.batchId} />,
+    };
+  }
+
+  const batch = match("/qco/batches/:batchId", path);
+
+  if (batch) {
+    return {
+      tab: "home",
+      qcoTab: "batches",
+      isQco: true,
+      title: "Batch Timeline",
+      parent: "/qco/batches",
+      needs: "viewQcoDashboard",
+      element: <BatchTimelineScreen batchId={batch.batchId} />,
+    };
   }
 
   // Each module opens the profile under its own prefix, so it renders in that module's shell

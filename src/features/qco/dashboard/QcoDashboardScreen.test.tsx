@@ -9,30 +9,31 @@ const AS_OF = "2026-10-04T08:30:00Z";
 
 const BODIES: Record<string, unknown> = {
   summary: {
-    dataAsOfUtc: AS_OF,
+    dataAsOf: AS_OF,
     today: { pending: 4, cleared: 11, failed: 2, onHold: 1 },
     range: { pending: 4, cleared: 11, failed: 2, onHold: 1 },
   },
-  deviations: { dataAsOfUtc: AS_OF, checkpoints: [{ checkpoint: "Lab", count: 3 }] },
+  deviations: { dataAsOf: AS_OF, checkpoints: [{ checkpoint: "Lab", count: 3 }] },
   trend: {
-    dataAsOfUtc: AS_OF,
-    points: [{ date: "2026-10-04", productLine: "DY", batchCount: 8, failedCount: 2, failRate: 0.25 }],
+    dataAsOf: AS_OF,
+    points: [{ date: "2026-10-04", productLine: "DY", batchCount: 8, clearedCount: 6, failedCount: 2, failRate: 0.25 }],
   },
-  "failure-reasons": { dataAsOfUtc: AS_OF, reasons: [{ reasonCode: "LOW_FAT", count: 2 }] },
+  "failure-reasons": { dataAsOf: AS_OF, reasons: [{ reasonCode: "LOW_FAT", count: 2 }] },
   "marginal-societies": {
-    dataAsOfUtc: AS_OF,
+    dataAsOf: AS_OF,
     societies: [],
-    dataSource: "Intake quality tests",
+    source: "upstream snapshots",
     coverage: "Societies that contributed to a batch",
   },
   "recent-failures": {
-    dataAsOfUtc: AS_OF,
+    dataAsOf: AS_OF,
     batches: [
       {
-        batchCode: "277-DY-A",
+        batchId: "277-DY-A",
+        batchReference: "WR-20261004-01",
         productLine: "DY",
         facility: "FACTORY-01",
-        failedAtUtc: AS_OF,
+        failedAt: AS_OF,
         reasonCodes: ["LOW_FAT"],
         tracePath: "/trace/277-DY-A",
       },
@@ -125,13 +126,78 @@ describe("the QCO dashboard", () => {
     expect(within(panel("Failure reasons")).getByText("Fat % below minimum")).toBeInTheDocument();
   });
 
-  it("shows a failed batch as plain text, not a link to a trace the QCO cannot open", async () => {
+  it("lists a failed batch with its batch reference", async () => {
     vi.stubGlobal("fetch", stubFetch());
     openDashboard();
 
-    const code = await screen.findByText("277-DY-A");
+    expect(await within(panel("Recent failures")).findByText(/WR-20261004-01 · DY · FACTORY-01/)).toBeInTheDocument();
+  });
 
-    expect(code.closest("a")).toBeNull();
+  it("gives the fail rate out of all the day's batches, pending ones included", async () => {
+    const body = {
+      dataAsOf: AS_OF,
+      points: [
+        // Nothing decided yet: none of the two has failed.
+        { date: "2026-10-03", productLine: "DY", batchCount: 2, clearedCount: 0, failedCount: 0, failRate: 0 },
+        // One failed of four, with two still pending.
+        { date: "2026-10-04", productLine: "DY", batchCount: 4, clearedCount: 1, failedCount: 1, failRate: 0.25 },
+      ],
+    };
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify(body), { status: 200 })));
+    openDashboard("/qco/trends");
+
+    const rows = within(await screen.findByRole("table")).getAllByRole("row").slice(1);
+
+    expect(rows[0]).toHaveTextContent("0 / 2");
+    expect(rows[0]).toHaveTextContent("0.0%");
+    expect(rows[1]).toHaveTextContent("1 / 4");
+    expect(rows[1]).toHaveTextContent("25.0%");
+    expect(rows[1]).not.toHaveTextContent("50.0%");
+  });
+
+  it("opens a failed batch's timeline from its code", async () => {
+    vi.stubGlobal("fetch", stubFetch());
+    openDashboard();
+
+    fireEvent.click(await screen.findByRole("button", { name: "277-DY-A" }));
+
+    expect(window.location.pathname).toBe("/qco/batches/277-DY-A");
+  });
+
+  it("ranks the marginal societies, saying which could not be scored and where the figures come from", async () => {
+    const body = {
+      dataAsOf: AS_OF,
+      source: "upstream snapshots",
+      coverage: "societies that contributed to a batch in range",
+      societies: [
+        { societyCode: "VS002", societyName: "Lake Farmers", consignmentCount: 1, batchCount: 1, tightestMargin: 0.01, tightestMeasure: "FatPercent" },
+        { societyCode: "VS003", societyName: null, consignmentCount: 2, batchCount: 1, tightestMargin: null, tightestMeasure: null },
+      ],
+    };
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify(body), { status: 200 })));
+    openDashboard("/qco/societies");
+
+    const rows = within(await screen.findByRole("table")).getAllByRole("row").slice(1);
+
+    expect(rows[0]).toHaveTextContent("Lake Farmers");
+    expect(rows[0]).toHaveTextContent("0.01");
+    expect(rows[1]).toHaveTextContent("VS003");
+    expect(rows[1]).toHaveTextContent("Not scored");
+    expect(panel("Most marginal societies")).toHaveTextContent(
+      "Source: upstream snapshots. Coverage: societies that contributed to a batch in range.",
+    );
+  });
+
+  it("names the MCC checkpoint as the service sends it", async () => {
+    const body = { dataAsOf: AS_OF, checkpoints: [{ checkpoint: "Mcc", count: 2 }] };
+    vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) =>
+      String(input).includes("/deviations")
+        ? new Response(JSON.stringify(body), { status: 200 })
+        : new Response(JSON.stringify(BODIES["failure-reasons"]), { status: 200 }),
+    ));
+    openDashboard("/qco/causes");
+
+    expect(await within(panel("Deviations by checkpoint")).findByRole("rowheader", { name: "MCC" })).toBeInTheDocument();
   });
 
   it("keeps the filters in the link when switching tabs, and sends them with every request", async () => {
@@ -147,6 +213,7 @@ describe("the QCO dashboard", () => {
       "TRENDS",
       "CAUSES",
       "SOCIETIES",
+      "BATCHES",
     ]);
 
     fireEvent.click(within(nav).getByRole("button", { name: "TRENDS" }));
@@ -164,6 +231,11 @@ describe("the QCO dashboard", () => {
       expect(params.get("from")).toBe("2026-09-01");
       expect(params.get("to")).toBe("2026-09-30");
     }
+
+    // The batch screens take no dashboard filters, so the Batches tab does not carry them.
+    fireEvent.click(within(nav).getByRole("button", { name: "BATCHES" }));
+
+    expect(window.location.pathname + window.location.search).toBe("/qco/batches");
   });
 
   it("folds the filters into one line on a phone, which opens the form", async () => {

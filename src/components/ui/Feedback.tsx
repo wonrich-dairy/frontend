@@ -98,6 +98,17 @@ export function EmptyState({ children }: { children: ReactNode }) {
   return <p className="emptystate">{children}</p>;
 }
 
+// One look for a deviation in every module, the Processing stages and the QCO timeline alike:
+// the shared failed-status badge, with its icon so it does not rely on colour alone.
+export function DeviationBadge({ label = "Deviation" }: { label?: string }) {
+  return (
+    <span className="badge badge--bad badge--icon">
+      <WarningIcon width={12} height={12} />
+      {label}
+    </span>
+  );
+}
+
 const ROLE_NAMES: Record<Role, string> = {
   SystemAdministrator: "System Administrator",
   MccManager: "MCC Manager",

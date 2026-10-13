@@ -8,7 +8,8 @@ import { request } from "../http";
 export const PRODUCT_LINES = ["FM", "FLM", "SY", "SK", "DY", "CD"] as const;
 export type ProductLine = (typeof PRODUCT_LINES)[number];
 
-export const CHECKPOINTS = ["MCC", "Intake", "Processing", "Lab"] as const;
+// As the service names them; the screen gives MCC its capitals.
+export const CHECKPOINTS = ["Mcc", "Intake", "Processing", "Lab"] as const;
 export type Checkpoint = (typeof CHECKPOINTS)[number];
 
 export interface DashboardFilters {
@@ -18,10 +19,10 @@ export interface DashboardFilters {
   to?: string;
 }
 
-// Every response carries the time of the last event projected, so the screen can show
-// how fresh the figures are.
+// Every response carries the time of the last event projected (UTC), so the screen can show
+// how fresh the figures are. Null until the service has processed an event.
 interface Freshness {
-  dataAsOfUtc: string | null;
+  dataAsOf: string | null;
 }
 
 export interface StatusCounts {
@@ -49,9 +50,11 @@ export interface TrendPointDto {
   date: string;
   productLine: ProductLine;
   batchCount: number;
+  clearedCount: number;
   failedCount: number;
-  // A fraction from 0 to 1, not a percentage.
-  failRate: number;
+  // failed / batchCount, a fraction from 0 to 1, not a percentage: pending and on-hold batches
+  // count, so a day still being decided reads low. Null only when the day has no batches.
+  failRate: number | null;
 }
 
 export interface TrendDto extends Freshness {
@@ -69,23 +72,27 @@ export interface FailureReasonsDto extends Freshness {
 
 export interface MarginalSocietyDto {
   societyCode: string;
-  societyName: string;
+  societyName: string | null;
   consignmentCount: number;
-  tightestMargin: number;
+  batchCount: number;
+  // Null when none of the society's consignments could be scored; those come last.
+  tightestMargin: number | null;
   tightestMeasure: string | null;
 }
 
 export interface MarginalSocietiesDto extends Freshness {
   societies: MarginalSocietyDto[];
-  dataSource: string;
+  source: string;
   coverage: string;
 }
 
 export interface RecentFailureDto {
-  batchCode: string;
+  batchId: string;
+  batchReference: string | null;
   productLine: ProductLine;
   facility: string;
-  failedAtUtc: string;
+  // The batch's latest event, UTC: when the failure was recorded.
+  failedAt: string;
   reasonCodes: string[];
   tracePath: string;
 }

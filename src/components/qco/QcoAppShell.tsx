@@ -1,17 +1,18 @@
 import type { ReactNode } from "react";
-import { ArrowLeftIcon, HomeIcon, LogoMark, PersonIcon, TrendIcon, UsersIcon, WarningIcon } from "../icons";
+import { ArrowLeftIcon, HomeIcon, LogoMark, PersonIcon, TraceIcon, TrendIcon, UsersIcon, WarningIcon } from "../icons";
 import { useNavigation } from "../../app/navigationStore";
 
 // A tab is added only once its screen exists; an inert tab is worse than a missing one.
-// Each tab is a route showing a few of the dashboard panels, so a phone is not scrolled
-// through all six to reach the one wanted.
-export type QcoTab = "overview" | "trends" | "causes" | "societies";
+// Each dashboard tab is a route showing a few of the dashboard panels, so a phone is not scrolled
+// through all six to reach the one wanted. Batches is the search, timeline and trace (SCRUM-137).
+export type QcoTab = "overview" | "trends" | "causes" | "societies" | "batches";
 
-const tabs: { id: QcoTab; label: string; path: string; icon: ReactNode }[] = [
-  { id: "overview", label: "Overview", path: "/qco", icon: <HomeIcon /> },
-  { id: "trends", label: "Trends", path: "/qco/trends", icon: <TrendIcon /> },
-  { id: "causes", label: "Causes", path: "/qco/causes", icon: <WarningIcon /> },
-  { id: "societies", label: "Societies", path: "/qco/societies", icon: <UsersIcon /> },
+const tabs: { id: QcoTab; label: string; path: string; icon: ReactNode; filtered: boolean }[] = [
+  { id: "overview", label: "Overview", path: "/qco", icon: <HomeIcon />, filtered: true },
+  { id: "trends", label: "Trends", path: "/qco/trends", icon: <TrendIcon />, filtered: true },
+  { id: "causes", label: "Causes", path: "/qco/causes", icon: <WarningIcon />, filtered: true },
+  { id: "societies", label: "Societies", path: "/qco/societies", icon: <UsersIcon />, filtered: true },
+  { id: "batches", label: "Batches", path: "/qco/batches", icon: <TraceIcon />, filtered: false },
 ];
 
 export function QcoAppShell({
@@ -28,8 +29,11 @@ export function QcoAppShell({
 }) {
   const { navigate, path, query } = useNavigation();
   const showTabs = tabs.length > 1;
-  // The filters live in the query string and apply to every tab, so switching tabs keeps them.
-  const search = query.toString() ? `?${query.toString()}` : "";
+  // The filters live in the query string and apply to every dashboard tab, so switching between
+  // those keeps them. The batch screens take no filters, and their own query (the search term)
+  // is not a filter, so it is carried nowhere.
+  const onDashboard = tabs.some((tab) => tab.filtered && tab.path === path);
+  const search = onDashboard && query.toString() ? `?${query.toString()}` : "";
 
   return (
     <div className={`shell${showTabs ? " shell--nav" : ""}`}>
@@ -71,14 +75,14 @@ export function QcoAppShell({
 
       {/* A bar with a single tab would only link to the page already open. */}
       {showTabs ? (
-        <nav className="tabbar" aria-label="Quality Control Sections">
+        <nav className="tabbar tabbar--dense" aria-label="Quality Control Sections">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               type="button"
               className={`tabbar__item${current === tab.id ? " tabbar__item--current" : ""}`}
               aria-current={current === tab.id ? "page" : undefined}
-              onClick={() => navigate(`${tab.path}${search}`)}
+              onClick={() => navigate(`${tab.path}${tab.filtered ? search : ""}`)}
             >
               <span className="tabbar__icon">{tab.icon}</span>
               {tab.label.toUpperCase()}

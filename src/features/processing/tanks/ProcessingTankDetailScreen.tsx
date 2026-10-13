@@ -6,6 +6,7 @@ import { listStagesByMixingTank, listActiveBatches, startStage, endStage, type P
 import { formatColombo, formatLiveElapsed } from "../../../utils/time";
 import { useSession } from "../../../auth/sessionStore";
 import { useNavigation } from "../../../app/navigationStore";
+import { DeviationBadge } from "../../../components/ui/Feedback";
 
 const PRODUCT_OPTIONS: { value: ProductType; label: string }[] = [
   { value: "FM", label: "FM" },
@@ -375,7 +376,8 @@ export function ProcessingTankDetailScreen({ code, id }: Props) {
                             <span style={{ fontWeight: 700, fontSize: 14 }}>{s.stageType}</span>
                             <span className={`badge ${s.endTimeUtc ? "badge--good" : "badge--warn"}`}>{s.endTimeUtc ? `${s.durationMinutes ?? 0}min ${s.endTemperatureC}°C` : `${formatLiveElapsed(s.startTimeUtc, liveNow)} live`}</span>
                           </div>
-                          <p className="microlabel" style={{ marginTop: 4 }}>{formatColombo(s.startTimeUtc)} → {s.endTimeUtc ? formatColombo(s.endTimeUtc) : "in progress"} {s.isDeviation ? "· deviation" : ""}</p>
+                          <p className="microlabel" style={{ marginTop: 4 }}>{formatColombo(s.startTimeUtc)} → {s.endTimeUtc ? formatColombo(s.endTimeUtc) : "in progress"}</p>
+                          {s.isDeviation ? <DeviationBadge /> : null}
                         </div>
                       );
                     })}
