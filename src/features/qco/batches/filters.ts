@@ -16,20 +16,19 @@ export interface BatchFilters {
   tank: string;
   user: string;
   reasonCode: string;
-  facility: string;
 }
 
 export const BATCH_STATUSES = Object.keys(STATUS_LABELS) as BatchStatus[];
 
 // The text filters, in form order. The service matches society, tank and user without regard to case.
-const TEXT_KEYS = ["society", "tank", "user", "reasonCode", "facility"] as const;
+const TEXT_KEYS = ["society", "tank", "user", "reasonCode"] as const;
 
 // The URL always carries the page once a filter search has run, so ?page=1 alone means "every
 // batch" and a plain /qco/batches is the lookup form with nothing searched yet.
 const PAGE = "page";
 
 export function emptyFilters(): BatchFilters {
-  return { status: "", productLine: "", from: "", to: "", society: "", tank: "", user: "", reasonCode: "", facility: "" };
+  return { status: "", productLine: "", from: "", to: "", society: "", tank: "", user: "", reasonCode: "" };
 }
 
 export function hasFilterSearch(query: URLSearchParams): boolean {

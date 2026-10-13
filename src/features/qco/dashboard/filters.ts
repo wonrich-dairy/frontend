@@ -5,7 +5,6 @@ import { PRODUCT_LINES, type DashboardFilters, type ProductLine } from "../../..
 // Everything here is pure; the screen only reads and writes the query string.
 
 export interface QcoFilters {
-  facility: string;
   productLine: ProductLine | "";
   from: string;
   to: string;
@@ -26,7 +25,7 @@ export function todayInColombo(now: Date = new Date()): string {
 export function defaultFilters(now: Date = new Date()): QcoFilters {
   const today = todayInColombo(now);
 
-  return { facility: "", productLine: "", from: today, to: today };
+  return { productLine: "", from: today, to: today };
 }
 
 export function isValidDate(value: string): boolean {
@@ -62,7 +61,6 @@ export function filtersFromQuery(query: URLSearchParams, now: Date = new Date())
   const range = { from: isValidDate(from) ? from : defaults.from, to: isValidDate(to) ? to : defaults.to };
 
   return {
-    facility: (query.get("facility") ?? "").trim(),
     productLine: isProductLine(productLine) ? productLine : "",
     ...(rangeError(range) ? { from: defaults.from, to: defaults.to } : range),
   };
@@ -72,10 +70,6 @@ export function filtersFromQuery(query: URLSearchParams, now: Date = new Date())
 export function filtersToQuery(filters: QcoFilters, now: Date = new Date()): string {
   const defaults = defaultFilters(now);
   const query = new URLSearchParams();
-
-  if (filters.facility.trim()) {
-    query.set("facility", filters.facility.trim());
-  }
 
   if (filters.productLine) {
     query.set("productLine", filters.productLine);
@@ -93,7 +87,6 @@ export function filtersToQuery(filters: QcoFilters, now: Date = new Date()): str
 
 export function toRequestFilters(filters: QcoFilters): DashboardFilters {
   return {
-    facility: filters.facility || undefined,
     productLine: filters.productLine || undefined,
     from: filters.from,
     to: filters.to,
@@ -127,5 +120,5 @@ export function describeFilters(filters: QcoFilters, now: Date = new Date()): st
       ? shortDate(filters.from, withYear)
       : `${shortDate(filters.from, withYear)} to ${shortDate(filters.to, withYear)}`;
 
-  return [dates, filters.productLine || "All lines", filters.facility || "All facilities"].join(" · ");
+  return [dates, filters.productLine || "All lines"].join(" · ");
 }

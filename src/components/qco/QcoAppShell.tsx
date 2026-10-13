@@ -4,7 +4,7 @@ import { useNavigation } from "../../app/navigationStore";
 
 // A tab is added only once its screen exists; an inert tab is worse than a missing one.
 // Each dashboard tab is a route showing a few of the dashboard panels, so a phone is not scrolled
-// through all six to reach the one wanted. Batches is the search, timeline and trace (SCRUM-137).
+// through all five to reach the one wanted. Batches is the search, timeline and trace (SCRUM-137).
 export type QcoTab = "overview" | "trends" | "causes" | "societies" | "batches";
 
 const tabs: { id: QcoTab; label: string; path: string; icon: ReactNode; filtered: boolean }[] = [
@@ -33,7 +33,9 @@ export function QcoAppShell({
   // those keeps them. The batch screens take no filters, and their own query (the search term)
   // is not a filter, so it is carried nowhere.
   const onDashboard = tabs.some((tab) => tab.filtered && tab.path === path);
-  const search = onDashboard && query.toString() ? `?${query.toString()}` : "";
+  const dashboardQuery = new URLSearchParams(query);
+  dashboardQuery.delete("facility");
+  const search = onDashboard && dashboardQuery.toString() ? `?${dashboardQuery.toString()}` : "";
 
   return (
     <div className={`shell${showTabs ? " shell--nav" : ""}`}>

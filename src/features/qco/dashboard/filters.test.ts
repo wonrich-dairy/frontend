@@ -17,7 +17,6 @@ describe("the default range", () => {
   it("is today in Colombo, not in the browser's time zone", () => {
     expect(todayInColombo(LATE_EVENING_UTC)).toBe("2026-10-04");
     expect(defaultFilters(LATE_EVENING_UTC)).toEqual({
-      facility: "",
       productLine: "",
       from: "2026-10-04",
       to: "2026-10-04",
@@ -30,11 +29,10 @@ describe("reading filters from the URL", () => {
     expect(filtersFromQuery(new URLSearchParams(), LATE_EVENING_UTC)).toEqual(defaultFilters(LATE_EVENING_UTC));
   });
 
-  it("reads every filter", () => {
+  it("reads the dashboard filters and ignores legacy facility filters", () => {
     const query = new URLSearchParams("facility=MCC-KANDY&productLine=FLM&from=2026-09-01&to=2026-09-30");
 
     expect(filtersFromQuery(query, LATE_EVENING_UTC)).toEqual({
-      facility: "MCC-KANDY",
       productLine: "FLM",
       from: "2026-09-01",
       to: "2026-09-30",
@@ -72,16 +70,10 @@ describe("writing filters to the URL", () => {
   });
 
   it("round-trips through the query string", () => {
-    const filters = { facility: "MCC-KANDY", productLine: "DY" as const, from: "2026-09-01", to: "2026-09-30" };
+    const filters = { productLine: "DY" as const, from: "2026-09-01", to: "2026-09-30" };
     const query = new URLSearchParams(filtersToQuery(filters, LATE_EVENING_UTC));
 
     expect(filtersFromQuery(query, LATE_EVENING_UTC)).toEqual(filters);
-  });
-
-  it("trims the facility and drops it when blank", () => {
-    const filters = { ...defaultFilters(LATE_EVENING_UTC), facility: "   " };
-
-    expect(filtersToQuery(filters, LATE_EVENING_UTC)).toBe("");
   });
 });
 
@@ -104,29 +96,28 @@ describe("the date range check", () => {
 describe("the one-line summary on a phone", () => {
   it("says Today for the default view", () => {
     expect(describeFilters(defaultFilters(LATE_EVENING_UTC), LATE_EVENING_UTC)).toBe(
-      "Today · All lines · All facilities",
+      "Today · All lines",
     );
   });
 
-  it("names a range, the product line and the facility", () => {
-    const filters = { facility: "FACTORY-01", productLine: "SK" as const, from: "2026-09-28", to: "2026-10-04" };
+  it("names a range and the product line", () => {
+    const filters = { productLine: "SK" as const, from: "2026-09-28", to: "2026-10-04" };
 
-    expect(describeFilters(filters, LATE_EVENING_UTC)).toBe("28 Sep to 4 Oct · SK · FACTORY-01");
+    expect(describeFilters(filters, LATE_EVENING_UTC)).toBe("28 Sep to 4 Oct · SK");
   });
 
   it("names a single day, with the year once it is not this year", () => {
     const day = { ...defaultFilters(LATE_EVENING_UTC), from: "2026-09-30", to: "2026-09-30" };
     const lastYear = { ...defaultFilters(LATE_EVENING_UTC), from: "2025-12-30", to: "2026-01-02" };
 
-    expect(describeFilters(day, LATE_EVENING_UTC)).toBe("30 Sep · All lines · All facilities");
-    expect(describeFilters(lastYear, LATE_EVENING_UTC)).toBe("30 Dec 2025 to 2 Jan 2026 · All lines · All facilities");
+    expect(describeFilters(day, LATE_EVENING_UTC)).toBe("30 Sep · All lines");
+    expect(describeFilters(lastYear, LATE_EVENING_UTC)).toBe("30 Dec 2025 to 2 Jan 2026 · All lines");
   });
 });
 
 describe("the request the panels send", () => {
   it("leaves out blank filters", () => {
     expect(toRequestFilters(defaultFilters(LATE_EVENING_UTC))).toEqual({
-      facility: undefined,
       productLine: undefined,
       from: "2026-10-04",
       to: "2026-10-04",

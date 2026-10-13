@@ -141,16 +141,6 @@ function FilterForm({ applied, onApply }: { applied: QcoFilters; onApply: (filte
         noValidate
       >
         <label className="field">
-          <span className="field__label">Facility</span>
-          <input
-            type="text"
-            value={draft.facility}
-            placeholder="All facilities"
-            onChange={(event) => set({ facility: event.target.value })}
-          />
-        </label>
-
-        <label className="field">
           <span className="field__label">Product line</span>
           <select value={draft.productLine} onChange={(event) => set({ productLine: event.target.value as ProductLine | "" })}>
             <option value="">All lines</option>
