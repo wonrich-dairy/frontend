@@ -82,6 +82,68 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   return payload as T;
 }
 
+export interface DownloadedFile {
+  blob: Blob;
+  // From Content-Disposition; null when the service did not name the file.
+  fileName: string | null;
+  headers: Headers;
+}
+
+// A file rather than JSON, e.g. a CSV export. Same token and errors as request: a failure is
+// read as a problem response, not saved as the file.
+export async function download(
+  path: string,
+  options: Pick<RequestOptions, "token" | "signal" | "service"> = {},
+): Promise<DownloadedFile> {
+  const { token, signal, service = "intake" } = options;
+
+  let response: Response;
+
+  try {
+    response = await fetch(`${BASE_URLS[service]}${path}`, {
+      signal,
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+  } catch {
+    throw new ApiError(
+      0,
+      "network_unavailable",
+      "Cannot reach the service. Check the connection and try again.",
+    );
+  }
+
+  if (!response.ok) {
+    throw toApiError(response.status, await readJson(response));
+  }
+
+  return {
+    blob: await response.blob(),
+    fileName: fileNameOf(response.headers.get("Content-Disposition")),
+    headers: response.headers,
+  };
+}
+
+// filename*=UTF-8''... (RFC 5987) when given, else filename=..., quoted or not.
+export function fileNameOf(disposition: string | null): string | null {
+  if (!disposition) {
+    return null;
+  }
+
+  const encoded = disposition.match(/filename\*\s*=\s*(?:UTF-8|utf-8)''([^;]+)/);
+
+  if (encoded) {
+    try {
+      return decodeURIComponent(encoded[1].trim());
+    } catch {
+      // Fall through to the plain name.
+    }
+  }
+
+  const plain = disposition.match(/filename\s*=\s*("([^"]*)"|[^;]+)/);
+
+  return plain ? (plain[2] ?? plain[1]).trim() || null : null;
+}
+
 async function readJson(response: Response): Promise<unknown> {
   const text = await response.text();
 

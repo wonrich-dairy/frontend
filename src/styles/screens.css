@@ -1874,6 +1874,112 @@
   gap: var(--space-1);
 }
 
+.batchresult__reasons {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* Filter search and export (SCRUM-139). The form reuses the dashboard's filter grid. */
+
+.batchfilter {
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+}
+
+.batchfilter__title {
+  margin: 0;
+  color: var(--navy-900);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+@media (min-width: 768px) {
+  .batchfilters {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.batchfilters__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.batchfilters__actions .notice {
+  flex-basis: 100%;
+}
+
+.batchfilters__actions .button {
+  width: auto;
+  flex: 1 1 160px;
+}
+
+/* .button + .button stacks buttons elsewhere; side by side here, the gap does that. */
+.batchfilters__actions .button + .button {
+  margin-top: 0;
+}
+
+.batchresults__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin: var(--space-4) 0 var(--space-2);
+}
+
+.batchresults__bar .batchresults__count {
+  margin: 0;
+}
+
+.batchexport {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+}
+
+.batchexport__button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  width: auto;
+}
+
+.batchexport__done {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.batchexport .notice {
+  margin: 0;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.pager .button {
+  width: auto;
+}
+
+.pager .button + .button {
+  margin-top: 0;
+}
+
+.pager__where {
+  color: var(--ink-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
 /* Batch header */
 
 .batchhead {

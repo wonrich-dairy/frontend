@@ -59,7 +59,7 @@ bar is Home / Consignments / Tanks / Settings, as the frames are drawn.
 | `/settings/tanks/new`, `/settings/tanks/:code` | Add and edit a tank | Add tank / Edit tank |
 | `/profile` | Who is signed in, the shift, sign out | User Profile |
 | `/queue` | What is held on the device (SCRUM-10) | *(no frame)* |
-| `/qco/batches` | Find a batch by batch ID, dispatch reference or WR- batch reference (SCRUM-137) | *(no frame)* |
+| `/qco/batches` | Find a batch by batch ID, dispatch reference or WR- batch reference (SCRUM-137); filter batches and export them as CSV (SCRUM-139) | *(no frame)* |
 | `/qco/batches/:batchId` | The batch timeline: checkpoints in stage order, deviations marked, gaps shown as missing (FR8) | *(no frame)* |
 | `/qco/batches/:batchId/trace` | Backward trace: first deviation highlighted, tanks and societies ranked by quantity (FR7) | *(no frame)* |
 
@@ -76,6 +76,22 @@ A checkpoint with no data is never left blank: it is marked missing with the rea
 gives (not reached yet, the upstream lookup still retrying or unavailable, or an event that never
 arrived), and the backward trace says which checkpoints a "no deviation" result cannot speak for.
 Deviations use the shared `DeviationBadge`, which the Processing stage list uses as well.
+
+### Batch filters and CSV export (SCRUM-139)
+Below the lookup, **Filter batches** reads the Traceability Service's `GET /api/batches/search`
+and `GET /api/batches/export`. The filters are status, product line, from and to (factory days of
+the batch's first event), society (code or name), tank, user, reason and facility. All are
+optional, and the ones given must all match. They live in the URL with the page, e.g.
+`/qco/batches?status=Failed&productLine=FM&page=2`, so a refresh, a shared link or the way back
+from a batch shows the same page. `?page=1` alone means every batch. Applying filters replaces a
+lookup term in the URL and the other way round, so only one set of results shows at a time.
+
+Results come 50 to a page, newest first, with the total and Previous / Next. A filter that matches
+nothing shows the service's message as information, not an error, and offers no export.
+**Export to CSV** asks for every match, not just the page. It saves the file under the name the
+service gives it (filters and export date) and says how many batches it held. The service fills
+not-applicable and unknown cells with explicit markers and audits each export. A refused or failed
+export is shown as an error and saves nothing.
 
 ### Where the design asks for more than the service offers
 
