@@ -75,41 +75,43 @@ export function SettingsScreen() {
         <EmptyState>No societies are registered yet.</EmptyState>
       ) : null}
 
-      {societies?.map((society) => (
-        <article
-          key={society.id}
-          className={`societyrow${society.isActive ? "" : " societyrow--retired"}`}
-        >
-          <header className="societyrow__head">
-            <h2 className="societyrow__name">{society.name}</h2>
-            <span className="tag tag--lg">{society.canLabelPrefix}</span>
-          </header>
+      <div className="cardgrid">
+        {societies?.map((society) => (
+          <article
+            key={society.id}
+            className={`societyrow${society.isActive ? "" : " societyrow--retired"}`}
+          >
+            <header className="societyrow__head">
+              <h2 className="societyrow__name">{society.name}</h2>
+              <span className="tag tag--lg">{society.canLabelPrefix}</span>
+            </header>
 
-          <div className="societyrow__body">
-            <span>
-              <span className="microlabel">Society Leader</span>
-              <span className="societyrow__leader">
-                <span className="avatar">
-                  <PersonIcon width={14} height={14} />
+            <div className="societyrow__body">
+              <span>
+                <span className="microlabel">Society Leader</span>
+                <span className="societyrow__leader">
+                  <span className="avatar">
+                    <PersonIcon width={14} height={14} />
+                  </span>
+                  {society.contactPerson ?? "Not recorded"}
                 </span>
-                {society.contactPerson ?? "Not recorded"}
               </span>
-            </span>
 
-            <button
-              type="button"
-              className="iconbutton iconbutton--outline"
-              onClick={() => navigate(`/settings/societies/${society.id}`)}
-              title={`Edit ${society.name}`}
-            >
-              <PencilIcon width={18} height={18} />
-              <span className="sr-only">Edit {society.name}</span>
-            </button>
-          </div>
+              <button
+                type="button"
+                className="iconbutton iconbutton--outline"
+                onClick={() => navigate(`/settings/societies/${society.id}`)}
+                title={`Edit ${society.name}`}
+              >
+                <PencilIcon width={18} height={18} />
+                <span className="sr-only">Edit {society.name}</span>
+              </button>
+            </div>
 
-          {society.isActive ? null : <p className="societyrow__retired">Retired</p>}
-        </article>
-      ))}
+            {society.isActive ? null : <p className="societyrow__retired">Retired</p>}
+          </article>
+        ))}
+      </div>
 
       <header className="pagehead pagehead--spaced">
         <h1 className="pagehead__title">Manage Tanks</h1>
@@ -128,47 +130,49 @@ export function SettingsScreen() {
 
       {tanks === null ? null : (
         <>
-          {tanks.map((tank) => (
-            <article key={tank.code} className="tankrow">
-              <header className="tankrow__head">
-                <h2 className="tankrow__name">{tank.name}</h2>
-                {mayManageTanks ? (
-                  <button
-                    type="button"
-                    className="iconbutton"
-                    onClick={() => setTankMenu(tank)}
-                    title={`Options for ${tank.name}`}
-                  >
-                    <MoreIcon width={18} height={18} />
-                    <span className="sr-only">Options for {tank.name}</span>
-                  </button>
-                ) : null}
-              </header>
+          <div className="cardgrid">
+            {tanks.map((tank) => (
+              <article key={tank.code} className="tankrow">
+                <header className="tankrow__head">
+                  <h2 className="tankrow__name">{tank.name}</h2>
+                  {mayManageTanks ? (
+                    <button
+                      type="button"
+                      className="iconbutton"
+                      onClick={() => setTankMenu(tank)}
+                      title={`Options for ${tank.name}`}
+                    >
+                      <MoreIcon width={18} height={18} />
+                      <span className="sr-only">Options for {tank.name}</span>
+                    </button>
+                  ) : null}
+                </header>
 
-              <p className="tankrow__status">
-                <span
-                  className={tank.status === "Active" ? "dot dot--active" : "dot dot--warn"}
-                />
-                {tank.status === "Active" ? "Active" : "Under Maintenance"}
-                <span className="tankrow__code">
-                  {tank.code} &middot; fill {tank.fillNumber}
-                </span>
-              </p>
+                <p className="tankrow__status">
+                  <span
+                    className={tank.status === "Active" ? "dot dot--active" : "dot dot--warn"}
+                  />
+                  {tank.status === "Active" ? "Active" : "Under Maintenance"}
+                  <span className="tankrow__code">
+                    {tank.code} &middot; fill {tank.fillNumber}
+                  </span>
+                </p>
 
-              <dl className="tankrow__facts">
-                <div>
-                  <dt className="microlabel">Capacity</dt>
-                  <dd>{tank.capacityLitres.toFixed(0)} L</dd>
-                </div>
-                <div>
-                  <dt className="microlabel">Holding</dt>
-                  <dd>
-                    {tank.totalQuantityLitres.toFixed(0)} L ({percentFull(tank)}%)
-                  </dd>
-                </div>
-              </dl>
-            </article>
-          ))}
+                <dl className="tankrow__facts">
+                  <div>
+                    <dt className="microlabel">Capacity</dt>
+                    <dd>{tank.capacityLitres.toFixed(0)} L</dd>
+                  </div>
+                  <div>
+                    <dt className="microlabel">Holding</dt>
+                    <dd>
+                      {tank.totalQuantityLitres.toFixed(0)} L ({percentFull(tank)}%)
+                    </dd>
+                  </div>
+                </dl>
+              </article>
+            ))}
+          </div>
 
           {tanks.length === 0 && !failure ? (
             <EmptyState>No chilling tanks are configured at this centre.</EmptyState>

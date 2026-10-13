@@ -1,7 +1,7 @@
 /*
  * Design tokens read off the Figma file (Register Consignment, Login, Save Confirmation).
- * The screens are drawn at 390px — a phone at the gate — so the shell is mobile-first and
- * simply centres itself on anything wider.
+ * The screens are drawn at 390px — a phone at the gate — so the styles are mobile-first, with
+ * wider layouts added on top for tablets and desks.
  */
 :root {
   --navy-900: #0b2545;
@@ -10,8 +10,11 @@
   --navy-050: #eef3f9;
 
   --ink: #0b2545;
-  --ink-muted: #667085;
-  --ink-faint: #98a2b3;
+  /* Both darkened (were #667085 and #98a2b3, the faint one at 2.6:1) so secondary text passes
+     WCAG AA on white and on the sunken background: the officers read these screens on a phone
+     outdoors. Muted stays a step darker than faint. */
+  --ink-muted: #4f5a6b;
+  --ink-faint: #646e7e;
 
   --surface: #ffffff;
   --surface-sunken: #f4f6fa;
@@ -24,6 +27,28 @@
 
   --success: #12b76a;
   --success-tint: #ecfdf3;
+
+  /* Quality status, the one thing every module reports. Used for badges, stat tiles and status
+     stripes everywhere, so pass, fail, pending and hold read the same in every module.
+     Reconcile with Figma color/status/*. The text colours are darker than --success and
+     --danger so they pass WCAG AA on their tints. */
+  --status-pending: #175cd3;
+  --status-pending-tint: #eff8ff;
+  --status-hold: #b54708;
+  --status-hold-tint: #fffaeb;
+  --status-cleared: #067647;
+  --status-cleared-tint: var(--success-tint);
+  --status-failed: #b42318;
+  --status-failed-tint: var(--danger-tint);
+  --status-cleared-border: #abefc6;
+  --status-failed-border: var(--danger-border);
+  --status-hold-border: #fedf89;
+
+  /* The cold chain: milk is chilled from the gate to the factory, so tank levels use a cold
+     blue rather than the navy of the chrome. For fills and meters only; as text it is below
+     4.5:1. */
+  --chill: #0086c9;
+  --chill-tint: #e0f2fe;
 
   --radius-sm: 8px;
   --radius: 12px;
@@ -40,7 +65,10 @@
   --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.06);
   --shadow-raised: 0 8px 24px rgba(11, 37, 69, 0.12);
 
-  /* The phone frame in the design. */
-  --screen-width: 390px;
+  /* The frames are drawn at 390px, a phone at the gate. Wider screens get more room: forms stop
+     at a readable width, and list and dashboard screens use the whole shell. */
+  --shell-width: 1200px;
+  --content-width: 720px;
+  --sidenav-width: 220px;
   --tabbar-height: 64px;
 }

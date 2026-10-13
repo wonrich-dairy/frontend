@@ -4,7 +4,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100%;
-  max-width: var(--screen-width);
+  max-width: var(--shell-width);
   margin: 0 auto;
   background: var(--surface-sunken);
   box-shadow: 0 0 0 1px var(--border);
@@ -12,7 +12,90 @@
 
 .shell__body {
   flex: 1;
+  width: 100%;
+  max-width: var(--content-width);
+  margin-inline: auto;
   padding: var(--space-4) var(--space-4) var(--space-6);
+}
+
+/* List and dashboard screens use the whole shell; forms keep the readable width. */
+.shell__body--wide {
+  max-width: none;
+}
+
+@media (min-width: 768px) {
+  .shell__body {
+    padding: var(--space-6) var(--space-6) var(--space-8);
+  }
+}
+
+/* A list of cards: one column on a phone, as many as fit on anything wider. The cards carry
+   their own stacking margins for the phone layout, so the grid gap replaces them here. */
+.cardgrid {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.cardgrid > * {
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .cardgrid {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+    gap: var(--space-4);
+  }
+}
+
+/* On a desk the tab bar becomes a rail down the left, so the content is not stretched
+   between a header and a footer bar the full width of the screen. */
+@media (min-width: 1024px) {
+  .shell--nav {
+    display: grid;
+    grid-template-columns: var(--sidenav-width) minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "top top"
+      "nav main";
+  }
+
+  .shell--nav > .topbar {
+    grid-area: top;
+  }
+
+  .shell--nav > .shell__body {
+    grid-area: main;
+  }
+
+  .shell--nav > .tabbar {
+    grid-area: nav;
+    position: sticky;
+    top: 0;
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    /* 65px is the top bar, so a short page still fills the window without scrolling. */
+    min-height: calc(100dvh - 65px);
+    padding: var(--space-4) var(--space-3);
+    border-top: 0;
+    border-right: 1px solid var(--border);
+  }
+
+  .shell--nav .tabbar__item {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: var(--space-3);
+    padding: 10px var(--space-3);
+    font-size: 12px;
+    text-align: left;
+  }
+
+  .shell--nav .tabbar__item:not([aria-current]):hover {
+    background: var(--navy-050);
+    color: var(--navy-900);
+  }
 }
 
 /* Top bar ----------------------------------------------------------------- */
@@ -81,7 +164,9 @@
   position: sticky;
   bottom: 0;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  /* Equal columns for however many tabs a module or role has, not a fixed four. */
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
   gap: var(--space-1);
   padding: var(--space-2);
   background: var(--surface);
@@ -97,10 +182,19 @@
   border: 0;
   border-radius: var(--radius-sm);
   background: transparent;
-  color: var(--ink-faint);
-  font-size: 9px;
+  color: var(--ink-muted);
+  /* Was 9px: too small to read on a phone held at arm's length at the gate. */
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.02em;
+}
+
+/* Four upper-case labels have to share a 320px phone, so the smallest screens step down. */
+@media (max-width: 359px) {
+  .tabbar__item {
+    font-size: 10px;
+    letter-spacing: 0;
+  }
 }
 
 .tabbar__item[aria-current] {
@@ -167,7 +261,7 @@
   margin-top: var(--space-3);
   padding: var(--space-4);
   background: var(--surface);
-  border: 1.5px solid var(--navy-900);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius);
   box-shadow: var(--shadow-card);
 }
@@ -216,7 +310,7 @@
   align-items: baseline;
   justify-content: space-between;
   padding-bottom: var(--space-2);
-  border-bottom: 2px solid var(--navy-900);
+  border-bottom: 2px solid var(--navy-100);
 }
 
 .section__title {
@@ -235,9 +329,9 @@
 
 .microlabel {
   display: block;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   color: var(--ink-muted);
   text-transform: uppercase;
 }
@@ -595,7 +689,7 @@
   margin-top: var(--space-4);
   padding: var(--space-4);
   background: var(--surface);
-  border: 1.5px solid var(--navy-900);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius);
   box-shadow: var(--shadow-card);
 }
@@ -909,9 +1003,10 @@
   min-width: 16px;
   padding: 0 4px;
   border-radius: 999px;
-  background: #f79009;
+  /* Was white on #f79009 (2.2:1); the hold colour carries the same "waiting" meaning legibly. */
+  background: var(--status-hold);
   color: #fff;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 800;
   line-height: 16px;
   text-align: center;
@@ -1224,7 +1319,7 @@
   width: 100%;
   max-width: 340px;
   padding: var(--space-8) var(--space-6);
-  border: 1.5px solid var(--navy-900);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-lg);
   background: var(--surface);
   box-shadow: var(--shadow-raised);

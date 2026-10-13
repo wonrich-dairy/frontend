@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { can, roleFromToken } from "./permissions";
+import { ROLES, can, roleFromToken } from "./permissions";
 
 function tokenFor(claims: Record<string, unknown>): string {
   const body = btoa(JSON.stringify(claims))
@@ -18,6 +18,10 @@ describe("reading the role off the access token", () => {
 
   it("accepts the short claim name as well", () => {
     expect(roleFromToken(tokenFor({ role: "IntakeOfficer" }))).toBe("IntakeOfficer");
+  });
+
+  it("reads the quality control officer role", () => {
+    expect(roleFromToken(tokenFor({ [ROLE_CLAIM]: "QualityControlOfficer" }))).toBe("QualityControlOfficer");
   });
 
   it("returns null for a role the services do not define", () => {
@@ -45,6 +49,22 @@ describe("what a role is allowed to do", () => {
     expect(can("QualityAnalyst", "recordQualityTests")).toBe(true);
     expect(can("QualityAnalyst", "traceBatches")).toBe(true);
     expect(can("QualityAnalyst", "pourToTanks")).toBe(false);
+  });
+
+  it("shows the QCO dashboard to the administrator and the QCO only", () => {
+    const allowed = ROLES.filter((role) => can(role, "viewQcoDashboard"));
+
+    expect(allowed).toEqual(["SystemAdministrator", "QualityControlOfficer"]);
+    expect(can("QualityControlOfficer", "viewQcoDashboard")).toBe(true);
+    expect(can("QualityAnalyst", "viewQcoDashboard")).toBe(false);
+    expect(can(null, "viewQcoDashboard")).toBe(false);
+  });
+
+  it("gives the quality control officer nothing beyond the QCO dashboard", () => {
+    expect(can("QualityControlOfficer", "recordLabPanels")).toBe(false);
+    expect(can("QualityControlOfficer", "manageLabSpecs")).toBe(false);
+    expect(can("QualityControlOfficer", "readProcessing")).toBe(false);
+    expect(can("QualityControlOfficer", "traceBatches")).toBe(false);
   });
 
   it("allows the administrator everything", () => {

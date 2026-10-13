@@ -24,14 +24,18 @@ const qualityLabBaseUrl = (
   import.meta.env.VITE_QUALITY_LAB_API_URL ?? "http://localhost:5069"
 ).replace(/\/$/, "");
 
-export type ServiceName = "intake" | "processing" | "qualityLab";
+const traceabilityBaseUrl = (
+  import.meta.env.VITE_TRACEABILITY_API_URL ?? "http://localhost:5300"
+).replace(/\/$/, "");
+
+export type ServiceName = "intake" | "processing" | "qualityLab" | "traceability";
 
 const BASE_URLS: Record<ServiceName, string> = {
   intake: intakeBaseUrl,
   processing: processingBaseUrl,
   qualityLab: qualityLabBaseUrl,
+  traceability: traceabilityBaseUrl,
 };
-
 
 interface RequestOptions {
   method?: string;
