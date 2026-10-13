@@ -101,7 +101,7 @@ function FilterForm({ applied, onApply }: { applied: BatchFilters; onApply: (fil
     onApply(draft);
   };
 
-  const text = (key: "society" | "tank" | "user" | "facility", label: string, placeholder: string) => (
+  const text = (key: "society" | "tank" | "user", label: string, placeholder: string) => (
     <label className="field">
       <span className="field__label">{label}</span>
       <input
@@ -175,8 +175,6 @@ function FilterForm({ applied, onApply }: { applied: BatchFilters; onApply: (fil
           ))}
         </datalist>
       </label>
-
-      {text("facility", "Facility", "All facilities")}
 
       <div className="qcofilters__actions batchfilters__actions">
         {error ? <ErrorNotice>{error}</ErrorNotice> : null}

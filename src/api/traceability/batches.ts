@@ -125,7 +125,6 @@ export interface BatchSearchFilters {
   tank?: string;
   user?: string;
   reasonCode?: string;
-  facility?: string;
 }
 
 // NotApplicable: the product line does not measure it (SNF and CLR on fermented lines, texture

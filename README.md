@@ -81,7 +81,7 @@ Deviations use the shared `DeviationBadge`, which the Processing stage list uses
 ### Batch filters and CSV export (SCRUM-139)
 Below the lookup, **Filter batches** reads the Traceability Service's `GET /api/batches/search`
 and `GET /api/batches/export`. The filters are status, product line, from and to (factory days of
-the batch's first event), society (code or name), tank, user, reason and facility. All are
+the batch's first event), society (code or name), tank, user and reason. All are
 optional, and the ones given must all match. They live in the URL with the page, e.g.
 `/qco/batches?status=Failed&productLine=FM&page=2`, so a refresh, a shared link or the way back
 from a batch shows the same page. `?page=1` alone means every batch. Applying filters replaces a

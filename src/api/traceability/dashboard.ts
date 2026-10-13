@@ -13,7 +13,6 @@ export const CHECKPOINTS = ["Mcc", "Intake", "Processing", "Lab"] as const;
 export type Checkpoint = (typeof CHECKPOINTS)[number];
 
 export interface DashboardFilters {
-  facility?: string;
   productLine?: ProductLine;
   from?: string;
   to?: string;
@@ -105,10 +104,6 @@ export interface RecentFailuresDto extends Freshness {
 
 function withFilters(path: string, filters: DashboardFilters): string {
   const query = new URLSearchParams();
-
-  if (filters.facility) {
-    query.set("facility", filters.facility);
-  }
 
   if (filters.productLine) {
     query.set("productLine", filters.productLine);

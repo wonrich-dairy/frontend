@@ -218,7 +218,9 @@ describe("the QCO dashboard", () => {
 
     fireEvent.click(within(nav).getByRole("button", { name: "TRENDS" }));
 
-    expect(window.location.pathname + window.location.search).toBe(`/qco/trends${filters}`);
+    expect(window.location.pathname + window.location.search).toBe(
+      "/qco/trends?productLine=DY&from=2026-09-01&to=2026-09-30",
+    );
     // The product line is filtered to DY, so the trend shows DY without its own line picker.
     expect(await within(panel("Fail rate by day")).findByText("25.0%")).toBeInTheDocument();
     expect(screen.queryByRole("group", { name: "Trend product line" })).not.toBeInTheDocument();
@@ -226,7 +228,7 @@ describe("the QCO dashboard", () => {
     for (const [input] of fetch.mock.calls) {
       const params = new URL(String(input)).searchParams;
 
-      expect(params.get("facility")).toBe("FACTORY-01");
+      expect(params.has("facility")).toBe(false);
       expect(params.get("productLine")).toBe("DY");
       expect(params.get("from")).toBe("2026-09-01");
       expect(params.get("to")).toBe("2026-09-30");
@@ -242,7 +244,7 @@ describe("the QCO dashboard", () => {
     vi.stubGlobal("fetch", stubFetch());
     openDashboard();
 
-    const toggle = screen.getByRole("button", { name: /Today · All lines · All facilities/ });
+    const toggle = screen.getByRole("button", { name: /Today · All lines/ });
     expect(toggle).toHaveAttribute("aria-expanded", "false");
     expect(screen.getByRole("form", { name: "Dashboard filters" })).toHaveClass("qcofilters--folded");
 

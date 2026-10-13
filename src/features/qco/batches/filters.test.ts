@@ -28,13 +28,12 @@ describe("batch filters in the URL (SCRUM-139)", () => {
       tank: "T1",
       user: "qa.officer",
       reasonCode: "LOW_FAT",
-      facility: "FACTORY-01",
     };
 
     const query = filtersToQuery(filters, 3);
 
     expect(query).toBe(
-      "?status=Failed&productLine=FM&from=2026-09-01&to=2026-09-30&society=VS001&tank=T1&user=qa.officer&reasonCode=LOW_FAT&facility=FACTORY-01&page=3",
+      "?status=Failed&productLine=FM&from=2026-09-01&to=2026-09-30&society=VS001&tank=T1&user=qa.officer&reasonCode=LOW_FAT&page=3",
     );
     expect(filtersFromQuery(new URLSearchParams(query))).toEqual({ filters, page: 3 });
   });
@@ -54,6 +53,13 @@ describe("batch filters in the URL (SCRUM-139)", () => {
     expect(filters.from).toBe("");
     expect(filters.to).toBe("2026-09-01");
     expect(page).toBe(1);
+  });
+
+  it("ignores a legacy facility filter", () => {
+    const { filters } = filtersFromQuery(new URLSearchParams("facility=FACTORY-01&page=1"));
+
+    expect(filters).toEqual(emptyFilters());
+    expect(filtersToQuery(filters)).toBe("?page=1");
   });
 
   it("drops a backwards range from a link", () => {

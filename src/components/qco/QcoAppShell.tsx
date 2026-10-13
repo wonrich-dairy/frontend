@@ -33,7 +33,9 @@ export function QcoAppShell({
   // those keeps them. The batch screens take no filters, and their own query (the search term)
   // is not a filter, so it is carried nowhere.
   const onDashboard = tabs.some((tab) => tab.filtered && tab.path === path);
-  const search = onDashboard && query.toString() ? `?${query.toString()}` : "";
+  const dashboardQuery = new URLSearchParams(query);
+  dashboardQuery.delete("facility");
+  const search = onDashboard && dashboardQuery.toString() ? `?${dashboardQuery.toString()}` : "";
 
   return (
     <div className={`shell${showTabs ? " shell--nav" : ""}`}>
