@@ -5,12 +5,12 @@ import {
   CloudOffIcon,
   DropletIcon,
   HomeIcon,
-  LogoMark,
   PersonIcon,
   SettingsIcon,
 } from "./icons";
 import { useSync } from "../features/sync/syncStore";
 import { useNavigation } from "../app/navigationStore";
+import { TopbarBrand } from "./TopbarBrand";
 
 export type Tab = "home" | "consignments" | "tanks" | "settings";
 
@@ -50,14 +50,7 @@ export function AppShell({
         </header>
       ) : (
         <header className="topbar">
-          <span className="topbar__brand">
-            <LogoMark />
-            <span>
-              Wonrich
-              <br />
-              Dairy
-            </span>
-          </span>
+          <TopbarBrand service="Dairy" />
 
           <span className="topbar__spacer" />
 

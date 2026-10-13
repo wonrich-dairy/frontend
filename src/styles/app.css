@@ -119,6 +119,20 @@
   font-size: 13px;
 }
 
+.topbar__brand--button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.topbar__brand--button:focus-visible {
+  outline: 2px solid var(--navy-800);
+  outline-offset: 4px;
+  border-radius: var(--radius-sm);
+}
+
 .topbar__spacer {
   flex: 1;
 }
@@ -1324,4 +1338,3 @@
   background: var(--surface);
   box-shadow: var(--shadow-raised);
 }
-

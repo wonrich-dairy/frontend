@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
-import { ArrowLeftIcon, HomeIcon, DropletIcon, ClipboardIcon, SettingsIcon, LogoMark, PersonIcon } from "../icons";
+import { ArrowLeftIcon, HomeIcon, DropletIcon, ClipboardIcon, SettingsIcon, PersonIcon } from "../icons";
 import { useNavigation } from "../../app/navigationStore";
+import { TopbarBrand } from "../TopbarBrand";
 
 export type ProcessingTab = "factory" | "processingTanks" | "unloads" | "processingSettings";
 
@@ -39,14 +40,7 @@ export function ProcessingAppShell({
         </header>
       ) : (
         <header className="topbar">
-          <span className="topbar__brand">
-            <LogoMark />
-            <span>
-              Wonrich
-              <br />
-              Factory
-            </span>
-          </span>
+          <TopbarBrand service="Factory" />
           <span className="topbar__spacer" />
           <span className="pill" aria-live="polite">
             <span className="pill__dot" />

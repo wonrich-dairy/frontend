@@ -89,7 +89,13 @@ function Screens() {
   const isServiceSelectionPath = path === "/select-service";
 
   if (isServiceSelectionPath) {
-    return <ServiceSelectionScreen />;
+    return role === "SystemAdministrator" ? (
+      <ServiceSelectionScreen />
+    ) : (
+      <div className="shell">
+        <NotPermitted role={role} />
+      </div>
+    );
   }
 
   if (isProcessingRole && path === "/") {

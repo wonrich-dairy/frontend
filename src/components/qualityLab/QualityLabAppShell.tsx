@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
-import { ArrowLeftIcon, FlaskIcon, LogoMark, PersonIcon, SettingsIcon, SlidersIcon } from "../icons";
+import { ArrowLeftIcon, FlaskIcon, PersonIcon, SettingsIcon, SlidersIcon } from "../icons";
 import { useNavigation } from "../../app/navigationStore";
 import { can, type Permission, type Role } from "../../auth/permissions";
+import { TopbarBrand } from "../TopbarBrand";
 
 export type QualityLabTab = "panels" | "specs" | "labSettings";
 
@@ -46,14 +47,7 @@ export function QualityLabAppShell({
         </header>
       ) : (
         <header className="topbar">
-          <span className="topbar__brand">
-            <LogoMark />
-            <span>
-              Wonrich
-              <br />
-              Quality Lab
-            </span>
-          </span>
+          <TopbarBrand service="Quality Lab" />
           <span className="topbar__spacer" />
           <button
             type="button"

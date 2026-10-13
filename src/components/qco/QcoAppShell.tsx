@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
-import { ArrowLeftIcon, HomeIcon, LogoMark, PersonIcon, TraceIcon, TrendIcon, UsersIcon, WarningIcon } from "../icons";
+import { ArrowLeftIcon, HomeIcon, PersonIcon, TraceIcon, TrendIcon, UsersIcon, WarningIcon } from "../icons";
 import { useNavigation } from "../../app/navigationStore";
+import { TopbarBrand } from "../TopbarBrand";
 
 // A tab is added only once its screen exists; an inert tab is worse than a missing one.
 // Each dashboard tab is a route showing a few of the dashboard panels, so a phone is not scrolled
@@ -50,14 +51,7 @@ export function QcoAppShell({
         </header>
       ) : (
         <header className="topbar">
-          <span className="topbar__brand">
-            <LogoMark />
-            <span>
-              Wonrich
-              <br />
-              Quality Control
-            </span>
-          </span>
+          <TopbarBrand service="Quality Control" />
           <span className="topbar__spacer" />
           <button
             type="button"
