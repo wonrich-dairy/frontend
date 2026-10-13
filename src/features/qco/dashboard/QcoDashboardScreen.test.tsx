@@ -214,7 +214,6 @@ describe("the QCO dashboard", () => {
       "CAUSES",
       "SOCIETIES",
       "BATCHES",
-      "AUDIT",
     ]);
 
     fireEvent.click(within(nav).getByRole("button", { name: "TRENDS" }));
