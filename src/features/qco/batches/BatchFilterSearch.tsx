@@ -25,7 +25,7 @@ import {
   toRequestFilters,
   type BatchFilters,
 } from "./filters";
-import { CompletenessBadge, StatusBadge } from "./parts";
+import { CompletenessBadge, Pager, StatusBadge } from "./parts";
 import { batchPath } from "./search";
 import { STATUS_LABELS } from "./trace";
 
@@ -294,31 +294,6 @@ function FilteredBatch({ batch, onOpen }: { batch: BatchSearchRowDto; onOpen: ()
       </span>
       <ChevronRightIcon width={18} height={18} />
     </button>
-  );
-}
-
-function Pager({ page, totalPages, onPage }: { page: number; totalPages: number; onPage: (page: number) => void }) {
-  if (totalPages <= 1) {
-    return null;
-  }
-
-  return (
-    <nav className="pager" aria-label="Pages">
-      <button type="button" className="button button--ghost button--small" disabled={page <= 1} onClick={() => onPage(page - 1)}>
-        Previous
-      </button>
-      <span className="pager__where">
-        Page {page} of {totalPages}
-      </span>
-      <button
-        type="button"
-        className="button button--ghost button--small"
-        disabled={page >= totalPages}
-        onClick={() => onPage(page + 1)}
-      >
-        Next
-      </button>
-    </nav>
   );
 }
 

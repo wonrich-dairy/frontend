@@ -25,7 +25,8 @@ export type Permission =
   | "recordLabPanels"
   | "viewLabSpecs"
   | "manageLabSpecs"
-  | "viewQcoDashboard";
+  | "viewQcoDashboard"
+  | "viewAuditTrail";
 
 const ROLE_CLAIM = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
 
@@ -50,6 +51,9 @@ const GRANTS: Record<Permission, readonly Role[]> = {
   viewLabSpecs: ["SystemAdministrator", "QualityAnalyst", "ProductionManager"],
   manageLabSpecs: ["SystemAdministrator", "ProductionManager"],
   viewQcoDashboard: ["SystemAdministrator", "QualityControlOfficer"],
+  // The traceability service's AuditTrail policy (SCRUM-138). The same roles as the dashboard
+  // today, but its own grant, as in the service, so the two can diverge.
+  viewAuditTrail: ["SystemAdministrator", "QualityControlOfficer"],
 };
 
 export function roleFromToken(accessToken: string | null | undefined): Role | null {
