@@ -6,6 +6,8 @@ import { useSession } from "../../../auth/sessionStore";
 import { ChevronRightIcon, SearchIcon } from "../../../components/icons";
 import { ErrorNotice, Loading } from "../../../components/ui/Feedback";
 import { formatColombo } from "../../../utils/time";
+import { BatchFilterSearch } from "./BatchFilterSearch";
+import { hasFilterSearch } from "./filters";
 import { CompletenessBadge, StatusBadge } from "./parts";
 import { batchPath, classifySearch, searchBatches, SEARCH_KIND_LABELS, type SearchTerm } from "./search";
 
@@ -16,8 +18,9 @@ type Outcome =
   | { status: "failed"; message: string }
   | { status: "done"; term: SearchTerm; batches: BatchSummaryDto[] };
 
-// Find a batch by its ID, its MCC dispatch reference or factory intake's WR- reference (SCRUM-137).
-// The term is kept in the URL, so coming back from a batch shows the same results.
+// Find a batch by its ID, its MCC dispatch reference or factory intake's WR- reference (SCRUM-137),
+// or filter and export batches below it (SCRUM-139). The term or the filters are kept in the URL,
+// so coming back from a batch shows the same results.
 export function BatchSearchScreen() {
   const { session } = useSession();
   const { query, replace, navigate } = useNavigation();
@@ -123,7 +126,10 @@ export function BatchSearchScreen() {
         </div>
       </form>
 
-      <Results outcome={outcome} onOpen={(batchId) => navigate(batchPath(batchId))} />
+      {/* Applying filters replaces the lookup's term in the URL, so its results give way to theirs. */}
+      {hasFilterSearch(query) ? null : <Results outcome={outcome} onOpen={(batchId) => navigate(batchPath(batchId))} />}
+
+      <BatchFilterSearch />
     </>
   );
 }

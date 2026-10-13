@@ -1,4 +1,4 @@
-import { request } from "../http";
+import { download, request } from "../http";
 
 // The unified batch record (SCRUM-133). Read-only, like the rest of the QCO module: GET only.
 
@@ -112,6 +112,63 @@ export interface BatchLookup {
   batchReference?: string;
 }
 
+// ── Batch search and export (SCRUM-139) ─────────────────────────────────────
+
+// Every filter is optional; the ones given must all match. Dates are factory days (Colombo) of
+// the batch's first event. Society is a code or a name; society, tank and user ignore case.
+export interface BatchSearchFilters {
+  status?: BatchStatus;
+  productLine?: string;
+  from?: string;
+  to?: string;
+  society?: string;
+  tank?: string;
+  user?: string;
+  reasonCode?: string;
+  facility?: string;
+}
+
+// NotApplicable: the product line does not measure it (SNF and CLR on fermented lines, texture
+// on liquid ones). Never left out of a row, so a gap is never mistaken for a missed test.
+export type LabParameterState = "NotApplicable" | "Pending" | "NoDeviation" | "OutOfSpec";
+
+export interface LabParameterDto {
+  // FatPercent, Ph, SNF, CorrectedCLR or Texture, always in that order.
+  parameter: string;
+  state: LabParameterState;
+  observedValue: number | null;
+  limit: number | null;
+}
+
+export interface BatchSearchRowDto extends BatchSummaryDto {
+  // Null when the batch has no snapshot row yet; tanks and societies are known once Resolved.
+  upstreamStatus: ResolutionStatus | null;
+  tanks: string[];
+  societies: SocietyLinkDto[];
+  users: string[];
+  deviationCount: number;
+  reasonCodes: string[];
+  labParameters: LabParameterDto[];
+}
+
+export interface BatchSearchPageDto {
+  // At most pageSize, newest first. A batch appears once however many filters it matches twice.
+  items: BatchSearchRowDto[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+  // Set when nothing matches: an answer to show as it is, not an error.
+  message: string | null;
+  filters: BatchSearchFilters;
+}
+
+export interface BatchExportFile {
+  blob: Blob;
+  fileName: string;
+  batchCount: number;
+}
+
 // ── API calls ────────────────────────────────────────────────────────────────
 
 // 404 when no batch carries that ID.
@@ -141,4 +198,41 @@ export function findBatches(lookup: BatchLookup, token: string | null, signal?: 
     signal,
     service: "traceability",
   });
+}
+
+function searchQuery(filters: BatchSearchFilters): URLSearchParams {
+  const query = new URLSearchParams();
+
+  for (const [name, value] of Object.entries(filters)) {
+    if (typeof value === "string" && value.trim() !== "") {
+      query.set(name, value.trim());
+    }
+  }
+
+  return query;
+}
+
+// One page of 50, newest first. No match is a 200 with a message; a bad filter is a 400 naming it.
+export function searchBatchPage(filters: BatchSearchFilters, page: number, token: string | null, signal?: AbortSignal) {
+  const query = searchQuery(filters);
+  query.set("page", String(page));
+
+  return request<BatchSearchPageDto>(`/api/batches/search?${query.toString()}`, {
+    token,
+    signal,
+    service: "traceability",
+  });
+}
+
+// Every matching batch as CSV, not only one page. The service names the file after the filters
+// and the export date, and audits the export.
+export async function exportBatches(filters: BatchSearchFilters, token: string | null, signal?: AbortSignal): Promise<BatchExportFile> {
+  const query = searchQuery(filters).toString();
+  const file = await download(`/api/batches/export${query ? `?${query}` : ""}`, { token, signal, service: "traceability" });
+
+  return {
+    blob: file.blob,
+    fileName: file.fileName ?? "batches.csv",
+    batchCount: Number(file.headers.get("X-Batch-Count") ?? 0),
+  };
 }
