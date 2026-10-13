@@ -63,7 +63,6 @@ bar is Home / Consignments / Tanks / Settings, as the frames are drawn.
 | `/qco/batches/:batchId` | The batch timeline: checkpoints in stage order, deviations marked, gaps shown as missing (FR8) | *(no frame)* |
 | `/qco/batches/:batchId/trace` | Backward trace: first deviation highlighted, tanks and societies ranked by quantity (FR7) | *(no frame)* |
 | `/qco/audit` | Consolidated audit trail: who recorded or did what, and when, across every facility (SCRUM-138) | *(no frame)* |
-| `/qco/audit/coverage` | Which actions the audit trail covers and which it does not, with the reason (SCRUM-138) | *(no frame)* |
 
 ### Batch search, timeline and backward trace (SCRUM-137)
 `src/features/qco/batches` - the QCO's Batches tab, reading the Traceability Service's

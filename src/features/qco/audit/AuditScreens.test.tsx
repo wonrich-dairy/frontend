@@ -306,92 +306,23 @@ describe("the audit trail screen (SCRUM-138)", () => {
   });
 });
 
-describe("the audit coverage page (SCRUM-138)", () => {
-  it("is linked from the audit trail", async () => {
-    stubService();
-    openAt("/qco/audit");
-
-    fireEvent.click(screen.getByRole("button", { name: "What the audit trail covers, and what it does not" }));
-
-    expect(window.location.pathname).toBe("/qco/audit/coverage");
-    expect(await screen.findByRole("heading", { name: "What the audit trail covers" })).toBeInTheDocument();
-  });
-
-  it("lists each covered action with its checkpoint, source and what it records", async () => {
-    stubService();
-    openAt("/qco/audit/coverage");
-
-    const covered = await screen.findByRole("region", { name: "Covered (3)" });
-    const hold = within(covered).getAllByRole("row").find((row) => row.textContent?.includes("ProcessingHoldRaised"))!;
-    expect(within(hold).getByRole("button", { name: "Processing hold raised" })).toBeInTheDocument();
-    expect(within(hold).getByText("Processing", { selector: "td" })).toBeInTheDocument();
-    expect(within(hold).getByText("Event")).toBeInTheDocument();
-    expect(within(hold).getByText("A hold raised. User: who raised it.")).toBeInTheDocument();
-
-    const opened = within(covered).getAllByRole("row").find((row) => row.textContent?.includes("BatchTraceOpened"))!;
-    expect(within(opened).getByText("None")).toBeInTheDocument();
-  });
-
-  it("lists what is not covered, with the reason", async () => {
-    stubService();
-    openAt("/qco/audit/coverage");
-
-    const gaps = await screen.findByRole("region", { name: "Not covered (2)" });
-    expect(within(gaps).getByText("Edits made in Processing or Quality Lab without an event")).toBeInTheDocument();
-    expect(within(gaps).getByText("Only events reach Traceability.")).toBeInTheDocument();
-    expect(screen.getByText("docs/audit-trail.md")).toBeInTheDocument();
-  });
-
-  it("opens the trail on one covered action", async () => {
-    stubService();
-    openAt("/qco/audit/coverage");
-
-    fireEvent.click(await screen.findByRole("button", { name: "Milk dispatched" }));
-
-    expect(window.location.pathname).toBe("/qco/audit");
-    expect(window.location.search).toBe("?action=MilkDispatched");
-  });
-
-  it("goes back to the trail", async () => {
-    stubService();
-    openAt("/qco/audit/coverage");
-
-    fireEvent.click(screen.getByRole("button", { name: "Back" }));
-
-    expect(window.location.pathname).toBe("/qco/audit");
-  });
-
-  it("shows an error when the list cannot be loaded", async () => {
-    stubService({ coverageStatus: 500 });
-    openAt("/qco/audit/coverage");
-
-    expect(await screen.findByRole("alert")).toBeInTheDocument();
-  });
-});
-
 describe("who may read the audit trail", () => {
-  it("opens both pages for the administrator", async () => {
+  it("opens the page for the administrator", async () => {
     stubService();
     openAt("/qco/audit", "SystemAdministrator");
     expect(await screen.findByRole("heading", { name: "Audit trail" })).toBeInTheDocument();
-    cleanup();
-
-    openAt("/qco/audit/coverage", "SystemAdministrator");
-    expect(await screen.findByRole("heading", { name: "What the audit trail covers" })).toBeInTheDocument();
   });
 
-  it("refuses every other role on both pages, without asking the service", () => {
+  it("refuses every other role, without asking the service", () => {
     const fetch = stubService();
 
     for (const role of ["QualityAnalyst", "ProductionManager", "ProcessingTechnician", "MccManager"] as const) {
-      for (const path of ["/qco/audit", "/qco/audit/coverage"]) {
-        openAt(path, role);
+      openAt("/qco/audit", role);
 
-        expect(screen.getByText("Not available to you")).toBeInTheDocument();
-        expect(screen.queryByRole("heading", { name: "Audit trail" })).not.toBeInTheDocument();
+      expect(screen.getByText("Not available to you")).toBeInTheDocument();
+      expect(screen.queryByRole("heading", { name: "Audit trail" })).not.toBeInTheDocument();
 
-        cleanup();
-      }
+      cleanup();
     }
 
     expect(calls(fetch, "/api/audit")).toHaveLength(0);

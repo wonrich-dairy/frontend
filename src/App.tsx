@@ -35,7 +35,6 @@ import { BatchSearchScreen } from "./features/qco/batches/BatchSearchScreen";
 import { BatchTimelineScreen } from "./features/qco/batches/BatchTimelineScreen";
 import { BatchTraceScreen } from "./features/qco/batches/BatchTraceScreen";
 import { AuditTrailScreen } from "./features/qco/audit/AuditTrailScreen";
-import { AuditCoverageScreen } from "./features/qco/audit/AuditCoverageScreen";
 import { UserProfileScreen } from "./features/profile/UserProfileScreen";
 import { QualityLabPanelScreen } from "./features/qualityLab/panels/QualityLabPanelScreen";
 import { SpecThresholdScreen } from "./features/qualityLab/specs/SpecThresholdScreen";
@@ -503,18 +502,6 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
   // service has its own policy for it.
   if (match("/qco/audit", path)) {
     return { tab: "home", qcoTab: "audit", isQco: true, needs: "viewAuditTrail", element: <AuditTrailScreen /> };
-  }
-
-  if (match("/qco/audit/coverage", path)) {
-    return {
-      tab: "home",
-      qcoTab: "audit",
-      isQco: true,
-      title: "Audit Coverage",
-      parent: "/qco/audit",
-      needs: "viewAuditTrail",
-      element: <AuditCoverageScreen />,
-    };
   }
 
   // Each module opens the profile under its own prefix, so it renders in that module's shell

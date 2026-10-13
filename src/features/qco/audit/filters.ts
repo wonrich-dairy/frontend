@@ -15,7 +15,6 @@ export interface AuditFilters {
 }
 
 export const AUDIT_PATH = "/qco/audit";
-export const COVERAGE_PATH = "/qco/audit/coverage";
 
 const TEXT_KEYS = ["user", "action", "batchId"] as const;
 

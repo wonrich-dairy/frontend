@@ -20,7 +20,6 @@ import {
   auditFilterError,
   auditFiltersFromQuery,
   auditFiltersToQuery,
-  COVERAGE_PATH,
   describeAuditPage,
   emptyAuditFilters,
   entryDetail,
@@ -45,7 +44,7 @@ function messageOf(error: unknown, fallback: string): string {
 // filters and page live in the URL, so the trail opens on its first page and coming back from a
 // batch shows the same entries.
 export function AuditTrailScreen() {
-  const { query, replace, navigate } = useNavigation();
+  const { query, replace } = useNavigation();
   const { filters, page } = auditFiltersFromQuery(query);
   const applied = auditFiltersToQuery(filters, page);
   const actions = useCoveredActions();
@@ -58,9 +57,6 @@ export function AuditTrailScreen() {
           Who recorded or did what, and when, across every facility. Built from the events this service receives, so an
           action done in another service without an event is not here.
         </p>
-        <button type="button" className="linkbutton" onClick={() => navigate(COVERAGE_PATH)}>
-          What the audit trail covers, and what it does not
-        </button>
       </header>
 
       {/* Both keyed on the applied search: back and forward reset the form to what is shown, and
