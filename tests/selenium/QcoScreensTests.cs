@@ -28,7 +28,7 @@ public class QcoScreensTests : IClassFixture<Browser>
         _browser.SignIn("admin");
         _browser.Open("/qco");
 
-        _browser.Wait.Until(d => d.FindElements(By.CssSelector(".panelhead__title")).Any(e => e.Text == "Quality Dashboard"));
+        _browser.Wait.Until(d => d.FindElements(By.CssSelector(".panelhead__title")).Any(e => e.Text == "Quality Control Officer Dashboard"));
         _browser.Wait.Until(d => d.FindElements(By.CssSelector(".qcopanel")).Count > 0);
         _browser.Wait.Until(_ => Body.Contains("Last updated"));
         _browser.Evidence("SCRUM-136-dashboard");
@@ -84,7 +84,7 @@ public class QcoScreensTests : IClassFixture<Browser>
 
         Thread.Sleep(2500);
         _browser.Evidence("SCRUM-136-analyst-refused");
-        Assert.DoesNotContain(_browser.Driver.FindElements(By.CssSelector(".panelhead__title")), e => e.Text == "Quality Dashboard");
+        Assert.DoesNotContain(_browser.Driver.FindElements(By.CssSelector(".panelhead__title")), e => e.Text == "Quality Control Officer Dashboard");
 
         _browser.Open($"/qco/batches/{FailedBatch}/trace");
         Thread.Sleep(2500);
