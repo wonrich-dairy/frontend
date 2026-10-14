@@ -1,21 +1,17 @@
 import { download, request } from "../http";
+import { REASON_CODES } from "./determinations";
 import type { ProductLine } from "./panels";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
 export type ResultFilter = "Pass" | "Fail" | "Pending";
 
-/** Failure reason codes (SCRUM-23). `lines` limits the codes offered for a product line. */
-export const REASON_CODES: { code: string; label: string }[] = [
-  { code: "LOW_FAT", label: "Low fat" },
-  { code: "LOW_SNF", label: "Low SNF" },
-  { code: "PH_OUT_OF_SPEC", label: "pH out of spec" },
-  { code: "TASTE_OFF", label: "Taste off" },
-  { code: "SMELL_OFF", label: "Smell off" },
-  { code: "COLOUR_OFF", label: "Colour off" },
-  { code: "APPEARANCE_OFF", label: "Appearance off" },
-  { code: "TEXTURE_OFF", label: "Texture off" },
-];
+/**
+ * Failure reason codes (SCRUM-23). One list for the whole app: the codes the Quality Lab
+ * service validates and records (DeterminationService.ValidReasonCodes), so the history
+ * filter matches stored rows and the summary shows labels, not raw codes (SCRUM-142).
+ */
+export { REASON_CODES };
 
 export const REASON_LABEL: Record<string, string> = Object.fromEntries(
   REASON_CODES.map((r) => [r.code, r.label]),
