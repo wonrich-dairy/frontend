@@ -33,7 +33,7 @@ public class FailedBatchTraceScenarioTests : IClassFixture<Browser>
     [DatabaseFact]
     public async Task A_lab_failure_is_found_on_the_dashboard_and_traced_to_the_lab()
     {
-        var batchCode = $"{DateTime.UtcNow.DayOfYear}-FM-FAIL{DateTime.UtcNow:HHmmss}";
+        var batchCode = Stack.NewBatchCode("FAIL");
         await PrepareBatchAsync(batchCode);
 
         // The analyst fails the batch for low fat in the browser.

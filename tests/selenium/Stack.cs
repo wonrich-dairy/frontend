@@ -37,6 +37,17 @@ public static class Stack
     /// <summary>A failed batch present in the target environment, for the QCO screens.</summary>
     public static string FailedBatch => Env("QCO_FAILED_BATCH", "262-FLM-A");
 
+    /// <summary>
+    /// A new batch code for today's production day. Traceability files a batch under the day of
+    /// the year its code starts with, in Colombo, so a UTC day would land on yesterday between
+    /// 00:00 and 05:30 local time (SCRUM-148).
+    /// </summary>
+    public static string NewBatchCode(string infix)
+    {
+        var colombo = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.UtcNow, "Asia/Colombo");
+        return $"{colombo.DayOfYear}-FM-{infix}{colombo:HHmmss}";
+    }
+
     /// <summary>Folder for the per-test screenshot and browser console log; none when unset.</summary>
     public static string? ArtifactsDir => Optional("SELENIUM_ARTIFACTS");
 

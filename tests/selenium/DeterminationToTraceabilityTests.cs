@@ -24,7 +24,7 @@ public class DeterminationToTraceabilityTests : IClassFixture<Browser>
     public async Task Passing_a_batch_in_the_client_clears_it_in_traceability()
     {
         // Batch codes start with the production day of the year, as Traceability expects.
-        var batchCode = $"{DateTime.UtcNow.DayOfYear}-FM-E2E{DateTime.UtcNow:HHmmss}";
+        var batchCode = Stack.NewBatchCode("E2E");
         await PrepareBatchAsync(batchCode);
 
         // The analyst records the determination in the browser.
