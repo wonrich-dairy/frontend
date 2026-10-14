@@ -111,14 +111,16 @@ function shortDate(iso: string, withYear: boolean): string {
 
 // One line saying what the dashboard is showing, for the collapsed filter bar on a phone.
 export function describeFilters(filters: QcoFilters, now: Date = new Date()): string {
+  const dates = isToday(filters, now) ? "Today" : describeDateRange(filters, now);
+
+  return [dates, filters.productLine || "All lines"].join(" · ");
+}
+
+export function describeDateRange(filters: Pick<QcoFilters, "from" | "to">, now: Date = new Date()): string {
   const thisYear = todayInColombo(now).slice(0, 4);
   const withYear = filters.from.slice(0, 4) !== thisYear || filters.to.slice(0, 4) !== thisYear;
 
-  const dates = isToday(filters, now)
-    ? "Today"
-    : filters.from === filters.to
-      ? shortDate(filters.from, withYear)
-      : `${shortDate(filters.from, withYear)} to ${shortDate(filters.to, withYear)}`;
-
-  return [dates, filters.productLine || "All lines"].join(" · ");
+  return filters.from === filters.to
+    ? shortDate(filters.from, withYear)
+    : `${shortDate(filters.from, withYear)} to ${shortDate(filters.to, withYear)}`;
 }

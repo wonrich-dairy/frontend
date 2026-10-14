@@ -10,6 +10,7 @@ import { ErrorNotice } from "../../../components/ui/Feedback";
 import { PRODUCT_LINES, type ProductLine } from "../../../api/traceability/dashboard";
 import { formatColombo } from "../../../utils/time";
 import {
+  describeDateRange,
   describeFilters,
   filtersFromQuery,
   filtersToQuery,
@@ -36,7 +37,11 @@ const SECTIONS: Record<DashboardSection, { panels: PanelKey[]; render: (panels: 
     panels: ["summary", "recentFailures"],
     render: (panels, filters) => (
       <>
-        <StatusPanel panel={panels.summary} showRange={!isToday(filters)} />
+        <StatusPanel
+          panel={panels.summary}
+          showRange={!isToday(filters)}
+          rangeLabel={describeDateRange(filters)}
+        />
         <RecentFailuresPanel panel={panels.recentFailures} />
       </>
     ),
@@ -78,7 +83,7 @@ export function QcoDashboardScreen({ section = "overview" }: { section?: Dashboa
   return (
     <>
       <header className="qcohead">
-        <h1 className="panelhead__title">Quality Dashboard</h1>
+        <h1 className="panelhead__title">Quality Control Officer Dashboard</h1>
         {asOf ? (
           <p className="qcohead__fresh" aria-live="polite">
             Last updated {formatColombo(asOf)}

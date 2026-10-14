@@ -101,6 +101,16 @@ describe("the QCO dashboard", () => {
     expect(endpoints(fetch)).toEqual(["recent-failures", "summary"]);
   });
 
+  it("shows the applied dates beside the selected-range status heading", async () => {
+    vi.stubGlobal("fetch", stubFetch());
+    openDashboard("/qco?from=2026-09-01&to=2026-09-30");
+
+    const status = panel("Batch status");
+
+    expect(await within(status).findByText("1 Sep to 30 Sep")).toBeInTheDocument();
+    expect(within(status).getByRole("heading", { name: /Selected range.*1 Sep to 30 Sep/ })).toBeInTheDocument();
+  });
+
   it("puts each group of panels on its own tab, and loads only what that tab shows", async () => {
     const tabs: [string, string, string, string[]][] = [
       ["/qco/trends", "Fail rate by day", "25.0%", ["trend"]],

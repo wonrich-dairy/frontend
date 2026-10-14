@@ -1625,6 +1625,13 @@
   color: var(--navy-900);
 }
 
+.statusgroup__detail {
+  margin-left: var(--space-2);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-muted);
+}
+
 .statusgrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1662,6 +1669,13 @@
 .statustile--failed { background: var(--status-failed-tint); color: var(--status-failed); }
 .statustile--hold { background: var(--status-hold-tint); color: var(--status-hold); }
 
+/* Keep columns distinct in every data table. */
+
+table tr > * + * {
+  border-left: 1px solid var(--border);
+  padding-left: var(--space-3);
+}
+
 /* Tables with inline bars: the chart and its text alternative in one. */
 
 .bartable {
@@ -1678,20 +1692,8 @@
   vertical-align: middle;
 }
 
-.bartable--split th:nth-child(2),
-.bartable--split td:nth-child(2) {
-  border-left: 1px solid var(--border);
-  padding-left: var(--space-3);
-}
-
 .bartable--split thead th:nth-child(2) {
   text-align: center;
-}
-
-.bartable--measure th:nth-child(3),
-.bartable--measure td:nth-child(3) {
-  border-left: 1px solid var(--border);
-  padding-left: var(--space-3);
 }
 
 .bartable thead th {
@@ -2125,6 +2127,7 @@
     grid-template-columns: 96px 1fr;
     gap: var(--space-2);
     padding: 4px 0;
+    border-left: 0;
     border-bottom: 0;
   }
 

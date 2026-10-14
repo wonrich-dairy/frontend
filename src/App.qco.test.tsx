@@ -25,14 +25,14 @@ describe("the QCO module (SCRUM-136)", () => {
     openAs("QualityControlOfficer", "/");
 
     expect(window.location.pathname).toBe("/qco");
-    expect(screen.getByRole("heading", { name: "Quality Dashboard" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Quality Control Officer Dashboard" })).toBeInTheDocument();
   });
 
   it("opens /qco for the Quality Control Officer and the administrator", () => {
     for (const role of ["QualityControlOfficer", "SystemAdministrator"] as const) {
       openAs(role, "/qco");
 
-      expect(screen.getByRole("heading", { name: "Quality Dashboard" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Quality Control Officer Dashboard" })).toBeInTheDocument();
       expect(screen.queryByText("Not available to you")).not.toBeInTheDocument();
 
       cleanup();
@@ -45,7 +45,7 @@ describe("the QCO module (SCRUM-136)", () => {
     fireEvent.click(screen.getByRole("button", { name: /Quality Control/ }));
 
     expect(window.location.pathname).toBe("/qco");
-    expect(screen.getByRole("heading", { name: "Quality Dashboard" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Quality Control Officer Dashboard" })).toBeInTheDocument();
   });
 
   it("returns an administrator to the service chooser from the brand", () => {
@@ -84,7 +84,7 @@ describe("the QCO module (SCRUM-136)", () => {
     openAs("QualityAnalyst", "/qco");
 
     expect(screen.getByText("Not available to you")).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Quality Dashboard" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Quality Control Officer Dashboard" })).not.toBeInTheDocument();
   });
 
   it("refuses a Lab Technician on every dashboard tab, not only the overview", () => {
@@ -92,7 +92,7 @@ describe("the QCO module (SCRUM-136)", () => {
       openAs("QualityAnalyst", path);
 
       expect(screen.getByText("Not available to you")).toBeInTheDocument();
-      expect(screen.queryByRole("heading", { name: "Quality Dashboard" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("heading", { name: "Quality Control Officer Dashboard" })).not.toBeInTheDocument();
 
       cleanup();
     }

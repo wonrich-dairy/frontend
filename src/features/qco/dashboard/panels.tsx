@@ -80,10 +80,13 @@ const STATUSES: { key: keyof StatusCounts; label: string; tone: string }[] = [
   { key: "onHold", label: "On hold", tone: "hold" },
 ];
 
-function StatusGroup({ label, counts }: { label: string; counts: StatusCounts }) {
+function StatusGroup({ label, counts, detail }: { label: string; counts: StatusCounts; detail?: string }) {
   return (
     <div className="statusgroup">
-      <h3 className="statusgroup__label">{label}</h3>
+      <h3 className="statusgroup__label">
+        {label}
+        {detail ? <span className="statusgroup__detail">{detail}</span> : null}
+      </h3>
       <dl className="statusgrid">
         {STATUSES.map((status) => (
           <div key={status.key} className={`statustile statustile--${status.tone}`}>
@@ -96,13 +99,21 @@ function StatusGroup({ label, counts }: { label: string; counts: StatusCounts })
   );
 }
 
-export function StatusPanel({ panel, showRange }: { panel: Panel<DashboardSummaryDto>; showRange: boolean }) {
+export function StatusPanel({
+  panel,
+  showRange,
+  rangeLabel,
+}: {
+  panel: Panel<DashboardSummaryDto>;
+  showRange: boolean;
+  rangeLabel: string;
+}) {
   return (
     <PanelFrame title="Batch status" panel={panel} isEmpty={() => false} empty="" full>
       {(data) => (
         <>
           <StatusGroup label="Today" counts={data.today} />
-          {showRange ? <StatusGroup label="Selected range" counts={data.range} /> : null}
+          {showRange ? <StatusGroup label="Selected range" counts={data.range} detail={rangeLabel} /> : null}
         </>
       )}
     </PanelFrame>
@@ -253,7 +264,7 @@ export function MarginalSocietiesPanel({ panel }: { panel: Panel<MarginalSocieti
     <PanelFrame title="Most marginal societies" panel={panel} isEmpty={(data) => data.societies.length === 0} empty="No society data in this range.">
       {(data) => (
         <>
-          <table className="bartable bartable--measure">
+          <table className="bartable">
             <thead>
               <tr>
                 <th scope="col">Society</th>
