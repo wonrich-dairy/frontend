@@ -23,7 +23,9 @@ export function toOperations(records: QueuedRecord[]) {
     sequence: record.sequence,
     kind: record.kind,
     consignment: record.consignment,
-    qualityTest: record.qualityTest,
+    // The panel keeps the time the officer took it offline, so the record and its
+    // ConsignmentTested event are not dated at the upload (SCRUM-141).
+    qualityTest: record.qualityTest ? { ...record.qualityTest, testedAtUtc: record.createdAt } : undefined,
     pour: record.pour,
   }));
 }
