@@ -1687,6 +1687,10 @@
   white-space: nowrap;
 }
 
+.bartable__measure {
+  text-align: left !important;
+}
+
 .bartable__bar {
   width: 40%;
 }

@@ -188,9 +188,8 @@ export function DeviationsPanel({ panel }: { panel: Panel<DeviationsDto> }) {
             <thead>
               <tr>
                 <th scope="col">Checkpoint</th>
-                <th scope="col" className="bartable__num">Deviations</th>
-                <th scope="col" className="bartable__bar">
-                  <span className="sr-only">Bar</span>
+                <th scope="col" colSpan={2} className="bartable__measure">
+                  Deviations
                 </th>
               </tr>
             </thead>
@@ -226,9 +225,8 @@ export function FailureReasonsPanel({ panel }: { panel: Panel<FailureReasonsDto>
             <thead>
               <tr>
                 <th scope="col">Reason</th>
-                <th scope="col" className="bartable__num">Batches</th>
-                <th scope="col" className="bartable__bar">
-                  <span className="sr-only">Bar</span>
+                <th scope="col" colSpan={2} className="bartable__measure">
+                  Batches
                 </th>
               </tr>
             </thead>
