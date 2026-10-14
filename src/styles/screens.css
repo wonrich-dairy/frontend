@@ -2429,7 +2429,7 @@
 
 .chain {
   display: grid;
-  gap: var(--space-4);
+  gap: 24px;
 }
 
 .chain__step {
@@ -2444,11 +2444,12 @@
 .chain__step + .chain__step::before {
   content: "↑";
   position: absolute;
-  top: calc(-1 * var(--space-4) - 2px);
+  top: -25px;
   left: 50%;
   transform: translateX(-50%);
   color: var(--navy-800);
-  font-size: 20px;
+  font-size: 32px;
+  font-weight: 700;
   line-height: 1;
 }
 
