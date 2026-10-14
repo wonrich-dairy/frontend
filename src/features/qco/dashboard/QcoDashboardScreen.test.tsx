@@ -91,7 +91,7 @@ describe("the QCO dashboard", () => {
 
     expect(await within(panel("Recent failures")).findByText("277-DY-A")).toBeInTheDocument();
     expect(
-      within(panel("Recent failures")).getByText("Fat % below minimum, Ph low, Sensory abnormal, Temperature high"),
+      within(panel("Recent failures")).getByText("Fat % below minimum, pH low, Sensory abnormal, Temperature high"),
     ).toBeInTheDocument();
     expect(within(panel("Batch status")).getByText("11")).toBeInTheDocument();
     expect(screen.getByText("Last updated 04/10/2026, 14:00")).toBeInTheDocument();

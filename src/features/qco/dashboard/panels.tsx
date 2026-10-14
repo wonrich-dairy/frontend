@@ -67,7 +67,7 @@ function percent(fraction: number): string {
 const REASON_LABELS: Record<string, string> = Object.fromEntries(REASON_CODES.map((r) => [r.code, r.label]));
 
 function reasonLabel(code: string): string {
-  return REASON_LABELS[code] ?? humanise(code);
+  return REASON_LABELS[code] ?? humanise(code).replace(/^Ph\b/, "pH");
 }
 
 // ── Status counts ────────────────────────────────────────────────────────────

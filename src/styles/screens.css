@@ -1608,7 +1608,9 @@
 /* Status counts */
 
 .statusgroup + .statusgroup {
-  margin-top: var(--space-4);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
 }
 
 .statusgroup__label {
@@ -2266,6 +2268,18 @@
 
 .deviationdetail strong {
   color: var(--status-failed);
+}
+
+.deviationdetail__status {
+  align-self: flex-start;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--status-failed);
+  color: var(--surface);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 /* Timeline: a rail down the left, one group per checkpoint. */
