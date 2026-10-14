@@ -159,6 +159,7 @@ describe("the batch timeline", () => {
     expect(within(events[0]).getByText("n.silva")).toBeInTheDocument();
     expect(within(events[0]).queryByText("Deviation")).not.toBeInTheDocument();
     expect(within(events[1]).getByText("Deviation")).toBeInTheDocument();
+    expect(within(events[1]).getByText("Threshold failed")).toBeInTheDocument();
     expect(within(events[1]).getByText("Temperature C 12.40 against a limit of 4.00")).toBeInTheDocument();
     // The MCC records always have a person behind them, so a missing one is shown as missing.
     expect(within(events[1]).getByText("User not recorded")).toBeInTheDocument();

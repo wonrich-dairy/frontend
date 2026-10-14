@@ -41,7 +41,7 @@ export function QcoAppShell({
   const search = onDashboard && dashboardQuery.toString() ? `?${dashboardQuery.toString()}` : "";
 
   return (
-    <div className={`shell${showTabs ? " shell--nav" : ""}`}>
+    <div className={`shell shell--qco${showTabs ? " shell--nav" : ""}`}>
       {title ? (
         <header className="topbar topbar--compact">
           <button type="button" className="iconbutton" onClick={onBack} title="Back">

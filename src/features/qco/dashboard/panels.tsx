@@ -15,6 +15,8 @@ import {
 import { formatColombo } from "../../../utils/time";
 import { useNavigation } from "../../../app/navigationStore";
 import { batchPath } from "../batches/search";
+import { humanise } from "../batches/trace";
+import { normalizeSnf } from "../../../utils/labels";
 import type { Panel } from "./useQcoDashboard";
 
 // Every chart here is a table with an inline bar, so the figures are always there as text
@@ -66,7 +68,7 @@ function percent(fraction: number): string {
 const REASON_LABELS: Record<string, string> = Object.fromEntries(REASON_CODES.map((r) => [r.code, r.label]));
 
 function reasonLabel(code: string): string {
-  return REASON_LABELS[code] ?? code;
+  return REASON_LABELS[code] ?? humanise(code);
 }
 
 // ── Status counts ────────────────────────────────────────────────────────────
@@ -78,10 +80,13 @@ const STATUSES: { key: keyof StatusCounts; label: string; tone: string }[] = [
   { key: "onHold", label: "On hold", tone: "hold" },
 ];
 
-function StatusGroup({ label, counts }: { label: string; counts: StatusCounts }) {
+function StatusGroup({ label, counts, detail }: { label: string; counts: StatusCounts; detail?: string }) {
   return (
     <div className="statusgroup">
-      <h3 className="statusgroup__label">{label}</h3>
+      <h3 className="statusgroup__label">
+        {label}
+        {detail ? <span className="statusgroup__detail">{detail}</span> : null}
+      </h3>
       <dl className="statusgrid">
         {STATUSES.map((status) => (
           <div key={status.key} className={`statustile statustile--${status.tone}`}>
@@ -94,13 +99,21 @@ function StatusGroup({ label, counts }: { label: string; counts: StatusCounts })
   );
 }
 
-export function StatusPanel({ panel, showRange }: { panel: Panel<DashboardSummaryDto>; showRange: boolean }) {
+export function StatusPanel({
+  panel,
+  showRange,
+  rangeLabel,
+}: {
+  panel: Panel<DashboardSummaryDto>;
+  showRange: boolean;
+  rangeLabel: string;
+}) {
   return (
     <PanelFrame title="Batch status" panel={panel} isEmpty={() => false} empty="" full>
       {(data) => (
         <>
           <StatusGroup label="Today" counts={data.today} />
-          {showRange ? <StatusGroup label="Selected range" counts={data.range} /> : null}
+          {showRange ? <StatusGroup label="Selected range" counts={data.range} detail={rangeLabel} /> : null}
         </>
       )}
     </PanelFrame>
@@ -184,13 +197,11 @@ export function DeviationsPanel({ panel }: { panel: Panel<DeviationsDto> }) {
         const max = Math.max(0, ...data.checkpoints.map((c) => c.count));
 
         return (
-          <table className="bartable">
+          <table className="bartable bartable--split">
             <thead>
               <tr>
                 <th scope="col">Checkpoint</th>
-                <th scope="col" colSpan={2} className="bartable__measure">
-                  Deviations
-                </th>
+                <th scope="col" className="bartable__num" colSpan={2}>Deviations</th>
               </tr>
             </thead>
             <tbody>
@@ -221,13 +232,11 @@ export function FailureReasonsPanel({ panel }: { panel: Panel<FailureReasonsDto>
         const max = Math.max(0, ...reasons.map((r) => r.count));
 
         return (
-          <table className="bartable">
+          <table className="bartable bartable--split">
             <thead>
               <tr>
                 <th scope="col">Reason</th>
-                <th scope="col" colSpan={2} className="bartable__measure">
-                  Batches
-                </th>
+                <th scope="col" className="bartable__num" colSpan={2}>Batches</th>
               </tr>
             </thead>
             <tbody>
@@ -274,14 +283,11 @@ export function MarginalSocietiesPanel({ panel }: { panel: Panel<MarginalSocieti
                   </th>
                   {/* Unscored is said as such: a blank or 0 would read as on the limit. */}
                   <td className="bartable__num">{s.tightestMargin === null ? "Not scored" : s.tightestMargin.toFixed(2)}</td>
-                  <td>{s.tightestMeasure ?? "-"}</td>
+                  <td>{s.tightestMeasure ? normalizeSnf(s.tightestMeasure) : "-"}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <p className="qcopanel__note">
-            Source: {data.source}. Coverage: {data.coverage}.
-          </p>
         </>
       )}
     </PanelFrame>
@@ -308,7 +314,13 @@ export function RecentFailuresPanel({ panel }: { panel: Panel<RecentFailuresDto>
                 {b.productLine} · {b.facility} · {formatColombo(b.failedAt)}
               </span>
               {b.reasonCodes.length > 0 ? (
-                <span className="failurelist__reasons">{b.reasonCodes.map(reasonLabel).join(", ")}</span>
+                <span className="failurelist__reasons" aria-label="Failure reasons">
+                  {b.reasonCodes.map((code) => (
+                    <span key={code} className="badge badge--bad">
+                      {reasonLabel(code)}
+                    </span>
+                  ))}
+                </span>
               ) : null}
             </li>
           ))}

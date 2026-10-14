@@ -104,7 +104,7 @@ export function failedBatch(overrides: Partial<BatchRecordDto> = {}): BatchRecor
           {
             occurredAt: "2026-09-19T09:00:00Z",
             reasonCode: "LOW_PH",
-            parameter: "Ph",
+            parameter: "pH",
             observedValue: 6.41,
             limit: 6.6,
             description: null,

@@ -8,6 +8,7 @@ import {
   firstDeviation,
   humanise,
   missingReason,
+  recordFacts,
   rankSocieties,
   rankTanks,
   timelineItems,
@@ -142,6 +143,33 @@ describe("deviation wording", () => {
   it("spells out event names", () => {
     expect(humanise("MilkAllocatedToMixingTankEvent")).toBe("Milk allocated to mixing tank");
     expect(humanise("ArrivalScreened")).toBe("Arrival screened");
+  });
+
+  it("preserves pH casing in parameter and reason labels", () => {
+    expect(humanise("Ph")).toBe("pH");
+    expect(humanise("PH")).toBe("pH");
+    expect(humanise("PhLow")).toBe("pH low");
+  });
+
+  it("preserves SNF casing in measure labels", () => {
+    expect(humanise("Snf")).toBe("SNF");
+    expect(humanise("SnfPercent")).toBe("SNF percent");
+    expect(humanise("LOW_SNF")).toBe("LOW SNF");
+  });
+});
+
+describe("record detail labels", () => {
+  it("renders record and nested properties as spaced labels", () => {
+    expect(recordFacts({
+      reference: "REF-1",
+      society: { code: "VS014" },
+      panel: { fatPercentage: 4.2, clrReading: 28.4 },
+    })).toEqual([
+      ["Reference", "REF-1"],
+      ["Society code", "VS014"],
+      ["Panel fat percentage", "4.2"],
+      ["Panel clr reading", "28.4"],
+    ]);
   });
 });
 

@@ -38,6 +38,7 @@ import { AuditTrailScreen } from "./features/qco/audit/AuditTrailScreen";
 import { UserProfileScreen } from "./features/profile/UserProfileScreen";
 import { QualityLabPanelScreen } from "./features/qualityLab/panels/QualityLabPanelScreen";
 import { SpecThresholdScreen } from "./features/qualityLab/specs/SpecThresholdScreen";
+import { LabHistoryScreen } from "./features/qualityLab/history/LabHistoryScreen";
 import { QualityLabSettingsScreen } from "./features/qualityLab/settings/QualityLabSettingsScreen";
 import { SyncProvider } from "./features/sync/SyncProvider";
 import "./styles/app.css";
@@ -450,6 +451,18 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
       wide: true,
       needs: "viewLabSpecs",
       element: <SpecThresholdScreen />,
+    };
+  }
+
+  // SCRUM-25 lab history: its own tab, so the Production Manager (no Settings tab) can reach it.
+  if (match("/quality-lab/history", path)) {
+    return {
+      tab: "home",
+      qualityLabTab: "history",
+      isQualityLab: true,
+      wide: true,
+      needs: "viewLabHistory",
+      element: <LabHistoryScreen />,
     };
   }
 

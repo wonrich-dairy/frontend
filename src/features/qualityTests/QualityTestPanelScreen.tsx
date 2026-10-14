@@ -13,6 +13,7 @@ import {
 } from "../../api/qualityTests";
 import type { Consignment } from "../../api/types";
 import { useSession } from "../../auth/sessionStore";
+import { normalizeSnf } from "../../utils/labels";
 import { compositionFrom } from "../sync/offlineComposition";
 import { useSync } from "../sync/syncStore";
 import { CheckIcon, CloudOffIcon, SearchIcon, WarningIcon } from "../../components/icons";
@@ -420,7 +421,7 @@ function VerdictPanel({ preview, curdled }: { preview: TestPreview | null; curdl
         <p className="verdict__detail">
           {curdled
             ? "The sample clotted on boiling, so the milk cannot be taken in."
-            : breach?.detail ?? `${breach?.measure ?? "A measure"} is outside its limit.`}
+            : normalizeSnf(breach?.detail ?? `${breach?.measure ? normalizeSnf(breach.measure) : "A measure"} is outside its limit.`)}
         </p>
       </div>
     </section>
@@ -551,7 +552,7 @@ function RecordedConfirmation({
       <p className="saved__totals">
         {accepted
           ? `Stability: ${test.stabilityGrade}`
-          : `${test.failedParameter} recorded at ${test.failedValue}`}
+          : `${normalizeSnf(test.failedParameter ?? "")} recorded at ${test.failedValue}`}
       </p>
 
       <button type="button" className="button" onClick={onTestAnother}>

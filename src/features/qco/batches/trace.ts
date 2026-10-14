@@ -10,6 +10,7 @@ import type {
   TankLinkDto,
 } from "../../../api/traceability/batches";
 import { parseUtc } from "../../../utils/time";
+import { normalizeSnf } from "../../../utils/labels";
 
 // Everything the timeline and backward-trace screens work out from a batch record, kept free of
 // React so the rules for missing data are unit-tested on their own.
@@ -59,7 +60,7 @@ export function humanise(name: string): string {
       return index === 0 ? lowered.charAt(0).toUpperCase() + lowered.slice(1) : lowered;
     });
 
-  return words.join(" ");
+  return normalizeSnf(words.join(" ").replace(/\b(?:PH|Ph)\b/g, "pH"));
 }
 
 // ── Missing data ─────────────────────────────────────────────────────────────

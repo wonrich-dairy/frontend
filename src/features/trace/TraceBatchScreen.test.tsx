@@ -163,7 +163,7 @@ describe("tracing a batch", () => {
     await expand(user, /Societies by tightest margin/);
 
     expect(await screen.findByText("0.35")).toBeInTheDocument();
-    expect(screen.getByText("Snf")).toBeInTheDocument();
+    expect(screen.getByText("SNF")).toBeInTheDocument();
     expect(screen.getByText("3")).toBeInTheDocument();
   });
 

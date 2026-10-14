@@ -1,16 +1,17 @@
 import type { ReactNode } from "react";
-import { ArrowLeftIcon, FlaskIcon, PersonIcon, SettingsIcon, SlidersIcon } from "../icons";
+import { ArrowLeftIcon, ClockIcon, FlaskIcon, PersonIcon, SettingsIcon, SlidersIcon } from "../icons";
 import { useNavigation } from "../../app/navigationStore";
 import { can, type Permission, type Role } from "../../auth/permissions";
 import { TopbarBrand } from "../TopbarBrand";
 
-export type QualityLabTab = "panels" | "specs" | "labSettings";
+export type QualityLabTab = "panels" | "specs" | "history" | "labSettings";
 
 // Each tab carries the permission its route checks, so a role is never shown a tab that
 // would only refuse it (a Production Manager may read the specs but not record panels).
 const tabs: { id: QualityLabTab; label: string; path: string; needs: Permission; icon: ReactNode }[] = [
   { id: "panels", label: "Panels", path: "/quality-lab/panels", needs: "recordLabPanels", icon: <FlaskIcon /> },
   { id: "specs", label: "Specs", path: "/quality-lab/specs", needs: "viewLabSpecs", icon: <SlidersIcon /> },
+  { id: "history", label: "History", path: "/quality-lab/history", needs: "viewLabHistory", icon: <ClockIcon /> },
   { id: "labSettings", label: "Settings", path: "/quality-lab/settings", needs: "recordLabPanels", icon: <SettingsIcon /> },
 ];
 

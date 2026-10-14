@@ -1096,8 +1096,13 @@
   color: var(--ink-muted);
   font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.facts--compact dt {
+  letter-spacing: normal;
+  text-transform: none;
 }
 
 .facts dd {
@@ -1608,15 +1613,22 @@
 /* Status counts */
 
 .statusgroup + .statusgroup {
-  margin-top: var(--space-4);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
 }
 
 .statusgroup__label {
   margin: 0 0 var(--space-2);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  color: var(--navy-900);
+}
+
+.statusgroup__detail {
+  margin-left: var(--space-2);
+  font-size: 12px;
+  font-weight: 500;
   color: var(--ink-muted);
 }
 
@@ -1657,6 +1669,13 @@
 .statustile--failed { background: var(--status-failed-tint); color: var(--status-failed); }
 .statustile--hold { background: var(--status-hold-tint); color: var(--status-hold); }
 
+/* Keep columns distinct in every data table. */
+
+table tr > * + * {
+  border-left: 1px solid var(--border);
+  padding-left: var(--space-3);
+}
+
 /* Tables with inline bars: the chart and its text alternative in one. */
 
 .bartable {
@@ -1671,6 +1690,10 @@
   border-bottom: 1px solid var(--border);
   text-align: left;
   vertical-align: middle;
+}
+
+.bartable--split thead th:nth-child(2) {
+  text-align: center;
 }
 
 .bartable thead th {
@@ -1778,7 +1801,9 @@
 }
 
 .failurelist__reasons {
-  color: var(--status-failed);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
 }
 
 /* QCO batch search, timeline and backward trace (SCRUM-137) ----------------- */
@@ -2106,6 +2131,7 @@
     grid-template-columns: 96px 1fr;
     gap: var(--space-2);
     padding: 4px 0;
+    border-left: 0;
     border-bottom: 0;
   }
 
@@ -2274,6 +2300,18 @@
   color: var(--status-failed);
 }
 
+.deviationdetail__status {
+  align-self: flex-start;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--status-failed);
+  color: var(--surface);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 /* Timeline: a rail down the left, one group per checkpoint. */
 
 .timeline,
@@ -2414,7 +2452,7 @@
 
 .chain {
   display: grid;
-  gap: var(--space-2);
+  gap: 58px;
 }
 
 .chain__step {
@@ -2427,13 +2465,15 @@
 
 /* An arrow between the steps: each one is where the step above it came from. */
 .chain__step + .chain__step::before {
-  content: "↑";
+  content: "";
   position: absolute;
-  top: calc(-1 * var(--space-2) - 9px);
-  left: var(--space-4);
-  color: var(--ink-faint);
-  font-size: 12px;
-  line-height: 1;
+  top: -54px;
+  left: 50%;
+  width: 40px;
+  height: 48px;
+  transform: translateX(-50%);
+  background: var(--navy-800);
+  clip-path: polygon(50% 0, 84% 36%, 62% 36%, 62% 100%, 38% 100%, 38% 36%, 16% 36%);
 }
 
 .chain__step--deviation {

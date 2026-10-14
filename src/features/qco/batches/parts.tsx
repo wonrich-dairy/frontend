@@ -120,9 +120,11 @@ export function MissingNotice({ title, reason }: { title?: string; reason: strin
 
 export function DeviationDetail({ deviation }: { deviation: DeviationDto }) {
   const reading = describeDeviation(deviation);
+  const thresholdFailed = deviation.observedValue !== null && deviation.limit !== null;
 
   return (
     <div className="deviationdetail">
+      {thresholdFailed ? <span className="deviationdetail__status">Threshold failed</span> : null}
       <strong>{deviationTitle(deviation)}</strong>
       <span>{reading}</span>
       {deviation.description && deviation.description !== reading ? <span>{deviation.description}</span> : null}

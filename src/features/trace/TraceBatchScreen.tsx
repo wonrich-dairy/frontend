@@ -4,6 +4,7 @@ import { traceBatch, type BatchTrace } from "../../api/trace";
 import { useSession } from "../../auth/sessionStore";
 import { DropletIcon, SearchIcon, TraceIcon, TruckIcon, ClipboardIcon } from "../../components/icons";
 import { Accordion, EmptyState, ErrorNotice } from "../../components/ui/Feedback";
+import { normalizeSnf } from "../../utils/labels";
 
 export function TraceBatchScreen() {
   const { session } = useSession();
@@ -178,7 +179,7 @@ export function TraceBatchScreen() {
                   rows={[
                     ["Society", `${society.societyName} (${society.societyCode})`],
                     ["Tightest margin", society.tightestMargin.toFixed(2)],
-                    ["On", society.tightestMeasure ?? "Nothing tested"],
+                    ["On", society.tightestMeasure ? normalizeSnf(society.tightestMeasure) : "Nothing tested"],
                     ["Consignments", String(society.consignmentCount)],
                   ]}
                 />

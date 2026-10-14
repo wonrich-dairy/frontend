@@ -60,19 +60,41 @@
       "nav main";
   }
 
+  .shell--qco.shell--nav {
+    grid-template-columns: 160px minmax(0, 1fr);
+  }
+
+  .shell--qco.shell--nav > .topbar {
+    grid-area: 1 / 1 / 2 / -1;
+  }
+
+  .shell--qco.shell--nav > .shell__body {
+    grid-area: 2 / 2 / 3 / -1;
+  }
+
+  .shell--qco.shell--nav > .tabbar {
+    grid-area: 2 / 1 / 3 / 2;
+    top: 65px;
+  }
+
   .shell--nav > .topbar {
     grid-area: top;
+    grid-column: 1 / -1;
+    grid-row: 1;
   }
 
   .shell--nav > .shell__body {
     grid-area: main;
+    grid-column: 2;
+    grid-row: 2;
   }
 
   .shell--nav > .tabbar {
     grid-area: nav;
+    grid-column: 1;
+    grid-row: 2;
     position: sticky;
     top: 0;
-    align-self: start;
     display: flex;
     flex-direction: column;
     gap: var(--space-1);
@@ -107,6 +129,27 @@
   padding: var(--space-3) var(--space-4);
   background: var(--surface);
   border-bottom: 1px solid var(--border);
+}
+
+.shell--qco > .topbar {
+  background: var(--navy-900);
+  border-bottom-color: var(--navy-800);
+  color: #fff;
+}
+
+.shell--qco .topbar__brand,
+.shell--qco .topbar__title {
+  color: #fff;
+}
+
+.shell--qco .topbar__brand--button:focus-visible {
+  outline-color: #fff;
+}
+
+.shell--qco .iconbutton {
+  background: transparent;
+  border-color: #9aabc0;
+  color: #fff;
 }
 
 .topbar__brand {
@@ -187,6 +230,20 @@
   border-top: 1px solid var(--border);
 }
 
+.shell--qco > .tabbar {
+  background: var(--navy-900);
+  border-top-color: var(--navy-800);
+}
+
+.shell--qco .tabbar__item {
+  color: #dbe4f0;
+}
+
+.shell--qco .tabbar__item:not([aria-current]):hover {
+  background: #17385f;
+  color: #fff;
+}
+
 .tabbar__item {
   display: flex;
   flex-direction: column;
@@ -214,6 +271,10 @@
 .tabbar__item[aria-current] {
   background: var(--navy-900);
   color: #fff;
+}
+
+.shell--qco .tabbar__item[aria-current] {
+  background: #24466f;
 }
 
 /* Search and society ------------------------------------------------------ */

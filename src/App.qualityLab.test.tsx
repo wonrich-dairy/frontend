@@ -40,24 +40,35 @@ describe("the Quality Lab module", () => {
     openAs("QualityAnalyst", "/");
 
     expect(window.location.pathname).toBe("/quality-lab/panels");
-    expect(labTabs()).toEqual(["PANELS", "SPECS", "SETTINGS"]);
+    expect(labTabs()).toEqual(["PANELS", "SPECS", "HISTORY", "SETTINGS"]);
     expect(screen.queryByRole("navigation", { name: "Sections" })).not.toBeInTheDocument();
   });
 
   it("gives the administrator the lab tabs, not the MCC ones", () => {
     openAs("SystemAdministrator", "/quality-lab/specs");
 
-    expect(labTabs()).toEqual(["PANELS", "SPECS", "SETTINGS"]);
+    expect(labTabs()).toEqual(["PANELS", "SPECS", "HISTORY", "SETTINGS"]);
     expect(screen.getByRole("button", { name: "SPECS" })).toHaveAttribute("aria-current", "page");
     expect(screen.queryByRole("button", { name: /CONSIGNMENTS/ })).not.toBeInTheDocument();
   });
 
-  it("shows a Production Manager no tab bar, since the specs are the only lab screen they may open", () => {
+  it("gives a Production Manager only the lab screens they may open: specs and history", () => {
     openAs("ProductionManager", "/quality-lab/specs");
 
-    expect(screen.queryByRole("navigation", { name: "Quality Lab Sections" })).not.toBeInTheDocument();
+    expect(labTabs()).toEqual(["SPECS", "HISTORY"]);
     expect(screen.queryByText("Not available to you")).not.toBeInTheDocument();
     expect(screen.getByText(/Quality Lab/)).toBeInTheDocument();
+  });
+
+  it("opens the lab history as its own tab inside the lab shell", () => {
+    openAs("ProductionManager", "/quality-lab/specs");
+
+    fireEvent.click(screen.getByRole("button", { name: "HISTORY" }));
+
+    expect(window.location.pathname).toBe("/quality-lab/history");
+    expect(screen.getByRole("button", { name: "HISTORY" })).toHaveAttribute("aria-current", "page");
+    expect(screen.queryByText("Not available to you")).not.toBeInTheDocument();
+    expect(screen.queryByRole("navigation", { name: "Sections" })).not.toBeInTheDocument();
   });
 
   it("opens the profile inside the lab shell, without the MCC intake count", () => {
@@ -67,7 +78,7 @@ describe("the Quality Lab module", () => {
 
     expect(window.location.pathname).toBe("/quality-lab/profile");
     expect(screen.getByRole("heading", { name: "Quality Analyst" })).toBeInTheDocument();
-    expect(labTabs()).toEqual(["PANELS", "SPECS", "SETTINGS"]);
+    expect(labTabs()).toEqual(["PANELS", "SPECS", "HISTORY", "SETTINGS"]);
     expect(screen.queryByRole("navigation", { name: "Sections" })).not.toBeInTheDocument();
     expect(screen.queryByText("Intake Count")).not.toBeInTheDocument();
     expect(calledConsignments()).toBe(false);
