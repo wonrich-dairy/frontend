@@ -61,7 +61,7 @@
   }
 
   .shell--qco.shell--nav {
-    grid-template-columns: 180px minmax(0, 1fr);
+    grid-template-columns: 160px minmax(0, 1fr);
   }
 
   .shell--nav > .topbar {
@@ -76,7 +76,6 @@
     grid-area: nav;
     position: sticky;
     top: 0;
-    align-self: start;
     display: flex;
     flex-direction: column;
     gap: var(--space-1);
