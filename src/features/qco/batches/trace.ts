@@ -108,11 +108,6 @@ export function upstreamReason(batch: BatchRecordDto): string {
   return "The MCC and Intake Service returned nothing for this checkpoint.";
 }
 
-// The checkpoints a "no deviation" statement cannot speak for, because they have no data.
-export function checkpointsWithoutData(batch: BatchRecordDto): BatchCheckpoint[] {
-  return batch.checkpoints.filter((section) => section.state !== "Recorded").map((section) => section.checkpoint);
-}
-
 // ── Timeline ─────────────────────────────────────────────────────────────────
 
 export type TimelineItem =
@@ -149,27 +144,6 @@ export function timelineItems(section: CheckpointSectionDto): TimelineItem[] {
 
 export function deviationCount(batch: BatchRecordDto): number {
   return batch.checkpoints.reduce((total, section) => total + section.deviations.length, 0);
-}
-
-export interface FirstDeviation {
-  checkpoint: BatchCheckpoint;
-  deviation: DeviationDto;
-}
-
-// The earliest deviation on the batch: the root-cause lead. On a tie the earlier checkpoint wins,
-// since the milk passed it first.
-export function firstDeviation(batch: BatchRecordDto): FirstDeviation | null {
-  let first: FirstDeviation | null = null;
-
-  for (const section of batch.checkpoints) {
-    for (const deviation of section.deviations) {
-      if (first === null || time(deviation.occurredAt) < time(first.deviation.occurredAt)) {
-        first = { checkpoint: section.checkpoint, deviation };
-      }
-    }
-  }
-
-  return first;
 }
 
 // "Temperature C 12.40 against a limit of 4.00", or whatever part of that the deviation carries.

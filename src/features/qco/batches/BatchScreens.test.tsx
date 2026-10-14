@@ -1,19 +1,32 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { App } from "../../../App";
-import type { BatchRecordDto } from "../../../api/traceability/batches";
+import type { BatchRecordDto, BatchTraceDto } from "../../../api/traceability/batches";
 import { saveSession } from "../../../auth/session";
 import type { Role } from "../../../auth/permissions";
 import { sessionFor } from "../../../test/tokens";
-import { failedBatch, summaryOf, unresolvedBatch } from "./fixtures";
+import { failedBatch, summaryOf, traceOf, unresolvedBatch } from "./fixtures";
 
 // Answers the batch endpoints from a set of batches, the way the traceability service would.
-function stubService(batches: BatchRecordDto[], options: { failWith?: number; recentFailures?: unknown[] } = {}) {
+function stubService(
+  batches: BatchRecordDto[],
+  options: { failWith?: number; recentFailures?: unknown[]; traces?: Record<string, BatchTraceDto> } = {},
+) {
   const fetch = vi.fn(async (input: RequestInfo | URL) => {
     const url = new URL(String(input));
 
     if (options.failWith) {
       return new Response(JSON.stringify({ title: "Projection store unavailable." }), { status: options.failWith });
+    }
+
+    const traceId = url.pathname.match(/^\/api\/batches\/([^/]+)\/trace$/)?.[1];
+
+    if (traceId) {
+      const id = decodeURIComponent(traceId);
+      const batch = batches.find((b) => b.batchId === id);
+      return batch
+        ? new Response(JSON.stringify(options.traces?.[id] ?? traceOf(batch)), { status: 200 })
+        : new Response(JSON.stringify({ title: "Batch not found" }), { status: 404 });
     }
 
     const id = url.pathname.match(/^\/api\/batches\/([^/]+)$/)?.[1];
@@ -245,6 +258,58 @@ describe("the backward trace", () => {
     expect(screen.getByText(/MCC, Factory intake have no data, so a deviation there would not show here/)).toBeInTheDocument();
     expect(screen.getByText("Not resolved")).toBeInTheDocument();
     expect(screen.queryByRole("list", { name: /Contributing tanks/ })).not.toBeInTheDocument();
+  });
+
+  // SCRUM-144: the service audits each trace it serves, so the screen must read the trace API.
+  it("reads the trace API, so opening the trace is audited", async () => {
+    const fetch = stubService([failedBatch()]);
+    openAs("QualityControlOfficer", "/qco/batches/262-FM-B/trace");
+
+    await screen.findByRole("region", { name: "First deviation" });
+    const paths = fetch.mock.calls.map(([input]) => new URL(String(input)).pathname);
+    expect(paths).toContain("/api/batches/262-FM-B/trace");
+    expect(paths).not.toContain("/api/batches/262-FM-B");
+  });
+
+  it("leads with the origin the service picked, not the earliest deviation by the clock", async () => {
+    const batch = failedBatch();
+    const processing = batch.checkpoints.find((s) => s.checkpoint === "Processing")!;
+    processing.deviations = [
+      { occurredAt: "2026-09-19T01:30:00Z", reasonCode: "HoldRaised", parameter: null, observedValue: null, limit: null, description: "Held for a temperature check" },
+    ];
+    stubService([batch]);
+    openAs("QualityControlOfficer", "/qco/batches/262-FM-B/trace");
+
+    // Processing deviated first by the clock, but the MCC comes first in the milk's path.
+    const lead = await screen.findByRole("region", { name: "First deviation" });
+    expect(lead).toHaveTextContent("MCC");
+    expect(lead).toHaveTextContent("Temperature high");
+  });
+
+  it("lists the processing holds on the batch", async () => {
+    const batch = failedBatch();
+    const holds = [
+      {
+        holdId: "H-1",
+        raisedAt: "2026-09-19T05:00:00Z",
+        raisedBy: "tech1",
+        reason: "Temperature check",
+        failedParameter: null,
+        failedValue: null,
+        isOpen: false,
+        resolvedAt: "2026-09-19T06:00:00Z",
+        resolvedBy: "tech2",
+        resolution: "Released",
+      },
+    ];
+    stubService([batch], { traces: { "262-FM-B": traceOf(batch, holds) } });
+    openAs("QualityControlOfficer", "/qco/batches/262-FM-B/trace");
+
+    const list = await screen.findByRole("list", { name: "Processing holds" });
+    expect(list).toHaveTextContent("Temperature check");
+    expect(list).toHaveTextContent("by tech1");
+    expect(list).toHaveTextContent("Released");
+    expect(within(list).getByText("Resolved")).toBeInTheDocument();
   });
 });
 

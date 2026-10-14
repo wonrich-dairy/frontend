@@ -1,19 +1,10 @@
-import type { BatchLinksDto, BatchRecordDto, CheckpointSectionDto } from "../../../api/traceability/batches";
+import type { BatchLinksDto, BatchTraceDto, TraceCheckpointDto, TraceHoldDto } from "../../../api/traceability/batches";
 import { useSession } from "../../../auth/sessionStore";
 import { DeviationBadge } from "../../../components/ui/Feedback";
 import { formatColombo } from "../../../utils/time";
-import { BatchLoaded, CompletenessIndicator, DeviationDetail, MissingNotice, StatusBadge } from "./parts";
-import { useBatchRecord } from "./useBatchRecord";
-import {
-  CHECKPOINT_LABELS,
-  checkpointsWithoutData,
-  firstDeviation,
-  missingReason,
-  rankSocieties,
-  rankTanks,
-  upstreamReason,
-  type FirstDeviation,
-} from "./trace";
+import { BatchLoaded, CompletenessBadge, DeviationDetail, MissingNotice, StatusBadge } from "./parts";
+import { useBatchTrace } from "./useBatchRecord";
+import { CHECKPOINT_LABELS, humanise, rankSocieties, rankTanks, STATUS_LABELS } from "./trace";
 
 function litres(value: number): string {
   return `${value.toFixed(1)} L`;
@@ -23,71 +14,95 @@ function share(fraction: number): string {
   return `${Math.round(fraction * 100)}%`;
 }
 
+function hasData(step: TraceCheckpointDto): boolean {
+  return step.status === "WithinSpec" || step.status === "Deviation";
+}
+
 // The backward trace (SCRUM-137, FR7): from the lab result back through every checkpoint to the
-// tanks and societies whose milk went in, with the earliest deviation picked out as the lead.
+// tanks and societies whose milk went in, with the origin deviation picked out as the lead. It
+// reads GET /api/batches/{id}/trace (SCRUM-134), so the service picks the origin and audits the
+// open (SCRUM-138, SCRUM-144); nothing about the trace is worked out here.
 export function BatchTraceScreen({ batchId }: { batchId: string }) {
   const { session } = useSession();
-  const load = useBatchRecord(batchId, session?.accessToken ?? null);
+  const load = useBatchTrace(batchId, session?.accessToken ?? null);
 
   return (
     <BatchLoaded batchId={batchId} load={load}>
-      {(batch) => {
-        const first = firstDeviation(batch);
-        // Back from the lab: the order the trace is read in, not the order the milk moved.
-        const chain = [...batch.checkpoints].reverse();
+      {(trace) => (
+        <>
+          <header className="batchhead">
+            <div className="batchhead__line">
+              <h1 className="pagehead__title">Trace {trace.batchId}</h1>
+              <StatusBadge batch={trace} />
+            </div>
+            <Completeness trace={trace} />
+          </header>
 
-        return (
-          <>
-            <header className="batchhead">
-              <div className="batchhead__line">
-                <h1 className="pagehead__title">Trace {batch.batchId}</h1>
-                <StatusBadge batch={batch} />
-              </div>
-              <CompletenessIndicator batch={batch} />
-            </header>
+          <Lead trace={trace} />
 
-            <Lead batch={batch} first={first} />
+          <h2 className="sectiontitle">Chain, back from the lab</h2>
+          <ol className="chain" aria-label="Checkpoints, back from the lab">
+            {trace.chain.map((step) => (
+              <ChainStep key={step.checkpoint} step={step} trace={trace} />
+            ))}
+          </ol>
 
-            <h2 className="sectiontitle">Chain, back from the lab</h2>
-            <ol className="chain" aria-label="Checkpoints, back from the lab">
-              {chain.map((section) => (
-                <ChainStep key={section.checkpoint} section={section} batch={batch} first={first} />
-              ))}
-            </ol>
+          {trace.holds.length > 0 ? <Holds holds={trace.holds} /> : null}
 
-            {batch.links ? (
-              <Contributors links={batch.links} />
-            ) : (
-              <>
-                <h2 className="sectiontitle">Contributing tanks and societies</h2>
-                <MissingNotice title="Not resolved" reason={upstreamReason(batch)} />
-              </>
-            )}
-          </>
-        );
-      }}
+          {trace.links ? (
+            <Contributors links={trace.links} />
+          ) : (
+            <>
+              <h2 className="sectiontitle">Contributing tanks and societies</h2>
+              <MissingNotice title="Not resolved" reason={unresolvedReason(trace)} />
+            </>
+          )}
+        </>
+      )}
     </BatchLoaded>
+  );
+}
+
+// The completeness badge, and what makes a partial trace partial.
+function Completeness({ trace }: { trace: BatchTraceDto }) {
+  const recorded = trace.chain.filter(hasData).length;
+  const gaps = [
+    `${recorded} of ${trace.chain.length} checkpoints recorded`,
+    trace.links === null ? "tanks and societies not resolved" : null,
+  ].filter(Boolean);
+
+  return (
+    <p className="completeness">
+      <CompletenessBadge completeness={trace.completeness} />
+      <span className="completeness__detail">{gaps.join("; ")}</span>
+    </p>
   );
 }
 
 // The root-cause lead. With no deviation it says which checkpoints that cannot speak for, so a
 // trace with gaps never reads as a clean one.
-function Lead({ batch, first }: { batch: BatchRecordDto; first: FirstDeviation | null }) {
-  if (first) {
+function Lead({ trace }: { trace: BatchTraceDto }) {
+  const { origin, originCheckpoint } = trace;
+
+  if (origin && originCheckpoint) {
     return (
       <section className="lead lead--deviation" aria-label="First deviation">
         <div className="lead__head">
           <DeviationBadge label="First deviation" />
           <span className="lead__where">
-            {CHECKPOINT_LABELS[first.checkpoint]} · <time dateTime={first.deviation.occurredAt}>{formatColombo(first.deviation.occurredAt)}</time>
+            {CHECKPOINT_LABELS[originCheckpoint]} · <time dateTime={origin.occurredAt}>{formatColombo(origin.occurredAt)}</time>
           </span>
         </div>
-        <DeviationDetail deviation={first.deviation} />
+        <DeviationDetail deviation={origin} />
       </section>
     );
   }
 
-  const gaps = checkpointsWithoutData(batch).map((checkpoint) => CHECKPOINT_LABELS[checkpoint]);
+  // In stage order, the way the gaps were always listed: MCC first.
+  const gaps = [...trace.chain]
+    .reverse()
+    .filter((step) => !hasData(step))
+    .map((step) => CHECKPOINT_LABELS[step.checkpoint]);
 
   return (
     <section className="lead" aria-label="First deviation">
@@ -102,42 +117,89 @@ function Lead({ batch, first }: { batch: BatchRecordDto; first: FirstDeviation |
   );
 }
 
-function ChainStep({ section, batch, first }: { section: CheckpointSectionDto; batch: BatchRecordDto; first: FirstDeviation | null }) {
-  const reason = missingReason(section, batch);
-  const isFirst = first?.checkpoint === section.checkpoint;
-  const others = section.deviations.filter((deviation) => deviation !== first?.deviation);
+function stepReason(step: TraceCheckpointDto, trace: BatchTraceDto): string | null {
+  if (step.status === "NotYetReached") {
+    return `Not reached yet: the batch is ${STATUS_LABELS[trace.status].toLowerCase()}.`;
+  }
+
+  if (step.status === "MissingData") {
+    return step.missingReason ?? "No data was received for this checkpoint.";
+  }
+
+  return null;
+}
+
+// Tanks and societies come from the same MCC and Intake lookup, so its reason applies to them too.
+function unresolvedReason(trace: BatchTraceDto): string {
+  const mcc = trace.chain.find((step) => step.checkpoint === "Mcc");
+
+  return mcc?.missingReason ?? "The MCC and Intake records have not been resolved yet.";
+}
+
+function ChainStep({ step, trace }: { step: TraceCheckpointDto; trace: BatchTraceDto }) {
+  const reason = stepReason(step, trace);
+  const isOrigin = trace.originCheckpoint === step.checkpoint;
+  const others = step.deviations.filter((deviation) => deviation.sourceEventId !== trace.origin?.sourceEventId);
 
   return (
-    <li className={`chain__step${isFirst ? " chain__step--first" : section.deviations.length > 0 ? " chain__step--deviation" : ""}`}>
+    <li className={`chain__step${isOrigin ? " chain__step--first" : step.deviations.length > 0 ? " chain__step--deviation" : ""}`}>
       <div className="chain__head">
-        <h3 className="chain__title">{CHECKPOINT_LABELS[section.checkpoint]}</h3>
-        {isFirst ? (
+        <h3 className="chain__title">{CHECKPOINT_LABELS[step.checkpoint]}</h3>
+        {isOrigin ? (
           <DeviationBadge label="First deviation" />
-        ) : section.deviations.length > 0 ? (
-          <DeviationBadge label={section.deviations.length === 1 ? "Deviation" : `${section.deviations.length} deviations`} />
+        ) : step.deviations.length > 0 ? (
+          <DeviationBadge label={step.deviations.length === 1 ? "Deviation" : `${step.deviations.length} deviations`} />
         ) : null}
       </div>
 
-      {section.checkpoint === "Lab" && section.state === "Recorded" ? (
-        <p className="chain__meta">Lab result: {batch.labResult}</p>
-      ) : null}
+      {step.checkpoint === "Lab" && hasData(step) ? <p className="chain__meta">Lab result: {trace.labResult}</p> : null}
 
-      {section.firstRecordedAt ? (
+      {step.firstRecordedAt ? (
         <p className="chain__meta">
-          {section.records.length} record{section.records.length === 1 ? "" : "s"},{" "}
-          {section.firstRecordedAt === section.lastRecordedAt
-            ? formatColombo(section.firstRecordedAt)
-            : `${formatColombo(section.firstRecordedAt)} to ${formatColombo(section.lastRecordedAt)}`}
+          {step.firstRecordedAt === step.lastRecordedAt
+            ? formatColombo(step.firstRecordedAt)
+            : `${formatColombo(step.firstRecordedAt)} to ${formatColombo(step.lastRecordedAt)}`}
         </p>
       ) : null}
 
       {reason ? <MissingNotice reason={reason} /> : null}
 
-      {isFirst && first ? <DeviationDetail deviation={first.deviation} /> : null}
-      {others.map((deviation, index) => (
-        <DeviationDetail key={index} deviation={deviation} />
+      {isOrigin && trace.origin ? <DeviationDetail deviation={trace.origin} /> : null}
+      {others.map((deviation) => (
+        <DeviationDetail key={deviation.sourceEventId} deviation={deviation} />
       ))}
     </li>
+  );
+}
+
+// Processing holds, in the order they were raised.
+function Holds({ holds }: { holds: TraceHoldDto[] }) {
+  return (
+    <>
+      <h2 className="sectiontitle">Processing holds</h2>
+      <ol className="ranked" aria-label="Processing holds">
+        {holds.map((hold) => (
+          <li key={hold.holdId} className="ranked__item">
+            <span className="ranked__main">
+              <strong>{hold.reason ?? "Hold"}</strong>
+              <span className="ranked__meta">
+                Raised {formatColombo(hold.raisedAt)}
+                {hold.raisedBy ? ` by ${hold.raisedBy}` : ""}
+                {hold.failedParameter ? ` · ${humanise(hold.failedParameter)} ${hold.failedValue ?? ""}`.trimEnd() : ""}
+              </span>
+              {hold.isOpen ? null : (
+                <span className="ranked__meta">
+                  Resolved {formatColombo(hold.resolvedAt)}
+                  {hold.resolvedBy ? ` by ${hold.resolvedBy}` : ""}
+                  {hold.resolution ? `: ${hold.resolution}` : ""}
+                </span>
+              )}
+            </span>
+            <span className={`badge ${hold.isOpen ? "badge--warn" : "badge--good"}`}>{hold.isOpen ? "Open" : "Resolved"}</span>
+          </li>
+        ))}
+      </ol>
+    </>
   );
 }
 

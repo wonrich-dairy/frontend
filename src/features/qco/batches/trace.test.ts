@@ -2,10 +2,8 @@ import { describe, expect, it } from "vitest";
 import type { CheckpointSectionDto } from "../../../api/traceability/batches";
 import { failedBatch, unresolvedBatch } from "./fixtures";
 import {
-  checkpointsWithoutData,
   describeDeviation,
   deviationTitle,
-  firstDeviation,
   humanise,
   missingReason,
   recordFacts,
@@ -61,10 +59,6 @@ describe("missingReason", () => {
     expect(missingReason(processing, batch)).toContain("No Processing event has arrived");
   });
 
-  it("lists the checkpoints without data", () => {
-    expect(checkpointsWithoutData(unresolvedBatch())).toEqual(["Mcc", "Intake"]);
-    expect(checkpointsWithoutData(failedBatch())).toEqual([]);
-  });
 });
 
 describe("timelineItems", () => {
@@ -98,28 +92,6 @@ describe("timelineItems", () => {
   });
 });
 
-describe("firstDeviation", () => {
-  it("is the earliest deviation on the batch, wherever it was reported", () => {
-    const first = firstDeviation(failedBatch());
-
-    expect(first?.checkpoint).toBe("Mcc");
-    expect(first?.deviation.parameter).toBe("TemperatureC");
-  });
-
-  it("goes to the earlier checkpoint on a tie", () => {
-    const batch = failedBatch();
-    section(batch, "Lab").deviations[0].occurredAt = "2026-09-19T02:00:00Z";
-
-    expect(firstDeviation(batch)?.checkpoint).toBe("Mcc");
-  });
-
-  it("is null when nothing deviated", () => {
-    const batch = failedBatch();
-    batch.checkpoints.forEach((s) => (s.deviations = []));
-
-    expect(firstDeviation(batch)).toBeNull();
-  });
-});
 
 describe("deviation wording", () => {
   it("gives the reading against its limit", () => {

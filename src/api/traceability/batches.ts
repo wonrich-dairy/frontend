@@ -107,6 +107,51 @@ export interface BatchRecordDto extends BatchSummaryDto {
   links: BatchLinksDto | null;
 }
 
+// The backward trace (SCRUM-134). WithinSpec and Deviation: the checkpoint has data. MissingData:
+// none although the batch is past it, a gap. NotYetReached: none, and the batch has not got there.
+export type TraceCheckpointStatus = "WithinSpec" | "Deviation" | "MissingData" | "NotYetReached";
+
+export interface TraceDeviationDto extends DeviationDto {
+  checkpoint: BatchCheckpoint;
+  sourceEventId: string;
+}
+
+export interface TraceCheckpointDto {
+  checkpoint: BatchCheckpoint;
+  status: TraceCheckpointStatus;
+  firstRecordedAt: string | null;
+  lastRecordedAt: string | null;
+  // Why the data is missing, for MissingData. Null otherwise.
+  missingReason: string | null;
+  deviations: TraceDeviationDto[];
+}
+
+export interface TraceHoldDto {
+  holdId: string;
+  raisedAt: string;
+  raisedBy: string | null;
+  reason: string | null;
+  failedParameter: string | null;
+  failedValue: string | null;
+  isOpen: boolean;
+  resolvedAt: string | null;
+  resolvedBy: string | null;
+  resolution: string | null;
+}
+
+export interface BatchTraceDto extends BatchSummaryDto {
+  hasDeviation: boolean;
+  // The service picks the origin (the earliest checkpoint in stage order with a deviation), so
+  // the rule lives in one place. Both null with no deviation.
+  originCheckpoint: BatchCheckpoint | null;
+  origin: TraceDeviationDto | null;
+  // Always four, back from the lab: Lab, Processing, Intake, Mcc.
+  chain: TraceCheckpointDto[];
+  holds: TraceHoldDto[];
+  links: BatchLinksDto | null;
+  societies: SocietyLinkDto[];
+}
+
 export interface BatchLookup {
   dispatchRef?: string;
   batchReference?: string;
@@ -173,6 +218,16 @@ export interface BatchExportFile {
 // 404 when no batch carries that ID.
 export function getBatch(batchId: string, token: string | null, signal?: AbortSignal) {
   return request<BatchRecordDto>(`/api/batches/${encodeURIComponent(batchId)}`, {
+    token,
+    signal,
+    service: "traceability",
+  });
+}
+
+// The backward trace. The service records each call as BatchTraceOpened in the audit trail
+// (SCRUM-138), so the trace screen reads this rather than working the trace out from getBatch.
+export function getBatchTrace(batchId: string, token: string | null, signal?: AbortSignal) {
+  return request<BatchTraceDto>(`/api/batches/${encodeURIComponent(batchId)}/trace`, {
     token,
     signal,
     service: "traceability",
