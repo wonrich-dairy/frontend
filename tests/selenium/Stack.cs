@@ -48,6 +48,16 @@ public static class Stack
         return $"{colombo.DayOfYear}-FM-{infix}{colombo:HHmmss}";
     }
 
+    /// <summary>
+    /// The frontend's first page. When VERCEL_BYPASS_SECRET is set (Vercel Deployment Protection's
+    /// "Protection Bypass for Automation" secret), it asks Vercel to set the bypass cookie, so the
+    /// browser gets the app rather than the Vercel sign-in page. Without it, just the frontend.
+    /// </summary>
+    public static string FrontendEntry =>
+        Optional("VERCEL_BYPASS_SECRET") is { } secret
+            ? $"{Frontend}/?x-vercel-protection-bypass={Uri.EscapeDataString(secret)}&x-vercel-set-bypass-cookie=true"
+            : Frontend;
+
     /// <summary>Folder for the per-test screenshot and browser console log; none when unset.</summary>
     public static string? ArtifactsDir => Optional("SELENIUM_ARTIFACTS");
 
@@ -102,7 +112,8 @@ public sealed class Browser : IDisposable
     {
         Current = this;
         Driver.Manage().Cookies.DeleteAllCookies();
-        Driver.Navigate().GoToUrl(Stack.Frontend);
+        // The first load after clearing cookies sets the Vercel bypass cookie again, when there is one.
+        Driver.Navigate().GoToUrl(Stack.FrontendEntry);
         ((IJavaScriptExecutor)Driver).ExecuteScript("localStorage.clear(); sessionStorage.clear();");
         Driver.Navigate().Refresh();
 

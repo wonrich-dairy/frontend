@@ -15,6 +15,8 @@ name: Selenium end-to-end (staging)
 #            STAGING_AUTH_URL         Auth service base URL
 #            STAGING_QUALITY_LAB_URL  Quality Lab API base URL
 #            STAGING_TRACEABILITY_URL Traceability API base URL
+#            VERCEL_BYPASS_SECRET     (optional) Vercel "Protection Bypass for Automation" secret; needed
+#                                     while the Vercel project has Deployment Protection on
 #   variable QCO_FAILED_BATCH         (optional) a failed batch present on staging, for the QCO screens
 #
 # The scenario that writes straight into the Traceability database is skipped here (no
@@ -58,6 +60,7 @@ jobs:
       QUALITY_LAB_API_URL: ${{ secrets.STAGING_QUALITY_LAB_URL }}
       TRACEABILITY_API_URL: ${{ secrets.STAGING_TRACEABILITY_URL }}
       SELENIUM_PASSWORD: ${{ secrets.SELENIUM_PASSWORD }}
+      VERCEL_BYPASS_SECRET: ${{ secrets.VERCEL_BYPASS_SECRET }}
       QCO_FAILED_BATCH: ${{ vars.QCO_FAILED_BATCH }}
       SELENIUM_ARTIFACTS: ${{ github.workspace }}/selenium-results/captures
       SELENIUM_SCREENSHOTS: ${{ github.workspace }}/selenium-results/evidence
