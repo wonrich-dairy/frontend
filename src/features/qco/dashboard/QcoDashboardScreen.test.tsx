@@ -90,9 +90,11 @@ describe("the QCO dashboard", () => {
     openDashboard();
 
     expect(await within(panel("Recent failures")).findByText("277-DY-A")).toBeInTheDocument();
-    expect(
-      within(panel("Recent failures")).getByText("Fat % below minimum, pH low, Sensory abnormal, Temperature high"),
-    ).toBeInTheDocument();
+    const reasons = within(panel("Recent failures")).getByLabelText("Failure reasons");
+    expect(within(reasons).getByText("Fat % below minimum")).toHaveClass("badge--bad");
+    expect(within(reasons).getByText("pH low")).toHaveClass("badge--bad");
+    expect(within(reasons).getByText("Sensory abnormal")).toHaveClass("badge--bad");
+    expect(within(reasons).getByText("Temperature high")).toHaveClass("badge--bad");
     expect(within(panel("Batch status")).getByText("11")).toBeInTheDocument();
     expect(screen.getByText("Last updated 04/10/2026, 14:00")).toBeInTheDocument();
     expect(screen.queryByRole("region", { name: "Failure reasons" })).not.toBeInTheDocument();

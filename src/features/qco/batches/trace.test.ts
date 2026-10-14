@@ -8,6 +8,7 @@ import {
   firstDeviation,
   humanise,
   missingReason,
+  recordFacts,
   rankSocieties,
   rankTanks,
   timelineItems,
@@ -142,6 +143,21 @@ describe("deviation wording", () => {
   it("spells out event names", () => {
     expect(humanise("MilkAllocatedToMixingTankEvent")).toBe("Milk allocated to mixing tank");
     expect(humanise("ArrivalScreened")).toBe("Arrival screened");
+  });
+});
+
+describe("record detail labels", () => {
+  it("renders record and nested properties in camel case", () => {
+    expect(recordFacts({
+      reference: "REF-1",
+      society: { code: "VS014" },
+      panel: { fatPercentage: 4.2, clrReading: 28.4 },
+    })).toEqual([
+      ["reference", "REF-1"],
+      ["societyCode", "VS014"],
+      ["panelFatPercentage", "4.2"],
+      ["panelClrReading", "28.4"],
+    ]);
   });
 });
 

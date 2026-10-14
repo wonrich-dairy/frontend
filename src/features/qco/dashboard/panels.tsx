@@ -311,7 +311,13 @@ export function RecentFailuresPanel({ panel }: { panel: Panel<RecentFailuresDto>
                 {b.productLine} · {b.facility} · {formatColombo(b.failedAt)}
               </span>
               {b.reasonCodes.length > 0 ? (
-                <span className="failurelist__reasons">{b.reasonCodes.map(reasonLabel).join(", ")}</span>
+                <span className="failurelist__reasons" aria-label="Failure reasons">
+                  {b.reasonCodes.map((code) => (
+                    <span key={code} className="badge badge--bad">
+                      {reasonLabel(code)}
+                    </span>
+                  ))}
+                </span>
               ) : null}
             </li>
           ))}
