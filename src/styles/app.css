@@ -109,6 +109,27 @@
   border-bottom: 1px solid var(--border);
 }
 
+.shell--qco > .topbar {
+  background: var(--navy-900);
+  border-bottom-color: var(--navy-800);
+  color: #fff;
+}
+
+.shell--qco .topbar__brand,
+.shell--qco .topbar__title {
+  color: #fff;
+}
+
+.shell--qco .topbar__brand--button:focus-visible {
+  outline-color: #fff;
+}
+
+.shell--qco .iconbutton {
+  background: transparent;
+  border-color: #9aabc0;
+  color: #fff;
+}
+
 .topbar__brand {
   display: flex;
   align-items: center;
@@ -187,6 +208,20 @@
   border-top: 1px solid var(--border);
 }
 
+.shell--qco > .tabbar {
+  background: var(--navy-900);
+  border-top-color: var(--navy-800);
+}
+
+.shell--qco .tabbar__item {
+  color: #dbe4f0;
+}
+
+.shell--qco .tabbar__item:not([aria-current]):hover {
+  background: #17385f;
+  color: #fff;
+}
+
 .tabbar__item {
   display: flex;
   flex-direction: column;
@@ -214,6 +249,10 @@
 .tabbar__item[aria-current] {
   background: var(--navy-900);
   color: #fff;
+}
+
+.shell--qco .tabbar__item[aria-current] {
+  background: #24466f;
 }
 
 /* Search and society ------------------------------------------------------ */

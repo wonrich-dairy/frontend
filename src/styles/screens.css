@@ -2465,11 +2465,11 @@ table tr > * + * {
   position: absolute;
   top: -54px;
   left: 50%;
-  width: 44px;
-  height: 50px;
+  width: 40px;
+  height: 48px;
   transform: translateX(-50%);
   background: var(--navy-800);
-  clip-path: polygon(50% 0, 100% 42%, 68% 42%, 68% 100%, 32% 100%, 32% 42%, 0 42%);
+  clip-path: polygon(50% 0, 84% 36%, 62% 36%, 62% 100%, 38% 100%, 38% 36%, 16% 36%);
 }
 
 .chain__step--deviation {
