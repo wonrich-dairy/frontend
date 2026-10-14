@@ -48,6 +48,27 @@ describe("the QCO module (SCRUM-136)", () => {
     expect(screen.getByRole("heading", { name: "Quality Dashboard" })).toBeInTheDocument();
   });
 
+  it("returns an administrator to the service chooser from the brand", () => {
+    openAs("SystemAdministrator", "/qco");
+
+    fireEvent.click(screen.getByRole("button", { name: "Wonrich Quality Control, choose service" }));
+
+    expect(window.location.pathname).toBe("/select-service");
+    expect(screen.getByRole("button", { name: /MCC Service/ })).toBeInTheDocument();
+  });
+
+  it("does not make the brand a service chooser link for other roles", () => {
+    openAs("QualityControlOfficer", "/qco");
+
+    expect(screen.queryByRole("button", { name: /choose service/ })).not.toBeInTheDocument();
+    cleanup();
+
+    openAs("QualityControlOfficer", "/select-service");
+
+    expect(screen.getByText("Not available to you")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /MCC Service/ })).not.toBeInTheDocument();
+  });
+
   it("opens the profile inside the QCO shell, not the MCC one", () => {
     openAs("QualityControlOfficer", "/qco");
 
