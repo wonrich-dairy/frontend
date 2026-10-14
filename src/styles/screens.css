@@ -2448,7 +2448,7 @@ table tr > * + * {
 
 .chain {
   display: grid;
-  gap: 24px;
+  gap: 58px;
 }
 
 .chain__step {
@@ -2461,15 +2461,15 @@ table tr > * + * {
 
 /* An arrow between the steps: each one is where the step above it came from. */
 .chain__step + .chain__step::before {
-  content: "↑";
+  content: "";
   position: absolute;
-  top: -25px;
+  top: -54px;
   left: 50%;
+  width: 44px;
+  height: 50px;
   transform: translateX(-50%);
-  color: var(--navy-800);
-  font-size: 32px;
-  font-weight: 700;
-  line-height: 1;
+  background: var(--navy-800);
+  clip-path: polygon(50% 0, 100% 42%, 68% 42%, 68% 100%, 32% 100%, 32% 42%, 0 42%);
 }
 
 .chain__step--deviation {
