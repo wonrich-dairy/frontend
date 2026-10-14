@@ -25,6 +25,7 @@ export type Permission =
   | "recordLabPanels"
   | "viewLabSpecs"
   | "manageLabSpecs"
+  | "viewLabHistory"
   | "viewQcoDashboard";
 
 const ROLE_CLAIM = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
@@ -49,6 +50,7 @@ const GRANTS: Record<Permission, readonly Role[]> = {
   recordLabPanels: ["SystemAdministrator", "QualityAnalyst"],
   viewLabSpecs: ["SystemAdministrator", "QualityAnalyst", "ProductionManager"],
   manageLabSpecs: ["SystemAdministrator", "ProductionManager"],
+  viewLabHistory: ["SystemAdministrator", "QualityAnalyst", "ProductionManager"],
   viewQcoDashboard: ["SystemAdministrator", "QualityControlOfficer"],
 };
 
