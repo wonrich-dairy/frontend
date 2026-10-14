@@ -48,6 +48,36 @@ describe("the QCO module (SCRUM-136)", () => {
     expect(screen.getByRole("heading", { name: "Quality Control Officer Dashboard" })).toBeInTheDocument();
   });
 
+  it("opens the audit trail from its QCO tab", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({
+      items: [{
+        id: "audit-1",
+        occurredAt: "2026-10-13T05:00:00Z",
+        user: "qco-1",
+        action: "BatchTraceOpened",
+        checkpoint: null,
+        batchId: null,
+        facility: "FACTORY-01",
+        source: "Traceability",
+        reference: "262-FM-B",
+      }],
+      page: 1,
+      pageSize: 50,
+      totalCount: 1,
+      totalPages: 1,
+      message: null,
+      filters: {},
+    }), { status: 200 })));
+    openAs("QualityControlOfficer", "/qco");
+
+    fireEvent.click(screen.getByRole("button", { name: "AUDIT" }));
+
+    expect(window.location.pathname).toBe("/qco/audit");
+    expect(await screen.findByRole("heading", { name: "Audit trail" })).toBeInTheDocument();
+    expect(await screen.findByText("Batch trace opened")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "AUDIT" })).toHaveAttribute("aria-current", "page");
+  });
+
   it("returns an administrator to the service chooser from the brand", () => {
     openAs("SystemAdministrator", "/qco");
 
@@ -88,7 +118,7 @@ describe("the QCO module (SCRUM-136)", () => {
   });
 
   it("refuses a Lab Technician on every dashboard tab, not only the overview", () => {
-    for (const path of ["/qco/trends", "/qco/causes", "/qco/societies"]) {
+    for (const path of ["/qco/trends", "/qco/causes", "/qco/societies", "/qco/audit"]) {
       openAs("QualityAnalyst", path);
 
       expect(screen.getByText("Not available to you")).toBeInTheDocument();

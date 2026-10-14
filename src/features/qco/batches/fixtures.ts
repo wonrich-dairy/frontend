@@ -1,4 +1,4 @@
-import type { BatchRecordDto, BatchSummaryDto } from "../../../api/traceability/batches";
+import type { BatchRecordDto, BatchSummaryDto, BatchTraceDto, TraceCheckpointStatus } from "../../../api/traceability/batches";
 
 // A failed batch fed from two tanks, shaped like the demo batch 262-FM-B in the service's sample
 // data: 12.40 C leaving the MCC against a 4.00 C limit, three checkpoints before the lab fails it.
@@ -167,4 +167,44 @@ export function summaryOf(batch: BatchRecordDto): BatchSummaryDto {
   const { upstream: _upstream, checkpoints: _checkpoints, links: _links, ...summary } = batch;
 
   return summary;
+}
+
+// What GET /api/batches/{id}/trace returns for a batch, as the service builds it: the chain back
+// from the lab, and the origin at the earliest checkpoint in stage order with a deviation.
+export function traceOf(batch: BatchRecordDto, holds: BatchTraceDto["holds"] = []): BatchTraceDto {
+  const sections = batch.checkpoints.map((section, index) => {
+    const status: TraceCheckpointStatus =
+      section.state === "NotYetReached"
+        ? "NotYetReached"
+        : section.state === "NoDataReceived"
+          ? "MissingData"
+          : section.deviations.length > 0
+            ? "Deviation"
+            : "WithinSpec";
+
+    return {
+      checkpoint: section.checkpoint,
+      status,
+      firstRecordedAt: section.firstRecordedAt,
+      lastRecordedAt: section.lastRecordedAt,
+      missingReason: status === "MissingData" ? `${section.checkpoint} returned no records.` : null,
+      deviations: section.deviations.map((deviation, n) => ({
+        ...deviation,
+        checkpoint: section.checkpoint,
+        sourceEventId: `00000000-0000-4000-8000-00000000${index}${n}0`,
+      })),
+    };
+  });
+  const origin = sections.find((section) => section.deviations.length > 0);
+
+  return {
+    ...summaryOf(batch),
+    hasDeviation: origin !== undefined,
+    originCheckpoint: origin?.checkpoint ?? null,
+    origin: origin?.deviations[0] ?? null,
+    chain: [...sections].reverse(),
+    holds,
+    links: batch.links,
+    societies: [],
+  };
 }

@@ -1,20 +1,22 @@
 import { useEffect, useState } from "react";
 import { ApiError } from "../../../api/http";
-import { getBatch, type BatchRecordDto } from "../../../api/traceability/batches";
+import { getBatch, getBatchTrace, type BatchRecordDto, type BatchTraceDto } from "../../../api/traceability/batches";
 
-export type BatchLoad =
+export type BatchLoad<T = BatchRecordDto> =
   | { status: "loading" }
-  | { status: "ready"; batch: BatchRecordDto }
+  | { status: "ready"; batch: T }
   | { status: "notFound" }
   | { status: "error"; message: string };
 
-export function useBatchRecord(batchId: string, token: string | null): BatchLoad {
-  const [state, setState] = useState<{ batchId: string; load: BatchLoad }>({ batchId, load: { status: "loading" } });
+type Fetcher<T> = (batchId: string, token: string | null, signal: AbortSignal) => Promise<T>;
+
+function useBatchLoad<T>(batchId: string, token: string | null, fetcher: Fetcher<T>): BatchLoad<T> {
+  const [state, setState] = useState<{ batchId: string; load: BatchLoad<T> }>({ batchId, load: { status: "loading" } });
 
   useEffect(() => {
     const controller = new AbortController();
 
-    getBatch(batchId, token, controller.signal).then(
+    fetcher(batchId, token, controller.signal).then(
       (batch) => setState({ batchId, load: { status: "ready", batch } }),
       (error: unknown) => {
         if (controller.signal.aborted) {
@@ -32,8 +34,16 @@ export function useBatchRecord(batchId: string, token: string | null): BatchLoad
     );
 
     return () => controller.abort();
-  }, [batchId, token]);
+  }, [batchId, token, fetcher]);
 
   // A record for the previous batch is never shown under the new one's ID.
   return state.batchId === batchId ? state.load : { status: "loading" };
+}
+
+export function useBatchRecord(batchId: string, token: string | null): BatchLoad {
+  return useBatchLoad(batchId, token, getBatch);
+}
+
+export function useBatchTrace(batchId: string, token: string | null): BatchLoad<BatchTraceDto> {
+  return useBatchLoad(batchId, token, getBatchTrace);
 }

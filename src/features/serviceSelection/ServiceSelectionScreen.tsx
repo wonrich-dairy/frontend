@@ -62,9 +62,6 @@ export function ServiceSelectionScreen() {
           </button>
         </div>
 
-        <p style={{ fontSize: 11, color: "var(--ink-faint)", textAlign: "center", marginTop: 16, lineHeight: 1.4 }}>
-          ProcessingTechnician goes directly to Factory • MccManager/IntakeOfficer go directly to MCC • QualityControlOfficer goes directly to QCO • Only SystemAdministrator sees this chooser
-        </p>
       </div>
     </div>
   );

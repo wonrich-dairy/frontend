@@ -5,7 +5,7 @@ import { SlidersIcon } from "../../../components/icons";
 import type { QcoTab } from "../../../components/qco/QcoAppShell";
 
 // The tabs that are dashboard sections; Batches is its own screen.
-export type DashboardSection = Exclude<QcoTab, "batches">;
+export type DashboardSection = Exclude<QcoTab, "batches" | "audit">;
 import { ErrorNotice } from "../../../components/ui/Feedback";
 import { PRODUCT_LINES, type ProductLine } from "../../../api/traceability/dashboard";
 import { formatColombo } from "../../../utils/time";

@@ -9,14 +9,14 @@ import type { BatchLoad } from "./useBatchRecord";
 
 // Loading, not found and failure look the same on every batch screen; only a loaded record
 // reaches the screen's own content.
-export function BatchLoaded({
+export function BatchLoaded<T = BatchRecordDto>({
   batchId,
   load,
   children,
 }: {
   batchId: string;
-  load: BatchLoad;
-  children: (batch: BatchRecordDto) => ReactNode;
+  load: BatchLoad<T>;
+  children: (batch: T) => ReactNode;
 }) {
   const { navigate } = useNavigation();
 

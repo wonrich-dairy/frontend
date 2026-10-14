@@ -34,6 +34,7 @@ import { QcoDashboardScreen } from "./features/qco/dashboard/QcoDashboardScreen"
 import { BatchSearchScreen } from "./features/qco/batches/BatchSearchScreen";
 import { BatchTimelineScreen } from "./features/qco/batches/BatchTimelineScreen";
 import { BatchTraceScreen } from "./features/qco/batches/BatchTraceScreen";
+import { AuditTrailScreen } from "./features/qco/audit/AuditTrailScreen";
 import { UserProfileScreen } from "./features/profile/UserProfileScreen";
 import { QualityLabPanelScreen } from "./features/qualityLab/panels/QualityLabPanelScreen";
 import { SpecThresholdScreen } from "./features/qualityLab/specs/SpecThresholdScreen";
@@ -486,6 +487,10 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
   // the traceability service refuses every role but the QCO and the administrator.
   if (match("/qco/batches", path)) {
     return { tab: "home", qcoTab: "batches", isQco: true, needs: "viewQcoDashboard", element: <BatchSearchScreen /> };
+  }
+
+  if (match("/qco/audit", path)) {
+    return { tab: "home", qcoTab: "audit", isQco: true, needs: "viewQcoDashboard", element: <AuditTrailScreen /> };
   }
 
   const tracedBatch = match("/qco/batches/:batchId/trace", path);
