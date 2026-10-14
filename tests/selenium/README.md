@@ -11,6 +11,9 @@ roles it is not, and shows what the backend recorded.
 | `RoleAccessTests` | Negative role checks, in the browser and at the API (403): a lab user cannot open the QCO dashboard; an Intake Officer cannot read lab history | SCRUM-129, 25, 135, 136 |
 | `TraceabilityServiceTests` | Traceability `/health`, and every endpoint listed in Swagger UI | SCRUM-119, 120, 125, 133, 135 |
 | `DeterminationToTraceabilityTests` | Scripted scenario: an analyst passes a batch in the client, Quality Lab publishes BatchCleared, Traceability shows it Cleared. Seeds the batch in the Traceability database, so it runs on the local stack only | SCRUM-24, 131, 133 |
+| `FailedBatchTraceScenarioTests` | Scripted scenario from the lab onwards: a deliberately low fat reading, the analyst fails the batch, the QCO finds it under Recent failures and the backward trace names the Quality lab and the fat reading. Local stack only, like the scenario above | SCRUM-129, 134, 137 |
+
+The scripted scenario does not yet start at the chilling centre: a processing run stays *Awaiting lab result* until the intake lab panel (CF-1) exists, so the two scenarios seed the batch in Traceability (`TraceabilitySeed`) in the state the processing consumer would leave it, including its count on the dashboard.
 
 Each test is tagged with its story, so one story can be run on its own: `--filter "Story=SCRUM-137"`.
 
@@ -27,7 +30,7 @@ staging URL is kept in the source.
 | `QUALITY_LAB_API_URL` | | `http://localhost:5069` |
 | `TRACEABILITY_API_URL` | | `http://localhost:5240` |
 | `QCO_FAILED_BATCH` | | `262-FLM-A` (a failed batch in the sample data) |
-| `TRACEABILITY_DB` | for `DeterminationToTraceabilityTests` | none: the test is skipped |
+| `TRACEABILITY_DB` | for the two scripted scenarios | none: they are skipped |
 | `SELENIUM_ARTIFACTS` | | none: folder for a screenshot and browser console log after every test |
 | `SELENIUM_SCREENSHOTS` | | none: folder for the named evidence screenshots |
 | `SELENIUM_HEADED` | | Chrome runs headless; `1` shows the window |
@@ -53,8 +56,8 @@ Selenium Manager downloads a ChromeDriver that matches the installed Chrome on t
 
 ## In CI
 
-`.github/workflows/selenium.yml` runs the suite against staging on pull requests that change it,
-after each successful deployment, on weekday mornings, and by hand (with an optional test filter). The URLs and the password are
+`.github/workflows/selenium.yml` runs the suite against staging after each successful deployment,
+on weekday mornings, and by hand (with an optional test filter). The URLs and the password are
 secrets of the `staging` GitHub environment; the workflow header lists them.
 
 - Failures are annotated in the run and summarised on its page (GitHubActionsTestLogger).

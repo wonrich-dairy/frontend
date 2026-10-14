@@ -40,19 +40,37 @@ public class QcoScreensTests : IClassFixture<Browser>
     public void Dashboard_is_usable_at_360px()
     {
         _browser.SignIn("admin");
-        _browser.Driver.Manage().Window.Size = new System.Drawing.Size(360, 800);
+        // A real phone viewport: headless Chrome will not shrink its window below about 500 px.
+        _browser.Driver.ExecuteCdpCommand("Emulation.setDeviceMetricsOverride", new Dictionary<string, object>
+        {
+            ["width"] = 360, ["height"] = 800, ["deviceScaleFactor"] = 2, ["mobile"] = true,
+        });
         try
         {
             _browser.Open("/qco");
             _browser.Wait.Until(d => d.FindElements(By.CssSelector(".qcopanel")).Count > 0);
-            var scrollWidth = (long)((IJavaScriptExecutor)_browser.Driver).ExecuteScript("return document.documentElement.scrollWidth");
-            var clientWidth = (long)((IJavaScriptExecutor)_browser.Driver).ExecuteScript("return document.documentElement.clientWidth");
+            Thread.Sleep(1000); // let the panels fill in before measuring
+            var js = (IJavaScriptExecutor)_browser.Driver;
+            var clientWidth = Convert.ToInt64(js.ExecuteScript("return document.documentElement.clientWidth"));
+            var scrollWidth = Convert.ToInt64(js.ExecuteScript("return document.documentElement.scrollWidth"));
+            // The elements whose right edge passes the viewport, so a failure says what to fix.
+            var overflowing = js.ExecuteScript("""
+                const w = document.documentElement.clientWidth;
+                return [...document.querySelectorAll('body *')]
+                  .filter(e => e.getBoundingClientRect().right > w + 1 && e.offsetParent !== null)
+                  .filter(e => ![...e.children].some(c => c.getBoundingClientRect().right > w + 1))
+                  .slice(0, 5)
+                  .map(e => e.tagName.toLowerCase() + (e.className ? '.' + String(e.className).trim().split(/\s+/).join('.') : '')
+                            + ' (right ' + Math.round(e.getBoundingClientRect().right) + ')');
+                """) as IReadOnlyCollection<object>;
             _browser.Evidence("SCRUM-136-dashboard-360");
-            Assert.True(scrollWidth <= clientWidth + 1, $"page scrolls sideways at 360 px ({scrollWidth} > {clientWidth})");
+            _browser.Capture("QcoScreensTests.Dashboard_is_usable_at_360px.mobile");
+            Assert.True(scrollWidth <= clientWidth + 1,
+                $"page scrolls sideways at 360 px ({scrollWidth} > {clientWidth}): {string.Join(", ", overflowing ?? [])}");
         }
         finally
         {
-            _browser.Driver.Manage().Window.Size = new System.Drawing.Size(1600, 1000);
+            _browser.Driver.ExecuteCdpCommand("Emulation.clearDeviceMetricsOverride", new Dictionary<string, object>());
         }
     }
 

@@ -1,6 +1,5 @@
 using System.Net.Http.Json;
 using System.Text.Json;
-using MySqlConnector;
 using OpenQA.Selenium;
 
 namespace Wonrich.Selenium.Tests;
@@ -78,15 +77,6 @@ public class DeterminationToTraceabilityTests : IClassFixture<Browser>
         (await lab.PostAsJsonAsync($"/api/panels/{batchCode}/sensory",
             new { taste = "Acceptable", smell = "Acceptable", colour = "Acceptable", appearance = "Acceptable" })).EnsureSuccessStatusCode();
 
-        await using var db = new MySqlConnection(Stack.TraceabilityDb!);
-        await db.OpenAsync();
-        await using var insert = db.CreateCommand();
-        insert.CommandText = """
-            INSERT INTO batch_records (BatchId, DispatchRef, ProductLine, Facility, Status, Completeness, FirstEventAt, LastEventAt)
-            VALUES (@id, @dispatch, 'FM', 'FACTORY-E2E', 'AwaitingLab', 'Partial', UTC_TIMESTAMP(6), UTC_TIMESTAMP(6))
-            """;
-        insert.Parameters.AddWithValue("@id", batchCode);
-        insert.Parameters.AddWithValue("@dispatch", $"DN-{batchCode}");
-        await insert.ExecuteNonQueryAsync();
+        await TraceabilitySeed.AwaitingLabAsync(batchCode);
     }
 }
