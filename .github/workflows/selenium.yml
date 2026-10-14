@@ -5,7 +5,7 @@ name: Selenium end-to-end (staging)
 #
 # Runs four ways:
 #   - on a pull request that changes the suite or this workflow (the suite checks itself before merge);
-#   - after a successful deployment of this repository (Vercel reports it as a deployment status);
+#   - after a successful Production deployment of this repository (Vercel reports it as a deployment status);
 #   - every weekday morning, so a backend change on staging is caught even without a frontend deploy;
 #   - by hand: Actions -> Selenium end-to-end (staging) -> Run workflow, optionally with a test filter.
 #
@@ -44,8 +44,11 @@ concurrency:
 jobs:
   selenium:
     name: Selenium against staging
-    # On deployment_status, only a successful deployment.
-    if: github.event_name != 'deployment_status' || github.event.deployment_status.state == 'success'
+    # On deployment_status, only a successful deployment of the site the suite targets (Vercel's
+    # Production deployment of develop), not the Preview deployments Vercel makes for every branch.
+    if: >-
+      github.event_name != 'deployment_status' ||
+      (github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production')
     runs-on: ubuntu-latest
     environment: staging
     timeout-minutes: 30
