@@ -34,6 +34,7 @@ staging URL is kept in the source.
 | `SELENIUM_ARTIFACTS` | | none: folder for a screenshot and browser console log after every test |
 | `SELENIUM_SCREENSHOTS` | | none: folder for the named evidence screenshots |
 | `SELENIUM_HEADED` | | Chrome runs headless; `1` shows the window |
+| `VERCEL_BYPASS_SECRET` | while Vercel Deployment Protection is on | none: the frontend is opened directly |
 
 ## Running locally
 
@@ -59,6 +60,11 @@ Selenium Manager downloads a ChromeDriver that matches the installed Chrome on t
 `.github/workflows/selenium.yml` runs the suite against staging after each successful deployment,
 on weekday mornings, and by hand (with an optional test filter). The URLs and the password are
 secrets of the `staging` GitHub environment; the workflow header lists them.
+
+The Vercel project has Deployment Protection on, so without help the browser gets Vercel's sign-in
+page instead of the app. In the Vercel project, Settings -> Deployment Protection -> Protection Bypass
+for Automation gives a secret; save it as `VERCEL_BYPASS_SECRET` in the `staging` environment. The
+first page load of each sign-in passes it to Vercel, which sets a cookie for the rest of the session.
 
 - Failures are annotated in the run and summarised on its page (GitHubActionsTestLogger).
 - The `selenium-results` artifact holds the TRX results, a screenshot and the browser console log
