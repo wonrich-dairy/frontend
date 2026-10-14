@@ -28,7 +28,7 @@ public class RoleAccessTests : IClassFixture<Browser>
 
         _browser.Wait.Until(_ => Body.Contains("Not available to you"));
         _browser.Evidence("SCRUM-129-lab-user-refused-qco");
-        Assert.DoesNotContain(_browser.Driver.FindElements(By.CssSelector(".panelhead__title")), e => e.Text == "Quality Dashboard");
+        Assert.DoesNotContain(_browser.Driver.FindElements(By.CssSelector(".panelhead__title")), e => e.Text == "Quality Control Officer Dashboard");
     }
 
     [Fact]
