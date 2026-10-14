@@ -1,12 +1,13 @@
 import type { ReactNode } from "react";
-import { ArrowLeftIcon, HomeIcon, PersonIcon, TraceIcon, TrendIcon, UsersIcon, WarningIcon } from "../icons";
+import { ArrowLeftIcon, ClipboardIcon, HomeIcon, PersonIcon, TraceIcon, TrendIcon, UsersIcon, WarningIcon } from "../icons";
 import { useNavigation } from "../../app/navigationStore";
 import { TopbarBrand } from "../TopbarBrand";
 
 // A tab is added only once its screen exists; an inert tab is worse than a missing one.
 // Each dashboard tab is a route showing a few of the dashboard panels, so a phone is not scrolled
-// through all five to reach the one wanted. Batches is the search, timeline and trace (SCRUM-137).
-export type QcoTab = "overview" | "trends" | "causes" | "societies" | "batches";
+// through all six to reach the one wanted. Batches is the search, timeline and trace (SCRUM-137);
+// Audit is the consolidated read-only event trail (SCRUM-138).
+export type QcoTab = "overview" | "trends" | "causes" | "societies" | "batches" | "audit";
 
 const tabs: { id: QcoTab; label: string; path: string; icon: ReactNode; filtered: boolean }[] = [
   { id: "overview", label: "Overview", path: "/qco", icon: <HomeIcon />, filtered: true },
@@ -14,6 +15,7 @@ const tabs: { id: QcoTab; label: string; path: string; icon: ReactNode; filtered
   { id: "causes", label: "Causes", path: "/qco/causes", icon: <WarningIcon />, filtered: true },
   { id: "societies", label: "Societies", path: "/qco/societies", icon: <UsersIcon />, filtered: true },
   { id: "batches", label: "Batches", path: "/qco/batches", icon: <TraceIcon />, filtered: false },
+  { id: "audit", label: "Audit", path: "/qco/audit", icon: <ClipboardIcon />, filtered: false },
 ];
 
 export function QcoAppShell({

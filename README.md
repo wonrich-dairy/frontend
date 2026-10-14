@@ -78,6 +78,11 @@ gives (not reached yet, the upstream lookup still retrying or unavailable, or an
 arrived), and the backward trace says which checkpoints a "no deviation" result cannot speak for.
 Deviations use the shared `DeviationBadge`, which the Processing stage list uses as well.
 
+### Audit trail (SCRUM-138)
+The QCO's **Audit** tab reads the Traceability Service's read-only `GET /api/audit` endpoint.
+It lists who recorded or did what and when, with optional user, action, date and batch filters.
+The filters and page are kept in the URL, and batch entries open their timeline.
+
 ### Batch filters and CSV export (SCRUM-139)
 Below the lookup, **Filter batches** reads the Traceability Service's `GET /api/batches/search`
 and `GET /api/batches/export`. The filters are status, product line, from and to (factory days of

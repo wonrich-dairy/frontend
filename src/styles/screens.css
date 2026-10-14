@@ -1779,7 +1779,7 @@
 
 /* QCO batch search, timeline and backward trace (SCRUM-137) ----------------- */
 
-/* Five upper-case labels share a 360px phone in the QCO bar, so they step down sooner than the
+/* Six upper-case labels share a 360px phone in the QCO bar, so they step down sooner than the
    four-tab bars do. */
 @media (max-width: 419px) {
   .tabbar--dense .tabbar__item {
