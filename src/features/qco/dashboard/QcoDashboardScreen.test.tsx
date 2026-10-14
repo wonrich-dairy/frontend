@@ -34,7 +34,7 @@ const BODIES: Record<string, unknown> = {
         productLine: "DY",
         facility: "FACTORY-01",
         failedAt: AS_OF,
-        reasonCodes: ["LOW_FAT"],
+        reasonCodes: ["LOW_FAT", "PhLow", "SensoryAbnormal", "TemperatureHigh"],
         tracePath: "/trace/277-DY-A",
       },
     ],
@@ -90,6 +90,9 @@ describe("the QCO dashboard", () => {
     openDashboard();
 
     expect(await within(panel("Recent failures")).findByText("277-DY-A")).toBeInTheDocument();
+    expect(
+      within(panel("Recent failures")).getByText("Fat % below minimum, Ph low, Sensory abnormal, Temperature high"),
+    ).toBeInTheDocument();
     expect(within(panel("Batch status")).getByText("11")).toBeInTheDocument();
     expect(screen.getByText("Last updated 04/10/2026, 14:00")).toBeInTheDocument();
     expect(screen.queryByRole("region", { name: "Failure reasons" })).not.toBeInTheDocument();

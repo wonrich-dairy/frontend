@@ -15,6 +15,7 @@ import {
 import { formatColombo } from "../../../utils/time";
 import { useNavigation } from "../../../app/navigationStore";
 import { batchPath } from "../batches/search";
+import { humanise } from "../batches/trace";
 import type { Panel } from "./useQcoDashboard";
 
 // Every chart here is a table with an inline bar, so the figures are always there as text
@@ -66,7 +67,7 @@ function percent(fraction: number): string {
 const REASON_LABELS: Record<string, string> = Object.fromEntries(REASON_CODES.map((r) => [r.code, r.label]));
 
 function reasonLabel(code: string): string {
-  return REASON_LABELS[code] ?? code;
+  return REASON_LABELS[code] ?? humanise(code);
 }
 
 // ── Status counts ────────────────────────────────────────────────────────────

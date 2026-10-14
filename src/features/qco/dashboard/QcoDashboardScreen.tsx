@@ -79,9 +79,11 @@ export function QcoDashboardScreen({ section = "overview" }: { section?: Dashboa
     <>
       <header className="qcohead">
         <h1 className="panelhead__title">Quality Dashboard</h1>
-        <p className="qcohead__fresh" aria-live="polite">
-          {asOf ? `Last updated ${formatColombo(asOf)}` : "Waiting for the first update"}
-        </p>
+        {asOf ? (
+          <p className="qcohead__fresh" aria-live="polite">
+            Last updated {formatColombo(asOf)}
+          </p>
+        ) : null}
       </header>
 
       {/* Keyed on the applied filters, so back and forward reset the form to what is shown. */}
