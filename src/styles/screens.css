@@ -1096,8 +1096,8 @@
   color: var(--ink-muted);
   font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  letter-spacing: normal;
+  text-transform: none;
 }
 
 .facts--compact dt {

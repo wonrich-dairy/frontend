@@ -212,27 +212,17 @@ export function recordFacts(data: Record<string, unknown> | null): [string, stri
 
   for (const [key, value] of Object.entries(data)) {
     if (isPlain(value)) {
-      facts.push([camelCaseLabel(key), String(value)]);
+      facts.push([humanise(key), String(value)]);
     } else if (value && typeof value === "object" && !Array.isArray(value)) {
       for (const [inner, innerValue] of Object.entries(value)) {
         if (isPlain(innerValue)) {
-          facts.push([camelCaseLabel(`${key} ${inner}`), String(innerValue)]);
+          facts.push([`${humanise(key)} ${humanise(inner).toLowerCase()}`, String(innerValue)]);
         }
       }
     }
   }
 
   return facts;
-}
-
-function camelCaseLabel(name: string): string {
-  return humanise(name)
-    .split(/\s+/)
-    .map((word, index) => {
-      const lower = word.toLowerCase();
-      return index === 0 ? lower : lower.charAt(0).toUpperCase() + lower.slice(1);
-    })
-    .join("");
 }
 
 function isPlain(value: unknown): value is string | number | boolean {

@@ -147,16 +147,16 @@ describe("deviation wording", () => {
 });
 
 describe("record detail labels", () => {
-  it("renders record and nested properties in camel case", () => {
+  it("renders record and nested properties as spaced labels", () => {
     expect(recordFacts({
       reference: "REF-1",
       society: { code: "VS014" },
       panel: { fatPercentage: 4.2, clrReading: 28.4 },
     })).toEqual([
-      ["reference", "REF-1"],
-      ["societyCode", "VS014"],
-      ["panelFatPercentage", "4.2"],
-      ["panelClrReading", "28.4"],
+      ["Reference", "REF-1"],
+      ["Society code", "VS014"],
+      ["Panel fat percentage", "4.2"],
+      ["Panel clr reading", "28.4"],
     ]);
   });
 });
