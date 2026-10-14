@@ -144,6 +144,18 @@ describe("deviation wording", () => {
     expect(humanise("MilkAllocatedToMixingTankEvent")).toBe("Milk allocated to mixing tank");
     expect(humanise("ArrivalScreened")).toBe("Arrival screened");
   });
+
+  it("preserves pH casing in parameter and reason labels", () => {
+    expect(humanise("Ph")).toBe("pH");
+    expect(humanise("PH")).toBe("pH");
+    expect(humanise("PhLow")).toBe("pH low");
+  });
+
+  it("preserves SNF casing in measure labels", () => {
+    expect(humanise("Snf")).toBe("SNF");
+    expect(humanise("SnfPercent")).toBe("SNF percent");
+    expect(humanise("LOW_SNF")).toBe("LOW SNF");
+  });
 });
 
 describe("record detail labels", () => {

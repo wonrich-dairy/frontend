@@ -169,13 +169,13 @@ describe("the QCO dashboard", () => {
     expect(window.location.pathname).toBe("/qco/batches/277-DY-A");
   });
 
-  it("ranks the marginal societies, saying which could not be scored and where the figures come from", async () => {
+  it("ranks the marginal societies, showing unscored entries and uppercase measure labels", async () => {
     const body = {
       dataAsOf: AS_OF,
       source: "upstream snapshots",
       coverage: "societies that contributed to a batch in range",
       societies: [
-        { societyCode: "VS002", societyName: "Lake Farmers", consignmentCount: 1, batchCount: 1, tightestMargin: 0.01, tightestMeasure: "FatPercent" },
+        { societyCode: "VS002", societyName: "Lake Farmers", consignmentCount: 1, batchCount: 1, tightestMargin: 0.01, tightestMeasure: "Snf" },
         { societyCode: "VS003", societyName: null, consignmentCount: 2, batchCount: 1, tightestMargin: null, tightestMeasure: null },
       ],
     };
@@ -186,11 +186,10 @@ describe("the QCO dashboard", () => {
 
     expect(rows[0]).toHaveTextContent("Lake Farmers");
     expect(rows[0]).toHaveTextContent("0.01");
+    expect(rows[0]).toHaveTextContent("SNF");
     expect(rows[1]).toHaveTextContent("VS003");
     expect(rows[1]).toHaveTextContent("Not scored");
-    expect(panel("Most marginal societies")).toHaveTextContent(
-      "Source: upstream snapshots. Coverage: societies that contributed to a batch in range.",
-    );
+    expect(panel("Most marginal societies")).not.toHaveTextContent("Source:");
   });
 
   it("names the MCC checkpoint as the service sends it", async () => {

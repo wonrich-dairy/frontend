@@ -16,6 +16,7 @@ import { formatColombo } from "../../../utils/time";
 import { useNavigation } from "../../../app/navigationStore";
 import { batchPath } from "../batches/search";
 import { humanise } from "../batches/trace";
+import { normalizeSnf } from "../../../utils/labels";
 import type { Panel } from "./useQcoDashboard";
 
 // Every chart here is a table with an inline bar, so the figures are always there as text
@@ -67,7 +68,7 @@ function percent(fraction: number): string {
 const REASON_LABELS: Record<string, string> = Object.fromEntries(REASON_CODES.map((r) => [r.code, r.label]));
 
 function reasonLabel(code: string): string {
-  return REASON_LABELS[code] ?? humanise(code).replace(/^Ph\b/, "pH");
+  return REASON_LABELS[code] ?? humanise(code);
 }
 
 // ── Status counts ────────────────────────────────────────────────────────────
@@ -185,14 +186,11 @@ export function DeviationsPanel({ panel }: { panel: Panel<DeviationsDto> }) {
         const max = Math.max(0, ...data.checkpoints.map((c) => c.count));
 
         return (
-          <table className="bartable">
+          <table className="bartable bartable--split">
             <thead>
               <tr>
                 <th scope="col">Checkpoint</th>
-                <th scope="col" className="bartable__num">Deviations</th>
-                <th scope="col" className="bartable__bar">
-                  <span className="sr-only">Bar</span>
-                </th>
+                <th scope="col" className="bartable__num" colSpan={2}>Deviations</th>
               </tr>
             </thead>
             <tbody>
@@ -223,14 +221,11 @@ export function FailureReasonsPanel({ panel }: { panel: Panel<FailureReasonsDto>
         const max = Math.max(0, ...reasons.map((r) => r.count));
 
         return (
-          <table className="bartable">
+          <table className="bartable bartable--split">
             <thead>
               <tr>
                 <th scope="col">Reason</th>
-                <th scope="col" className="bartable__num">Batches</th>
-                <th scope="col" className="bartable__bar">
-                  <span className="sr-only">Bar</span>
-                </th>
+                <th scope="col" className="bartable__num" colSpan={2}>Batches</th>
               </tr>
             </thead>
             <tbody>
@@ -258,7 +253,7 @@ export function MarginalSocietiesPanel({ panel }: { panel: Panel<MarginalSocieti
     <PanelFrame title="Most marginal societies" panel={panel} isEmpty={(data) => data.societies.length === 0} empty="No society data in this range.">
       {(data) => (
         <>
-          <table className="bartable">
+          <table className="bartable bartable--measure">
             <thead>
               <tr>
                 <th scope="col">Society</th>
@@ -277,14 +272,11 @@ export function MarginalSocietiesPanel({ panel }: { panel: Panel<MarginalSocieti
                   </th>
                   {/* Unscored is said as such: a blank or 0 would read as on the limit. */}
                   <td className="bartable__num">{s.tightestMargin === null ? "Not scored" : s.tightestMargin.toFixed(2)}</td>
-                  <td>{s.tightestMeasure ?? "-"}</td>
+                  <td>{s.tightestMeasure ? normalizeSnf(s.tightestMeasure) : "-"}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <p className="qcopanel__note">
-            Source: {data.source}. Coverage: {data.coverage}.
-          </p>
         </>
       )}
     </PanelFrame>

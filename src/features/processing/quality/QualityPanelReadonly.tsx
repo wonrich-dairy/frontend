@@ -1,4 +1,5 @@
 import type { QualityPanelDto, QualityStatusDto } from "../../../api/processing/qualityTests";
+import { normalizeSnf } from "../../../utils/labels";
 import { KQ_COLOURS } from "./cascade";
 
 interface Props {
@@ -102,7 +103,7 @@ export function QualityPanelReadonly({ status, panel }: Props) {
 
           {panel.failedParameter && (
             <p className="notice notice--error" style={{ marginTop: 12 }}>
-              Failed: {panel.failedParameter} - {panel.failedValue}
+              Failed: {normalizeSnf(panel.failedParameter)} - {panel.failedValue}
             </p>
           )}
 
