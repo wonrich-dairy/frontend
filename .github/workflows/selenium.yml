@@ -1,0 +1,93 @@
+name: Selenium end-to-end (staging)
+
+# Selenium suites against staging (SCRUM-129): the key screens of each role, the negative role
+# checks, and the Traceability API surface. How to run it locally: tests/selenium/README.md.
+#
+# Runs four ways:
+#   - on a pull request that changes the suite or this workflow (the suite checks itself before merge);
+#   - after a successful deployment of this repository (Vercel reports it as a deployment status);
+#   - every weekday morning, so a backend change on staging is caught even without a frontend deploy;
+#   - by hand: Actions -> Selenium end-to-end (staging) -> Run workflow, optionally with a test filter.
+#
+# Everything environment-specific comes from the `staging` GitHub environment, never from source:
+#   secrets  SELENIUM_PASSWORD        password of the seeded test accounts (admin, analyst, officer, ...)
+#            STAGING_FRONTEND_URL     e.g. https://frontend-....vercel.app
+#            STAGING_AUTH_URL         Auth service base URL
+#            STAGING_QUALITY_LAB_URL  Quality Lab API base URL
+#            STAGING_TRACEABILITY_URL Traceability API base URL
+#   variable QCO_FAILED_BATCH         (optional) a failed batch present on staging, for the QCO screens
+#
+# The scenario that writes straight into the Traceability database is skipped here (no
+# TRACEABILITY_DB); it runs against the local stack only.
+
+on:
+  pull_request:
+    paths:
+      - "tests/selenium/**"
+      - ".github/workflows/selenium.yml"
+  deployment_status:
+  schedule:
+    - cron: "30 1 * * 1-5"   # 07:00 Asia/Colombo, Monday to Friday
+  workflow_dispatch:
+    inputs:
+      filter:
+        description: dotnet test --filter expression, e.g. Story=SCRUM-137 (empty runs everything)
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: selenium-staging
+  cancel-in-progress: false
+
+jobs:
+  selenium:
+    name: Selenium against staging
+    # On deployment_status, only a successful deployment.
+    if: github.event_name != 'deployment_status' || github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+    environment: staging
+    timeout-minutes: 30
+    env:
+      FRONTEND_URL: ${{ secrets.STAGING_FRONTEND_URL }}
+      AUTH_API_URL: ${{ secrets.STAGING_AUTH_URL }}
+      QUALITY_LAB_API_URL: ${{ secrets.STAGING_QUALITY_LAB_URL }}
+      TRACEABILITY_API_URL: ${{ secrets.STAGING_TRACEABILITY_URL }}
+      SELENIUM_PASSWORD: ${{ secrets.SELENIUM_PASSWORD }}
+      QCO_FAILED_BATCH: ${{ vars.QCO_FAILED_BATCH }}
+      SELENIUM_ARTIFACTS: ${{ github.workspace }}/selenium-results/captures
+      SELENIUM_SCREENSHOTS: ${{ github.workspace }}/selenium-results/evidence
+      FILTER: ${{ inputs.filter }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Check configuration
+        run: |
+          missing=""
+          for v in FRONTEND_URL AUTH_API_URL QUALITY_LAB_API_URL TRACEABILITY_API_URL SELENIUM_PASSWORD; do
+            [ -n "${!v}" ] || missing="$missing $v"
+          done
+          [ -z "$missing" ] || { echo "::error::Missing in the staging environment:$missing (see the header of this workflow)"; exit 1; }
+          echo "Frontend: $FRONTEND_URL"
+
+      - name: Run Selenium suites
+        working-directory: tests/selenium
+        run: |
+          args=(--logger GitHubActions --logger "trx;LogFileName=selenium.trx"
+                --results-directory "$GITHUB_WORKSPACE/selenium-results")
+          [ -n "$FILTER" ] && args+=(--filter "$FILTER")
+          dotnet test "${args[@]}"
+
+      - name: Upload results, screenshots and console logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: selenium-results
+          path: selenium-results/
+          retention-days: 30
+          if-no-files-found: warn
