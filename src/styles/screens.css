@@ -1710,6 +1710,11 @@ table tr > * + * {
   white-space: nowrap;
 }
 
+.bartable__margin {
+  color: var(--status-failed);
+  font-weight: 700;
+}
+
 .bartable__measure {
   text-align: left !important;
 }

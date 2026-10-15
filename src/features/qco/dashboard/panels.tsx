@@ -282,7 +282,9 @@ export function MarginalSocietiesPanel({ panel }: { panel: Panel<MarginalSocieti
                     </span>
                   </th>
                   {/* Unscored is said as such: a blank or 0 would read as on the limit. */}
-                  <td className="bartable__num">{s.tightestMargin === null ? "Not scored" : s.tightestMargin.toFixed(2)}</td>
+                  <td className={`bartable__num${s.tightestMargin !== null ? " bartable__margin" : ""}`}>
+                    {s.tightestMargin === null ? "Not scored" : s.tightestMargin.toFixed(2)}
+                  </td>
                   <td>{s.tightestMeasure ? normalizeSnf(s.tightestMeasure) : "-"}</td>
                 </tr>
               ))}

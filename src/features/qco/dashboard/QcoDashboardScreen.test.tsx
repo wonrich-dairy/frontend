@@ -195,7 +195,7 @@ describe("the QCO dashboard", () => {
     const rows = within(await screen.findByRole("table")).getAllByRole("row").slice(1);
 
     expect(rows[0]).toHaveTextContent("Lake Farmers");
-    expect(rows[0]).toHaveTextContent("0.01");
+    expect(within(rows[0]).getByText("0.01")).toHaveClass("bartable__margin");
     expect(rows[0]).toHaveTextContent("SNF");
     expect(rows[1]).toHaveTextContent("VS003");
     expect(rows[1]).toHaveTextContent("Not scored");
