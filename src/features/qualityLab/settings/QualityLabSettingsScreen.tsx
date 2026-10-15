@@ -1,7 +1,7 @@
 import { useNavigation } from "../../../app/navigationStore";
 import { useSession } from "../../../auth/sessionStore";
 
-/** Settings screen for the Quality Analyst role — quick links to lab features. */
+/** Settings screen for the Quality Analyst role - quick links to lab features. */
 export function QualityLabSettingsScreen() {
   const { navigate } = useNavigation();
   const { signOut } = useSession();

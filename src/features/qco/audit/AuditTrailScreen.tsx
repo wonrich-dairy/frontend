@@ -235,7 +235,7 @@ function AuditResults({
   return (
     <section className="auditresults" aria-label="Audit entries">
       <p className="batchresults__count" role="status">
-        {result.totalCount === 1 ? "1 entry" : `${(result.page - 1) * result.pageSize + 1}–${(result.page - 1) * result.pageSize + result.items.length} of ${result.totalCount} entries`}, newest first. Times are in Colombo.
+        {result.totalCount === 1 ? "1 entry" : `${(result.page - 1) * result.pageSize + 1}-${(result.page - 1) * result.pageSize + result.items.length} of ${result.totalCount} entries`}, newest first. Times are in Colombo.
       </p>
       <table className="audittable">
         <thead>

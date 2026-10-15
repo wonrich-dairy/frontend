@@ -151,7 +151,7 @@ describe("filtering batches (SCRUM-139)", () => {
     const fetch = stubService({ total: 120 });
     openAt("/qco/batches?status=OnHold&tank=T1&page=2");
 
-    expect(await screen.findByText("Showing 51–100 of 120 batches, newest first.")).toBeInTheDocument();
+    expect(await screen.findByText("Showing 51-100 of 120 batches, newest first.")).toBeInTheDocument();
     expect(calls(fetch, "/api/batches/search")[0].searchParams.get("page")).toBe("2");
     expect(filterForm().getByLabelText("Status")).toHaveValue("OnHold");
     expect(filterForm().getByLabelText("Tank")).toHaveValue("T1");
@@ -168,7 +168,7 @@ describe("filtering batches (SCRUM-139)", () => {
 
     fireEvent.click(within(pages).getByRole("button", { name: "Next" }));
 
-    expect(await screen.findByText("Showing 51–100 of 120 batches, newest first.")).toBeInTheDocument();
+    expect(await screen.findByText("Showing 51-100 of 120 batches, newest first.")).toBeInTheDocument();
     expect(calls(fetch, "/api/batches/search").at(-1)?.searchParams.get("page")).toBe("2");
     expect(window.location.search).toBe("?productLine=FM&page=2");
   });

@@ -36,7 +36,7 @@ export function DeterminationForm({ batchCode, productLine, hasOutOfSpecFlags, h
   const [error, setError] = useState<string | null>(null);
   const [superseding, setSuperseding] = useState(false);
 
-  // G1: Filter reason codes by product line — hooks must run before any early return
+  // G1: Filter reason codes by product line - hooks must run before any early return
   const liquid = isLiquid(productLine);
   const filteredReasonCodes = useMemo(
     () => REASON_CODES.filter((r) => {

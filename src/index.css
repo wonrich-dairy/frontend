@@ -33,7 +33,7 @@ select {
   color: inherit;
 }
 
-/* Visible to screen readers only — used for labels the design conveys by position. */
+/* Visible to screen readers only - used for labels the design conveys by position. */
 .sr-only {
   position: absolute;
   width: 1px;

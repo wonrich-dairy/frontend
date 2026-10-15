@@ -563,7 +563,7 @@ function RecordedConfirmation({
 }
 
 function format(value: number | undefined): string {
-  return value === undefined ? "—" : `${value.toFixed(2)}%`;
+  return value === undefined ? "-" : `${value.toFixed(2)}%`;
 }
 
 function warningFor(preview: TestPreview | null, ...measures: string[]): string | undefined {

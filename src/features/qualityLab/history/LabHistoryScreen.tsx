@@ -415,7 +415,7 @@ function ResultRow({ row }: { row: LabResultRow }) {
       </td>
       <td>
         {row.outOfSpec.length === 0 ? (
-          <span className="lab-history__muted">—</span>
+          <span className="lab-history__muted">-</span>
         ) : (
           <ul className="lab-history__oos">
             {row.outOfSpec.map((f) => (
@@ -431,7 +431,7 @@ function ResultRow({ row }: { row: LabResultRow }) {
 }
 
 function MeasureCell({ value, flag }: { value: number | null; flag?: LabResultOutOfSpec }) {
-  if (value === null || value === undefined) return <td className="num">—</td>;
+  if (value === null || value === undefined) return <td className="num">-</td>;
   if (!flag) return <td className="num">{value}</td>;
   return (
     <td className="num flagged" title={`Out of spec: ${limitText(flag)} was in force when tested`}>

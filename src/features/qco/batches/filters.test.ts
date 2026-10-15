@@ -89,8 +89,8 @@ describe("the date range", () => {
 
 describe("the results line", () => {
   it("says which rows of how many are shown", () => {
-    expect(describePage(1, 50, 50, 123)).toBe("Showing 1–50 of 123 batches, newest first.");
-    expect(describePage(3, 50, 23, 123)).toBe("Showing 101–123 of 123 batches, newest first.");
+    expect(describePage(1, 50, 50, 123)).toBe("Showing 1-50 of 123 batches, newest first.");
+    expect(describePage(3, 50, 23, 123)).toBe("Showing 101-123 of 123 batches, newest first.");
     expect(describePage(1, 50, 4, 4)).toBe("4 batches, newest first.");
     expect(describePage(1, 50, 1, 1)).toBe("1 batch, newest first.");
   });

@@ -367,7 +367,7 @@ export function QualityLabPanelScreen() {
                       <h4>Out of Specification</h4>
                       {(JSON.parse(panelResult.outOfSpecFlagsJson) as Array<{ Parameter: string; ActualValue: number; Limit: string; LimitValue: number }>).map((f, i) => (
                         <div key={i} className="ql-panel-screen__oos-flag">
-                          <strong>{f.Parameter}</strong>: {f.ActualValue} — {f.Limit === "Min" ? "Minimum" : "Maximum"} {f.LimitValue}
+                          <strong>{f.Parameter}</strong>: {f.ActualValue} - {f.Limit === "Min" ? "Minimum" : "Maximum"} {f.LimitValue}
                         </div>
                       ))}
                     </div>
@@ -375,7 +375,7 @@ export function QualityLabPanelScreen() {
                 </div>
               )}
 
-              {/* Sensory evaluation — show when panel exists (recorded before or just now) */}
+              {/* Sensory evaluation - show when panel exists (recorded before or just now) */}
               {(selectedBatch.hasPanels || panelResult) && (
                 <SensoryEvaluationForm
                   key={selectedBatch.batchCode + (existingSensory?.id ?? "")}
@@ -394,7 +394,7 @@ export function QualityLabPanelScreen() {
                 />
               )}
 
-              {/* Determination — show when batch has both panel and sensory */}
+              {/* Determination - show when batch has both panel and sensory */}
               {selectedBatch.hasPanels && existingSensory && (
                 <DeterminationForm
                   batchCode={selectedBatch.batchCode}

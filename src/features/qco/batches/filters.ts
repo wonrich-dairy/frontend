@@ -115,10 +115,10 @@ export function rangeError(filters: Pick<BatchFilters, "from" | "to">): string |
   return filters.from && filters.to && filters.from > filters.to ? "The start date must be on or before the end date." : null;
 }
 
-// "Showing 51–100 of 123 batches", for the line above the results.
+// "Showing 51-100 of 123 batches", for the line above the results.
 export function describePage(page: number, pageSize: number, shown: number, total: number): string {
   const first = (page - 1) * pageSize + 1;
   const noun = total === 1 ? "batch" : "batches";
 
-  return shown === total ? `${total} ${noun}, newest first.` : `Showing ${first}–${first + shown - 1} of ${total} ${noun}, newest first.`;
+  return shown === total ? `${total} ${noun}, newest first.` : `Showing ${first}-${first + shown - 1} of ${total} ${noun}, newest first.`;
 }

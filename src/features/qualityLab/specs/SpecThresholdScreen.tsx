@@ -159,7 +159,7 @@ function renderField(
           onChange={(e) => onChange(key, e.target.value)}
         />
       ) : (
-        <span className="spec-screen__field-value">{value ?? "—"}</span>
+        <span className="spec-screen__field-value">{value ?? "-"}</span>
       )}
     </div>
   );

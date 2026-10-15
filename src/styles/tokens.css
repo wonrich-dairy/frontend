@@ -1,6 +1,6 @@
 /*
  * Design tokens read off the Figma file (Register Consignment, Login, Save Confirmation).
- * The screens are drawn at 390px — a phone at the gate — so the styles are mobile-first, with
+ * The screens are drawn at 390px - a phone at the gate - so the styles are mobile-first, with
  * wider layouts added on top for tablets and desks.
  */
 :root {
