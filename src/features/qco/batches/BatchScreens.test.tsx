@@ -158,6 +158,15 @@ describe("the batch search form (SCRUM-137)", () => {
 });
 
 describe("the batch timeline", () => {
+  it("omits a pending lab result from the batch summary", async () => {
+    stubService([failedBatch({ labResult: "Pending" })]);
+    openAs("QualityControlOfficer", "/qco/batches/262-FM-B");
+
+    await screen.findByRole("heading", { name: "262-FM-B" });
+
+    expect(screen.queryByText("Lab result")).not.toBeInTheDocument();
+  });
+
   it("lists every record by checkpoint with its user, time and deviation badge", async () => {
     stubService([failedBatch()]);
     openAs("QualityControlOfficer", "/qco/batches/262-FM-B");
@@ -213,6 +222,15 @@ describe("the batch timeline", () => {
 });
 
 describe("the backward trace", () => {
+  it("omits a pending result from the lab checkpoint", async () => {
+    stubService([failedBatch({ labResult: "Pending" })]);
+    openAs("QualityControlOfficer", "/qco/batches/262-FM-B/trace");
+
+    const chain = await screen.findByRole("list", { name: "Checkpoints, back from the lab" });
+
+    expect(within(chain).queryByText("Lab result: Pending")).not.toBeInTheDocument();
+  });
+
   it("opens from the timeline and highlights the first deviation", async () => {
     stubService([failedBatch()]);
     openAs("QualityControlOfficer", "/qco/batches/262-FM-B");

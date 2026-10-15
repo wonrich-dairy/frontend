@@ -82,7 +82,7 @@ export function BatchHeader({ batch, children }: { batch: BatchRecordDto; childr
       </div>
       <CompletenessIndicator batch={batch} />
       <dl className="facts">
-        <Fact label="Lab result" value={batch.labResult} />
+        {batch.labResult !== "Pending" ? <Fact label="Lab result" value={batch.labResult} /> : null}
         <Fact label="Product line" value={batch.productLine} />
         <Fact label="Facility" value={batch.facility} />
         <Fact label="Dispatch ref" value={batch.dispatchRef} missing="Not received" />

@@ -152,7 +152,9 @@ function ChainStep({ step, trace }: { step: TraceCheckpointDto; trace: BatchTrac
         ) : null}
       </div>
 
-      {step.checkpoint === "Lab" && hasData(step) ? <p className="chain__meta">Lab result: {trace.labResult}</p> : null}
+      {step.checkpoint === "Lab" && hasData(step) && trace.labResult !== "Pending" ? (
+        <p className="chain__meta">Lab result: {trace.labResult}</p>
+      ) : null}
 
       {step.firstRecordedAt ? (
         <p className="chain__meta">
