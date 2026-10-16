@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import {
   ArrowLeftIcon,
   ClipboardIcon,
-  CloudOffIcon,
   DropletIcon,
   HomeIcon,
   PersonIcon,
@@ -10,6 +9,7 @@ import {
 } from "./icons";
 import { useSync } from "../features/sync/syncStore";
 import { useNavigation } from "../app/navigationStore";
+import { SyncPill } from "./SyncPill";
 import { TopbarBrand } from "./TopbarBrand";
 
 export type Tab = "home" | "consignments" | "tanks" | "settings";
@@ -34,7 +34,7 @@ export function AppShell({
   onBack?: () => void;
   wide?: boolean;
 }) {
-  const { online, syncing, pendingCount } = useSync();
+  const { pendingCount } = useSync();
   const { navigate, path } = useNavigation();
 
   return (
@@ -54,7 +54,7 @@ export function AppShell({
 
           <span className="topbar__spacer" />
 
-          <SyncPill online={online} syncing={syncing} pendingCount={pendingCount} />
+          <SyncPill />
 
           <button
             type="button"
@@ -84,50 +84,6 @@ export function AppShell({
         ))}
       </nav>
     </div>
-  );
-}
-
-function SyncPill({
-  online,
-  syncing,
-  pendingCount,
-}: {
-  online: boolean;
-  syncing: boolean;
-  pendingCount: number;
-}) {
-  if (!online) {
-    return (
-      <span className="pill pill--offline" aria-live="polite">
-        <CloudOffIcon width={13} height={13} />
-        {pendingCount > 0 ? `Offline - ${pendingCount} waiting` : "Offline"}
-      </span>
-    );
-  }
-
-  if (syncing) {
-    return (
-      <span className="pill" aria-live="polite">
-        <span className="pill__dot" />
-        Syncing...
-      </span>
-    );
-  }
-
-  if (pendingCount > 0) {
-    return (
-      <span className="pill pill--waiting" aria-live="polite">
-        <span className="pill__dot pill__dot--waiting" />
-        {pendingCount} waiting
-      </span>
-    );
-  }
-
-  return (
-    <span className="pill" aria-live="polite">
-      <span className="pill__dot" />
-      Cloud Sync Active
-    </span>
   );
 }
 

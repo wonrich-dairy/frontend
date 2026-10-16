@@ -209,6 +209,8 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
   if (match("/consignments", path)) {
     return {
       tab: "consignments",
+      title: "Register Consignment",
+      parent: "/",
       needs: "registerConsignments",
       element: (
         <RegisterConsignmentScreen
@@ -233,6 +235,8 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
   if (match("/consignments/quality-test", path)) {
     return {
       tab: "consignments",
+      title: "Quality Test",
+      parent: "/consignments",
       needs: "recordQualityTests",
       element: <QualityTestPanelScreen initialReference={query.get("reference") ?? undefined} />,
     };
@@ -243,7 +247,7 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
   }
 
   if (match("/tanks", path)) {
-    return { tab: "tanks", wide: true, element: <TankListScreen /> };
+    return { tab: "tanks", title: "Chilling Tanks", parent: "/", wide: true, element: <TankListScreen /> };
   }
 
   const pour = match("/tanks/:code/pour", path);
@@ -290,7 +294,7 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
   }
 
   if (match("/settings", path)) {
-    return { tab: "settings", wide: true, element: <SettingsScreen /> };
+    return { tab: "settings", title: "Settings", parent: "/", wide: true, element: <SettingsScreen /> };
   }
 
   if (match("/quality-lab/settings", path)) {
@@ -298,6 +302,8 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
       tab: "settings",
       qualityLabTab: "labSettings",
       isQualityLab: true,
+      title: "Lab Settings",
+      parent: "/quality-lab/panels",
       needs: "recordLabPanels",
       element: <QualityLabSettingsScreen />,
     };
@@ -448,6 +454,8 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
       tab: "home",
       qualityLabTab: "specs",
       isQualityLab: true,
+      title: "Specifications",
+      parent: "/quality-lab/panels",
       wide: true,
       needs: "viewLabSpecs",
       element: <SpecThresholdScreen />,
@@ -460,6 +468,8 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
       tab: "home",
       qualityLabTab: "history",
       isQualityLab: true,
+      title: "Lab History",
+      parent: "/quality-lab/panels",
       wide: true,
       needs: "viewLabHistory",
       element: <LabHistoryScreen />,
@@ -471,12 +481,16 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
   }
 
   // The dashboard's other tabs. Each one is refused to other roles, not merely hidden.
+  const sectionTitles = { trends: "Trends", causes: "Causes", societies: "Societies" } as const;
+
   for (const section of ["trends", "causes", "societies"] as const) {
     if (match(`/qco/${section}`, path)) {
       return {
         tab: "home",
         qcoTab: section,
         isQco: true,
+        title: sectionTitles[section],
+        parent: "/qco",
         needs: "viewQcoDashboard",
         element: <QcoDashboardScreen section={section} />,
       };
@@ -486,11 +500,11 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
   // Batch search, timeline and backward trace (SCRUM-137). The same permission as the dashboard:
   // the traceability service refuses every role but the QCO and the administrator.
   if (match("/qco/batches", path)) {
-    return { tab: "home", qcoTab: "batches", isQco: true, needs: "viewQcoDashboard", element: <BatchSearchScreen /> };
+    return { tab: "home", qcoTab: "batches", isQco: true, title: "Batches", parent: "/qco", needs: "viewQcoDashboard", element: <BatchSearchScreen /> };
   }
 
   if (match("/qco/audit", path)) {
-    return { tab: "home", qcoTab: "audit", isQco: true, needs: "viewQcoDashboard", element: <AuditTrailScreen /> };
+    return { tab: "home", qcoTab: "audit", isQco: true, title: "Audit Trail", parent: "/qco", needs: "viewQcoDashboard", element: <AuditTrailScreen /> };
   }
 
   const tracedBatch = match("/qco/batches/:batchId/trace", path);

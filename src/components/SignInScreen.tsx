@@ -57,7 +57,7 @@ export function SignInScreen() {
       </span>
 
       <h1 className="signin__title">Wonrich Dairy</h1>
-      <p className="signin__subtitle">Field Management System</p>
+      <p className="signin__subtitle">Milk Quality Monitoring System</p>
 
       <div className="field">
         <label className="field__label" htmlFor="signin-username">

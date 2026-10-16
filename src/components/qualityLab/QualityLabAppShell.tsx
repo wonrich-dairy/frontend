@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { ArrowLeftIcon, ClockIcon, FlaskIcon, PersonIcon, SettingsIcon, SlidersIcon } from "../icons";
 import { useNavigation } from "../../app/navigationStore";
 import { can, type Permission, type Role } from "../../auth/permissions";
+import { SyncPill } from "../SyncPill";
 import { TopbarBrand } from "../TopbarBrand";
 
 export type QualityLabTab = "panels" | "specs" | "history" | "labSettings";
@@ -34,10 +35,13 @@ export function QualityLabAppShell({
   const shown = tabs.filter((tab) => can(role, tab.needs));
   // A bar with a single tab only links to the page already open.
   const showTabs = shown.length > 1;
+  // The first tab a role may open is its home in the lab: Panels for the analyst, Specs for the
+  // Production Manager. Home has the brand and profile, not a back button to a page it is refused.
+  const atHome = shown[0]?.path === path;
 
   return (
     <div className={`shell${showTabs ? " shell--nav" : ""}`}>
-      {title ? (
+      {title && !atHome ? (
         <header className="topbar topbar--compact">
           <button type="button" className="iconbutton" onClick={onBack} title="Back">
             <ArrowLeftIcon width={20} height={20} />
@@ -50,6 +54,7 @@ export function QualityLabAppShell({
         <header className="topbar">
           <TopbarBrand service="Quality Lab" />
           <span className="topbar__spacer" />
+          <SyncPill />
           <button
             type="button"
             className="iconbutton iconbutton--round"

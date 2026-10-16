@@ -2499,3 +2499,82 @@ table tr > * + * {
   font-size: 11px;
   font-weight: 600;
 }
+
+/* Service selection ------------------------------------------------------- */
+
+/* Each service card wears its own colour: a light tint, a matching border, a solid badge and a
+   link in the same hue. The accents all keep white and tinted text above 4.5:1. */
+.servicecard {
+  --service-accent: var(--navy-800);
+  --service-tint: var(--surface);
+  --service-border: var(--border);
+
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-4);
+  border: 1.5px solid var(--service-border);
+  border-radius: var(--radius);
+  background: var(--service-tint);
+  box-shadow: var(--shadow-card);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.servicecard:hover,
+.servicecard:focus-visible {
+  border-color: var(--service-accent);
+  box-shadow: var(--shadow-raised);
+}
+
+.servicecard:focus-visible {
+  outline: 2px solid var(--service-accent);
+  outline-offset: 2px;
+}
+
+.servicecard--mcc { --service-accent: #0369a1; --service-tint: #f0f9ff; --service-border: #bae6fd; }
+.servicecard--factory { --service-accent: #b45309; --service-tint: #fffbeb; --service-border: #fde68a; }
+.servicecard--lab { --service-accent: #6d28d9; --service-tint: #f5f3ff; --service-border: #ddd6fe; }
+.servicecard--qco { --service-accent: #067647; --service-tint: #ecfdf3; --service-border: #abefc6; }
+
+.servicecard__badge {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius);
+  background: var(--service-accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.servicecard__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.servicecard__name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.servicecard__detail {
+  margin-top: var(--space-1);
+  color: var(--ink-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.servicecard__go {
+  margin-top: var(--space-2);
+  color: var(--service-accent);
+  font-size: 12px;
+  font-weight: 700;
+}

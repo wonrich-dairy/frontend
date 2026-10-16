@@ -1,6 +1,42 @@
 import { useNavigation } from "../../app/navigationStore";
 import { useSession } from "../../auth/sessionStore";
 
+// Each service has its own colour, so the administrator can tell the cards apart at a glance.
+const SERVICES = [
+  {
+    tone: "mcc",
+    badge: "MCC",
+    name: "MCC Service",
+    detail: "Milk Collection Center • Consignments, Quality Tests, Chilling Tanks, Dispatch Notes, Societies",
+    go: "Go to MCC Dashboard",
+    path: "/",
+  },
+  {
+    tone: "factory",
+    badge: "PFS",
+    name: "Factory Service",
+    detail: "Processing Plant • Storing & Mixing Tanks in KG, Unloads, Lab Panels, Allocations, Heating/Cooling",
+    go: "Go to Factory Floor",
+    path: "/processing",
+  },
+  {
+    tone: "lab",
+    badge: "QLS",
+    name: "Quality Lab Service",
+    detail: "Quality Laboratory • Chemical Panels, Sensory Evaluations, Specification Thresholds, Determinations",
+    go: "Go to Quality Lab",
+    path: "/quality-lab/panels",
+  },
+  {
+    tone: "qco",
+    badge: "QCO",
+    name: "Quality Control",
+    detail: "Traceability • Batch Status, Fail-Rate Trends, Failure Reasons, Checkpoint Deviations, Recent Failures",
+    go: "Go to QCO Dashboard",
+    path: "/qco",
+  },
+] as const;
+
 export function ServiceSelectionScreen() {
   const { navigate } = useNavigation();
   const { session } = useSession();
@@ -17,49 +53,23 @@ export function ServiceSelectionScreen() {
         </div>
 
         <div className="cardgrid">
-          <button type="button" className="card" style={{ textAlign: "left", cursor: "pointer", border: "2px solid var(--navy-900)", padding: 16 }} onClick={() => navigate("/")}>
-            <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-              <span style={{ width: 44, height: 44, background: "var(--navy-050)", borderRadius: 12, display: "grid", placeItems: "center", fontSize: 20, flexShrink: 0 }}>MCC</span>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <span style={{ fontSize: 15, fontWeight: 700, color: "var(--ink)", display: "block" }}>MCC Service</span>
-                <span style={{ fontSize: 12, color: "var(--ink-muted)", display: "block", marginTop: 4, lineHeight: 1.4 }}>Milk Collection Center • Consignments, Quality Tests, Chilling Tanks, Dispatch Notes, Societies</span>
-                <span style={{ fontSize: 11, color: "var(--navy-800)", display: "block", marginTop: 8, fontWeight: 600 }}>→ Go to MCC Dashboard</span>
-              </div>
-            </div>
-          </button>
-
-          <button type="button" className="card" style={{ textAlign: "left", cursor: "pointer", border: "2px solid var(--border)", padding: 16 }} onClick={() => navigate("/processing")}>
-            <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-              <span style={{ width: 44, height: 44, background: "#fef3c7", borderRadius: 12, display: "grid", placeItems: "center", fontSize: 20, flexShrink: 0 }}>PFS</span>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <span style={{ fontSize: 15, fontWeight: 700, color: "var(--ink)", display: "block" }}>Factory Service</span>
-                <span style={{ fontSize: 12, color: "var(--ink-muted)", display: "block", marginTop: 4, lineHeight: 1.4 }}>Processing Plant • Storing & Mixing Tanks in KG, Unloads, Lab Panels, Allocations, Heating/Cooling</span>
-                <span style={{ fontSize: 11, color: "var(--navy-800)", display: "block", marginTop: 8, fontWeight: 600 }}>→ Go to Factory Floor</span>
-              </div>
-            </div>
-          </button>
-
-          <button type="button" className="card" style={{ textAlign: "left", cursor: "pointer", border: "2px solid var(--border)", padding: 16 }} onClick={() => navigate("/quality-lab/panels")}>
-            <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-              <span style={{ width: 44, height: 44, background: "#dbeafe", borderRadius: 12, display: "grid", placeItems: "center", fontSize: 20, flexShrink: 0 }}>QLS</span>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <span style={{ fontSize: 15, fontWeight: 700, color: "var(--ink)", display: "block" }}>Quality Lab Service</span>
-                <span style={{ fontSize: 12, color: "var(--ink-muted)", display: "block", marginTop: 4, lineHeight: 1.4 }}>Quality Laboratory • Chemical Panels, Sensory Evaluations, Specification Thresholds, Determinations</span>
-                <span style={{ fontSize: 11, color: "var(--navy-800)", display: "block", marginTop: 8, fontWeight: 600 }}>→ Go to Quality Lab</span>
-              </div>
-            </div>
-          </button>
-
-          <button type="button" className="card" style={{ textAlign: "left", cursor: "pointer", border: "2px solid var(--border)", padding: 16 }} onClick={() => navigate("/qco")}>
-            <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-              <span style={{ width: 44, height: 44, background: "var(--success-tint)", borderRadius: 12, display: "grid", placeItems: "center", fontSize: 20, flexShrink: 0 }}>QCO</span>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <span style={{ fontSize: 15, fontWeight: 700, color: "var(--ink)", display: "block" }}>Quality Control</span>
-                <span style={{ fontSize: 12, color: "var(--ink-muted)", display: "block", marginTop: 4, lineHeight: 1.4 }}>Traceability • Batch Status, Fail-Rate Trends, Failure Reasons, Checkpoint Deviations, Recent Failures</span>
-                <span style={{ fontSize: 11, color: "var(--navy-800)", display: "block", marginTop: 8, fontWeight: 600 }}>→ Go to QCO Dashboard</span>
-              </div>
-            </div>
-          </button>
+          {SERVICES.map((service) => (
+            <button
+              key={service.tone}
+              type="button"
+              className={`servicecard servicecard--${service.tone}`}
+              onClick={() => navigate(service.path)}
+            >
+              <span className="servicecard__badge" aria-hidden="true">
+                {service.badge}
+              </span>
+              <span className="servicecard__body">
+                <span className="servicecard__name">{service.name}</span>
+                <span className="servicecard__detail">{service.detail}</span>
+                <span className="servicecard__go">→ {service.go}</span>
+              </span>
+            </button>
+          ))}
         </div>
 
       </div>

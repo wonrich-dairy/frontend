@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { ArrowLeftIcon, ClipboardIcon, HomeIcon, PersonIcon, TraceIcon, TrendIcon, UsersIcon, WarningIcon } from "../icons";
 import { useNavigation } from "../../app/navigationStore";
+import { SyncPill } from "../SyncPill";
 import { TopbarBrand } from "../TopbarBrand";
 
 // A tab is added only once its screen exists; an inert tab is worse than a missing one.
@@ -55,6 +56,7 @@ export function QcoAppShell({
         <header className="topbar">
           <TopbarBrand service="Quality Control" />
           <span className="topbar__spacer" />
+          <SyncPill />
           <button
             type="button"
             className="iconbutton iconbutton--round"
