@@ -83,7 +83,7 @@ export function QcoAppShell({
               onClick={() => navigate(`${tab.path}${tab.filtered ? search : ""}`)}
             >
               <span className="tabbar__icon">{tab.icon}</span>
-              {tab.label.toUpperCase()}
+              {tab.label}
             </button>
           ))}
         </nav>

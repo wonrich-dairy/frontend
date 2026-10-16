@@ -22,10 +22,17 @@ export function todayInColombo(now: Date = new Date()): string {
   }).format(now);
 }
 
-export function defaultFilters(now: Date = new Date()): QcoFilters {
+// The range opens on the most recent 1 August, so the dashboard starts on the season to date.
+// Before August that is last year's, so the start is never after today.
+export function seasonStart(now: Date = new Date()): string {
   const today = todayInColombo(now);
+  const year = Number(today.slice(0, 4));
 
-  return { productLine: "", from: today, to: today };
+  return today.slice(5) >= "08-01" ? `${year}-08-01` : `${year - 1}-08-01`;
+}
+
+export function defaultFilters(now: Date = new Date()): QcoFilters {
+  return { productLine: "", from: seasonStart(now), to: todayInColombo(now) };
 }
 
 export function isValidDate(value: string): boolean {
@@ -66,7 +73,7 @@ export function filtersFromQuery(query: URLSearchParams, now: Date = new Date())
   };
 }
 
-// Only what differs from the default goes in the URL, so the plain /qco link means today.
+// Only what differs from the default goes in the URL, so the plain /qco link means 1 August to today.
 export function filtersToQuery(filters: QcoFilters, now: Date = new Date()): string {
   const defaults = defaultFilters(now);
   const query = new URLSearchParams();

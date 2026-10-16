@@ -258,8 +258,6 @@
   color: var(--ink-muted);
   font-size: 13px;
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
 }
 
 .tankhead__capacity {
@@ -284,9 +282,7 @@
   color: var(--ink-muted);
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.06em;
   text-align: left;
-  text-transform: uppercase;
 }
 
 .readings td {
@@ -419,10 +415,19 @@
   background: #b42318;
 }
 
-.button--dangerOutline {
-  border: 1.5px solid var(--danger);
-  background: transparent;
-  color: var(--danger);
+/* Log out: a compact button in the failed-status red, which keeps white text above 4.5:1, so it
+   reads as the one action that ends the session. */
+.button--signout {
+  display: inline-flex;
+  width: auto;
+  margin-top: var(--space-4);
+  padding: 8px var(--space-4);
+  background: var(--status-failed);
+  font-size: 13px;
+}
+
+.button--signout:hover {
+  background: #912018;
 }
 
 .linkbutton {
@@ -507,7 +512,6 @@
   color: var(--ink-muted);
   font-size: 12px;
   font-weight: 700;
-  text-transform: uppercase;
 }
 
 .avatar {
@@ -1633,8 +1637,6 @@ table tr > * + * {
 .bartable thead th {
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
   color: var(--ink-muted);
 }
 
@@ -1747,7 +1749,7 @@ table tr > * + * {
 
 /* QCO batch search, timeline and backward trace (SCRUM-137) ----------------- */
 
-/* Six upper-case labels share a 360px phone in the QCO bar, so they step down sooner than the
+/* Six labels share a 360px phone in the QCO bar, so they step down sooner than the
    four-tab bars do. */
 @media (max-width: 419px) {
   .tabbar--dense .tabbar__item {
@@ -1778,8 +1780,6 @@ table tr > * + * {
   margin: var(--space-6) 0 var(--space-3);
   font-size: 13px;
   font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
   color: var(--ink-muted);
 }
 
@@ -2007,8 +2007,6 @@ table tr > * + * {
   color: var(--ink-muted);
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
 }
 
 .audittable__when {
@@ -2080,7 +2078,6 @@ table tr > * + * {
     font-size: 11px;
     font-weight: 700;
     font-style: normal;
-    text-transform: uppercase;
   }
 
   .audittable__when {
@@ -2210,8 +2207,6 @@ table tr > * + * {
   gap: 4px;
   font-size: 12px;
   font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
 }
 
 .missing__reason {
@@ -2247,8 +2242,6 @@ table tr > * + * {
   color: var(--surface);
   font-size: 10px;
   font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
 }
 
 /* Timeline: a rail down the left, one group per checkpoint. */

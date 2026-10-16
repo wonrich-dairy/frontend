@@ -71,7 +71,7 @@ export function ProcessingAppShell({
             onClick={() => navigate(tab.path)}
           >
             <span className="tabbar__icon">{tab.icon}</span>
-            {tab.label.toUpperCase()}
+            {tab.label}
           </button>
         ))}
       </nav>

@@ -40,22 +40,22 @@ describe("the Quality Lab module", () => {
     openAs("QualityAnalyst", "/");
 
     expect(window.location.pathname).toBe("/quality-lab/panels");
-    expect(labTabs()).toEqual(["PANELS", "SPECS", "HISTORY", "SETTINGS"]);
+    expect(labTabs()).toEqual(["Panels", "Specs", "History", "Settings"]);
     expect(screen.queryByRole("navigation", { name: "Sections" })).not.toBeInTheDocument();
   });
 
   it("gives the administrator the lab tabs, not the MCC ones", () => {
     openAs("SystemAdministrator", "/quality-lab/specs");
 
-    expect(labTabs()).toEqual(["PANELS", "SPECS", "HISTORY", "SETTINGS"]);
-    expect(screen.getByRole("button", { name: "SPECS" })).toHaveAttribute("aria-current", "page");
-    expect(screen.queryByRole("button", { name: /CONSIGNMENTS/ })).not.toBeInTheDocument();
+    expect(labTabs()).toEqual(["Panels", "Specs", "History", "Settings"]);
+    expect(screen.getByRole("button", { name: "Specs" })).toHaveAttribute("aria-current", "page");
+    expect(screen.queryByRole("button", { name: /Consignments/ })).not.toBeInTheDocument();
   });
 
   it("gives a Production Manager only the lab screens they may open: specs and history", () => {
     openAs("ProductionManager", "/quality-lab/specs");
 
-    expect(labTabs()).toEqual(["SPECS", "HISTORY"]);
+    expect(labTabs()).toEqual(["Specs", "History"]);
     expect(screen.queryByText("Not available to you")).not.toBeInTheDocument();
     expect(screen.getByText(/Quality Lab/)).toBeInTheDocument();
   });
@@ -63,10 +63,10 @@ describe("the Quality Lab module", () => {
   it("opens the lab history as its own tab inside the lab shell", () => {
     openAs("ProductionManager", "/quality-lab/specs");
 
-    fireEvent.click(screen.getByRole("button", { name: "HISTORY" }));
+    fireEvent.click(screen.getByRole("button", { name: "History" }));
 
     expect(window.location.pathname).toBe("/quality-lab/history");
-    expect(screen.getByRole("button", { name: "HISTORY" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("button", { name: "History" })).toHaveAttribute("aria-current", "page");
     expect(screen.queryByText("Not available to you")).not.toBeInTheDocument();
     expect(screen.queryByRole("navigation", { name: "Sections" })).not.toBeInTheDocument();
   });
@@ -78,7 +78,7 @@ describe("the Quality Lab module", () => {
 
     expect(window.location.pathname).toBe("/quality-lab/profile");
     expect(screen.getByRole("heading", { name: "Quality Analyst" })).toBeInTheDocument();
-    expect(labTabs()).toEqual(["PANELS", "SPECS", "HISTORY", "SETTINGS"]);
+    expect(labTabs()).toEqual(["Panels", "Specs", "History", "Settings"]);
     expect(screen.queryByRole("navigation", { name: "Sections" })).not.toBeInTheDocument();
     expect(screen.queryByText("Intake Count")).not.toBeInTheDocument();
     expect(calledConsignments()).toBe(false);

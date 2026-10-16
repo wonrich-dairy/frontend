@@ -78,13 +78,13 @@ export function UserProfileScreen({ showIntake = true }: { showIntake?: boolean 
 
       <button
         type="button"
-        className="button button--dangerOutline button--wide"
+        className="button button--signout"
         onClick={() => {
           signOut();
           navigate("/");
         }}
       >
-        <LogOutIcon />
+        <LogOutIcon width={16} height={16} />
         Log Out
       </button>
 

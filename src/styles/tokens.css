@@ -66,8 +66,7 @@
   --shadow-raised: 0 8px 24px rgba(11, 37, 69, 0.12);
 
   /* The frames are drawn at 390px, a phone at the gate. Wider screens get more room: forms stop
-     at a readable width, and list and dashboard screens use the whole shell. */
-  --shell-width: 1200px;
+     at a readable width, and list and dashboard screens use the whole window. */
   --content-width: 720px;
   --sidenav-width: 160px;
   --tabbar-height: 64px;

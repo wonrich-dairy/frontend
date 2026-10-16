@@ -155,7 +155,7 @@ function TabButton({
         {icon}
         {badge > 0 ? <span className="tabbar__badge">{badge}</span> : null}
       </span>
-      {label.toUpperCase()}
+      {label}
     </button>
   );
 }

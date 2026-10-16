@@ -1,13 +1,11 @@
 /* Layout ------------------------------------------------------------------ */
 
+/* The shell runs the full width of the window, so the navy chrome meets both edges. */
 .shell {
   display: flex;
   flex-direction: column;
   min-height: 100%;
-  max-width: var(--shell-width);
-  margin: 0 auto;
   background: var(--surface-sunken);
-  box-shadow: 0 0 0 1px var(--border);
 }
 
 /* "Consignments" is the longest tab label in any module, so the MCC's desk rail is a little wider. */
@@ -235,7 +233,7 @@
   letter-spacing: 0.02em;
 }
 
-/* Four upper-case labels have to share a 320px phone, so the smallest screens step down. */
+/* Four labels have to share a 320px phone, so the smallest screens step down. */
 @media (max-width: 359px) {
   .tabbar__item {
     font-size: 10px;
@@ -382,9 +380,7 @@
   display: block;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.06em;
   color: var(--ink-muted);
-  text-transform: uppercase;
 }
 
 /* Can rows ---------------------------------------------------------------- */
@@ -518,8 +514,6 @@
   color: var(--ink-muted);
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
 /* Total and primary action ------------------------------------------------ */
@@ -1002,8 +996,6 @@
   margin: 0;
   font-size: 18px;
   font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
 
 .verdict__detail {

@@ -11,7 +11,7 @@ const BODIES: Record<string, unknown> = {
   summary: {
     dataAsOf: AS_OF,
     today: { pending: 4, cleared: 11, failed: 2, onHold: 1 },
-    range: { pending: 4, cleared: 11, failed: 2, onHold: 1 },
+    range: { pending: 9, cleared: 30, failed: 5, onHold: 2 },
   },
   deviations: { dataAsOf: AS_OF, checkpoints: [{ checkpoint: "Lab", count: 3 }] },
   trend: {
@@ -95,7 +95,9 @@ describe("the QCO dashboard", () => {
     expect(within(reasons).getByText("pH low")).toHaveClass("badge--bad");
     expect(within(reasons).getByText("Sensory abnormal")).toHaveClass("badge--bad");
     expect(within(reasons).getByText("Temperature high")).toHaveClass("badge--bad");
+    // The default range opens on 1 August, so today and the season to date both show.
     expect(within(panel("Batch status")).getByText("11")).toBeInTheDocument();
+    expect(within(panel("Batch status")).getByText("30")).toBeInTheDocument();
     expect(screen.getByText("Last updated 04/10/2026, 14:00")).toBeInTheDocument();
     expect(screen.queryByRole("region", { name: "Failure reasons" })).not.toBeInTheDocument();
     expect(endpoints(fetch)).toEqual(["recent-failures", "summary"]);
@@ -223,15 +225,15 @@ describe("the QCO dashboard", () => {
 
     const nav = screen.getByRole("navigation", { name: "Quality Control Sections" });
     expect(within(nav).getAllByRole("button").map((tab) => tab.textContent)).toEqual([
-      "OVERVIEW",
-      "TRENDS",
-      "CAUSES",
-      "SOCIETIES",
-      "BATCHES",
-      "AUDIT",
+      "Overview",
+      "Trends",
+      "Causes",
+      "Societies",
+      "Batches",
+      "Audit",
     ]);
 
-    fireEvent.click(within(nav).getByRole("button", { name: "TRENDS" }));
+    fireEvent.click(within(nav).getByRole("button", { name: "Trends" }));
 
     expect(window.location.pathname + window.location.search).toBe(
       "/qco/trends?productLine=DY&from=2026-09-01&to=2026-09-30",
@@ -250,7 +252,7 @@ describe("the QCO dashboard", () => {
     }
 
     // The batch screens take no dashboard filters, so the Batches tab does not carry them.
-    fireEvent.click(within(nav).getByRole("button", { name: "BATCHES" }));
+    fireEvent.click(within(nav).getByRole("button", { name: "Batches" }));
 
     expect(window.location.pathname + window.location.search).toBe("/qco/batches");
   });
@@ -259,7 +261,7 @@ describe("the QCO dashboard", () => {
     vi.stubGlobal("fetch", stubFetch());
     openDashboard();
 
-    const toggle = screen.getByRole("button", { name: /Today · All lines/ });
+    const toggle = screen.getByRole("button", { name: /1 Aug to .* · All lines/ });
     expect(toggle).toHaveAttribute("aria-expanded", "false");
     expect(screen.getByRole("form", { name: "Dashboard filters" })).toHaveClass("qcofilters--folded");
 

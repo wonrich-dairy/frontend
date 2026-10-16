@@ -70,12 +70,12 @@ describe("the QCO module (SCRUM-136)", () => {
     }), { status: 200 })));
     openAs("QualityControlOfficer", "/qco");
 
-    fireEvent.click(screen.getByRole("button", { name: "AUDIT" }));
+    fireEvent.click(screen.getByRole("button", { name: "Audit" }));
 
     expect(window.location.pathname).toBe("/qco/audit");
     expect(await screen.findByRole("heading", { name: "Audit trail" })).toBeInTheDocument();
     expect(await screen.findByText("Batch trace opened")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "AUDIT" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("button", { name: "Audit" })).toHaveAttribute("aria-current", "page");
   });
 
   it("returns an administrator to the service chooser from the brand", () => {

@@ -55,8 +55,7 @@
 .spec-screen__card-header h3 { font-size: 1rem; font-weight: 600; margin: 0; }
 
 .spec-screen__type-badge {
-  font-size: 0.625rem; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.5px; padding: 0.125rem 0.5rem; border-radius: 999px;
+  font-size: 0.625rem; font-weight: 700; padding: 0.125rem 0.5rem; border-radius: 999px;
 }
 
 .spec-screen__type-badge--liquid { background: var(--chill-tint); color: var(--navy-800); }

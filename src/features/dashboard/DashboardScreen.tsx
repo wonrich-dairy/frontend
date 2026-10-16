@@ -63,7 +63,7 @@ export function DashboardScreen() {
   return (
     <>
       <header className="qcohead">
-        <h1 className="panelhead__title">Collection Centre Dashboard</h1>
+        <h1 className="panelhead__title">Milk Collection Centre Dashboard</h1>
         <p className="qcohead__fresh shiftbar__meta">
           <span>{session?.displayName ?? "Officer"}</span>
           <span>

@@ -4,7 +4,7 @@
 .lab-history__title { font-size: 1.5rem; font-weight: 700; margin: 0 0 0.25rem; }
 .lab-history__subtitle { color: #6b7280; margin: 0; font-size: 0.875rem; }
 .lab-history__muted { color: #9ca3af; font-size: 0.8125rem; }
-.lab-history__section-title { font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #374151; margin: 0 0 0.5rem; }
+.lab-history__section-title { font-size: 0.8125rem; font-weight: 700; color: #374151; margin: 0 0 0.5rem; }
 
 .lab-history__filters {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem;
@@ -49,7 +49,7 @@
   display: flex; flex-direction: column;
 }
 .lab-history__stat-value { font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; }
-.lab-history__stat-label { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7280; }
+.lab-history__stat-label { font-size: 0.6875rem; color: #6b7280; }
 .lab-history__stat--pass .lab-history__stat-value { color: #166534; }
 .lab-history__stat--fail .lab-history__stat-value { color: #b91c1c; }
 .lab-history__stat--pending .lab-history__stat-value { color: #92400e; }
@@ -64,7 +64,7 @@
 .lab-history__table-wrap { overflow-x: auto; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; }
 .lab-history__table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; white-space: nowrap; }
 .lab-history__table th {
-  text-align: left; font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7280;
+  text-align: left; font-size: 0.6875rem; color: #6b7280;
   padding: 0.6rem 0.75rem; background: #f9fafb; border-bottom: 1px solid #e5e7eb; position: sticky; top: 0;
 }
 .lab-history__table td { padding: 0.55rem 0.75rem; border-bottom: 1px solid #f3f4f6; vertical-align: top; }

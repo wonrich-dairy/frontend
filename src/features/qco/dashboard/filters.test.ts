@@ -14,13 +14,22 @@ import {
 const LATE_EVENING_UTC = new Date("2026-10-03T20:00:00Z");
 
 describe("the default range", () => {
-  it("is today in Colombo, not in the browser's time zone", () => {
+  it("runs from 1 August to today in Colombo, not in the browser's time zone", () => {
     expect(todayInColombo(LATE_EVENING_UTC)).toBe("2026-10-04");
     expect(defaultFilters(LATE_EVENING_UTC)).toEqual({
       productLine: "",
-      from: "2026-10-04",
+      from: "2026-08-01",
       to: "2026-10-04",
     });
+  });
+
+  it("opens on last year's 1 August before this year's has come", () => {
+    expect(defaultFilters(new Date("2026-03-10T06:00:00Z")).from).toBe("2025-08-01");
+    expect(defaultFilters(new Date("2026-07-31T06:00:00Z")).from).toBe("2025-08-01");
+  });
+
+  it("opens on today itself on 1 August", () => {
+    expect(defaultFilters(new Date("2026-08-01T06:00:00Z"))).toMatchObject({ from: "2026-08-01", to: "2026-08-01" });
   });
 });
 
@@ -46,14 +55,14 @@ describe("reading filters from the URL", () => {
   it("ignores a date that does not exist", () => {
     const filters = filtersFromQuery(new URLSearchParams("from=2026-02-30&to=2026-12-01"), LATE_EVENING_UTC);
 
-    expect(filters.from).toBe("2026-10-04");
+    expect(filters.from).toBe("2026-08-01");
     expect(filters.to).toBe("2026-12-01");
   });
 
-  it("falls back to today when the link's range is backwards", () => {
+  it("falls back to the default range when the link's range is backwards", () => {
     const filters = filtersFromQuery(new URLSearchParams("from=2026-09-30&to=2026-09-01"), LATE_EVENING_UTC);
 
-    expect(filters.from).toBe("2026-10-04");
+    expect(filters.from).toBe("2026-08-01");
     expect(filters.to).toBe("2026-10-04");
   });
 });
@@ -63,7 +72,7 @@ describe("writing filters to the URL", () => {
     expect(filtersToQuery(defaultFilters(LATE_EVENING_UTC), LATE_EVENING_UTC)).toBe("");
   });
 
-  it("writes both dates once the range moves off today", () => {
+  it("writes both dates once the range moves off the default", () => {
     const filters = { ...defaultFilters(LATE_EVENING_UTC), from: "2026-09-01" };
 
     expect(filtersToQuery(filters, LATE_EVENING_UTC)).toBe("?from=2026-09-01&to=2026-10-04");
@@ -94,10 +103,16 @@ describe("the date range check", () => {
 });
 
 describe("the one-line summary on a phone", () => {
-  it("says Today for the default view", () => {
+  it("names the season to date for the default view", () => {
     expect(describeFilters(defaultFilters(LATE_EVENING_UTC), LATE_EVENING_UTC)).toBe(
-      "Today · All lines",
+      "1 Aug to 4 Oct · All lines",
     );
+  });
+
+  it("says Today when the range is just today", () => {
+    const today = { ...defaultFilters(LATE_EVENING_UTC), from: "2026-10-04" };
+
+    expect(describeFilters(today, LATE_EVENING_UTC)).toBe("Today · All lines");
   });
 
   it("names a range and the product line", () => {
@@ -119,7 +134,7 @@ describe("the request the panels send", () => {
   it("leaves out blank filters", () => {
     expect(toRequestFilters(defaultFilters(LATE_EVENING_UTC))).toEqual({
       productLine: undefined,
-      from: "2026-10-04",
+      from: "2026-08-01",
       to: "2026-10-04",
     });
   });
