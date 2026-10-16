@@ -668,7 +668,7 @@
 
 .signin__title {
   margin: 0;
-  font-size: 22px;
+  font-size: 28px;
   font-weight: 800;
   color: var(--navy-900);
   text-align: center;
@@ -677,7 +677,7 @@
 .signin__subtitle {
   margin: 0 0 var(--space-2);
   color: var(--ink-muted);
-  font-size: 13px;
+  font-size: 15px;
   text-align: center;
 }
 
@@ -1356,6 +1356,8 @@
 
 .pill--standalone {
   justify-self: center;
+  padding: 6px 14px;
+  font-size: 13px;
 }
 
 .signinpage .signin {

@@ -150,6 +150,7 @@ function Screens() {
         current={screen.qcoTab}
         title={screen.title}
         onBack={screen.title ? () => back(screen.parent ?? "/qco") : undefined}
+        wide={screen.wide}
       >
         {allowed ? screen.element : <NotPermitted role={role} />}
       </QcoAppShell>
@@ -543,6 +544,7 @@ function resolve(path: string, query: URLSearchParams, navigate: (to: string) =>
       isQco: true,
       title: "User Profile",
       parent: "/qco",
+      wide: false,
       needs: "viewQcoDashboard",
       element: <UserProfileScreen showIntake={false} />,
     };

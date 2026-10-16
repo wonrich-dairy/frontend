@@ -24,12 +24,14 @@ export function QcoAppShell({
   current,
   title,
   onBack,
+  wide = true,
 }: {
   children: ReactNode;
   // Optional: a screen such as the profile belongs to no tab.
   current?: QcoTab;
   title?: string;
   onBack?: () => void;
+  wide?: boolean;
 }) {
   const { navigate, path, query } = useNavigation();
   const showTabs = tabs.length > 1;
@@ -70,8 +72,9 @@ export function QcoAppShell({
         </header>
       )}
 
-      {/* The dashboard is also used at a desk, so it always takes the width. */}
-      <main className="shell__body shell__body--wide">{children}</main>
+      {/* The dashboard and batch screens are also used at a desk, so they take the width; the
+          profile keeps the readable column it has in every other module. */}
+      <main className={`shell__body${wide ? " shell__body--wide" : ""}`}>{children}</main>
 
       {/* A bar with a single tab would only link to the page already open. */}
       {showTabs ? (
