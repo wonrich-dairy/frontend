@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { useSession } from "../../../auth/sessionStore";
 import { useNavigation } from "../../../app/navigationStore";
+import { ClipboardIcon, DropletIcon } from "../../../components/icons";
+import { EmptyState, ErrorNotice, Loading } from "../../../components/ui/Feedback";
 import { listTanks, type ProcessingTank } from "../../../api/processing/tanks";
 import { listActiveBatches, listStagesByMixingTank, type ActiveBatchDto, type ProcessingStageDto } from "../../../api/processing/stages";
 import { formatColombo } from "../../../utils/time";
@@ -28,6 +30,9 @@ export function ProcessingDashboardScreen() {
   const [activeBatches, setActiveBatches] = useState<ActiveBatchDto[] | null>(null);
   const [stagesMap, setStagesMap] = useState<Record<string, ProcessingStageDto[]>>({});
   const [failure, setFailure] = useState<string | null>(null);
+  const tanksId = useId();
+  const batchesId = useId();
+  const actionsId = useId();
 
   useEffect(() => {
     const abort = new AbortController();
@@ -63,88 +68,103 @@ export function ProcessingDashboardScreen() {
 
   return (
     <>
-      <div className="pagehead">
-        <h1 className="pagehead__title">Factory Floor</h1>
-        <p className="pagehead__detail">Today {new Date().toLocaleDateString()} - {totalRemaining.toFixed(0)} KG held</p>
-      </div>
+      <header className="qcohead">
+        <h1 className="panelhead__title">Factory Floor</h1>
+        <p className="qcohead__fresh">Today {new Date().toLocaleDateString()} - {totalRemaining.toFixed(0)} KG held</p>
+      </header>
 
-      {failure && <p className="notice notice--error">{failure}</p>}
+      <div className="qcogrid">
+        <section className="qcopanel qcopanel--full" aria-labelledby={tanksId}>
+          <h2 id={tanksId} className="qcopanel__title">
+            Tanks
+          </h2>
+          {failure ? <ErrorNotice>{failure}</ErrorNotice> : null}
+          {tanks == null ? (
+            failure ? null : <Loading label="Loading tanks..." />
+          ) : (
+            <dl className="statusgrid">
+              <Stat label="Storing" value={String(storing.length)} />
+              <Stat label="Mixing" value={String(mixing.length)} />
+              <Stat label="Held" value={`${totalRemaining.toFixed(0)} KG`} />
+              <Stat label="Free" value={`${freeSpace.toFixed(0)} KG`} />
+            </dl>
+          )}
+        </section>
 
-      <div className="stats">
-        <div className="stat">
-          <p className="stat__label">Storing</p>
-          <p className="stat__value">{storing.length}</p>
-        </div>
-        <div className="stat">
-          <p className="stat__label">Mixing</p>
-          <p className="stat__value">{mixing.length}</p>
-        </div>
-        <div className="stat">
-          <p className="stat__label">Held</p>
-          <p className="stat__value">{totalRemaining.toFixed(0)} KG</p>
-        </div>
-        <div className="stat">
-          <p className="stat__label">Free</p>
-          <p className="stat__value">{freeSpace.toFixed(0)} KG</p>
-        </div>
-      </div>
+        <section className="qcopanel qcopanel--full" aria-labelledby={batchesId}>
+          <h2 id={batchesId} className="qcopanel__title">
+            Batches processing now
+          </h2>
+          {activeBatches == null ? (
+            <Loading label="Loading batches..." />
+          ) : activeBatches.length === 0 ? (
+            <EmptyState>No active batches - pour from storing to mixing to start</EmptyState>
+          ) : (
+            <ul className="failurelist">
+              {activeBatches.map(b => {
+                const stages = stagesMap[b.mixingTankId] ?? [];
+                const active = stages.find(s => !s.endTimeUtc);
+                const next = getNextStage(stages);
+                return (
+                  <li key={b.id}>
+                    <button
+                      type="button"
+                      className="failurelist__code failurelist__link"
+                      onClick={() => navigate(`/processing/tanks/${b.mixingTankCode}`)}
+                    >
+                      {b.batchCode}
+                    </button>
+                    <span className="failurelist__meta">
+                      {b.productType} · {b.quantityKg.toFixed(0)} KG · {b.dispatchNumber} · {b.sourceStoringTankCode} → {b.mixingTankCode} · {formatColombo(b.allocatedAtUtc)}
+                    </span>
+                    <span className="failurelist__reasons">
+                      {active && <span className="badge badge--pending">{active.stageType} in progress since {formatColombo(active.startTimeUtc)}</span>}
+                      {!active && next && <span className="badge badge--warn">Ready to start {next}</span>}
+                      {!active && !next && <span className="badge badge--good">Completed - ready for final storage</span>}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </section>
 
-      <div className="section" style={{ marginTop: 16 }}>
-        <div className="section__head">
-          <h2 className="section__title">Batches Processing Now</h2>
-        </div>
-        {activeBatches == null ? (
-          <p className="loading">Loading batches...</p>
-        ) : activeBatches.length === 0 ? (
-          <p className="emptystate">No active batches - pour from storing to mixing to start</p>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {activeBatches.map(b => {
-              const stages = stagesMap[b.mixingTankId] ?? [];
-              const active = stages.find(s => !s.endTimeUtc);
-              const next = getNextStage(stages);
-              return (
-                <div
-                  key={b.id}
-                  onClick={() => navigate(`/processing/tanks/${b.mixingTankCode}`)}
-                  style={{ padding: 12, background: "#eff6ff", border: "1px solid #93c5fd", borderRadius: 8, cursor: "pointer" }}
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span style={{ fontWeight: 700, fontSize: 15 }}>{b.batchCode} · {b.productType} · {b.quantityKg.toFixed(0)} KG</span>
-                    <span className="badge badge--good">{b.mixingTankCode}</span>
-                  </div>
-                  <p className="microlabel" style={{ marginTop: 4 }}>{b.dispatchNumber} · {b.sourceStoringTankCode} → {b.mixingTankCode} · {formatColombo(b.allocatedAtUtc)}</p>
-                  {active && <p className="microlabel" style={{ marginTop: 4, color: "#15803d", fontWeight: 600 }}>{active.stageType} in progress since {formatColombo(active.startTimeUtc)}</p>}
-                  {!active && next && <p className="microlabel" style={{ marginTop: 4, color: "#b45309" }}>Ready to start {next}</p>}
-                  {!active && !next && <p className="microlabel" style={{ marginTop: 4, color: "#15803d" }}>Completed - ready for final storage</p>}
-                </div>
-              );
-            })}
+        <section className="qcopanel qcopanel--full" aria-labelledby={actionsId}>
+          <h2 id={actionsId} className="qcopanel__title">
+            Quick actions
+          </h2>
+          <div className="actions">
+            <button type="button" className="action" onClick={() => navigate("/processing/tanks")}>
+              <span className="action__icon">
+                <DropletIcon width={20} height={20} />
+              </span>
+              <span className="action__body">
+                <span className="action__title">Tanks</span>
+                <span className="action__detail">ST and MT, {totalRemaining.toFixed(0)} KG held</span>
+              </span>
+            </button>
+            <button type="button" className="action" onClick={() => navigate("/processing/unloads")}>
+              <span className="action__icon">
+                <ClipboardIcon width={20} height={20} />
+              </span>
+              <span className="action__body">
+                <span className="action__title">Unload</span>
+                <span className="action__detail">Bowser arrival, dispatch ID</span>
+              </span>
+            </button>
           </div>
-        )}
-      </div>
-
-      <div className="section">
-        <div className="section__head">
-          <h2 className="section__title">Quick Actions</h2>
-        </div>
-        <div className="actions">
-          <button type="button" className="action" onClick={() => navigate("/processing/tanks")}>
-            <span className="action__icon">ST</span>
-            <span className="action__body">
-              <span className="action__title">Tanks</span>
-              <span className="action__detail">ST and MT, {totalRemaining.toFixed(0)} KG held</span>
-            </span>
-          </button>
-          <button type="button" className="action" onClick={() => navigate("/processing/unloads")}>
-            <span className="action__icon">UL</span>
-            <span className="action__body">
-              <span className="action__title">Unload</span>
-              <span className="action__detail">Bowser arrival, dispatch ID</span>
-            </span>
-          </button>
-        </div>
+        </section>
       </div>
     </>
+  );
+}
+
+// The QCO dashboard's status tile, so a count reads the same in every module's home.
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="statustile statustile--neutral">
+      <dt>{label}</dt>
+      <dd>{value}</dd>
+    </div>
   );
 }

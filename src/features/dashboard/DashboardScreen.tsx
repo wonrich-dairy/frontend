@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useId, useMemo, useState, type ReactNode } from "react";
 import { searchConsignments } from "../../api/consignments";
 import { ApiError } from "../../api/http";
 import type { Consignment } from "../../api/types";
@@ -25,6 +25,8 @@ export function DashboardScreen() {
 
   const [consignments, setConsignments] = useState<Consignment[] | null>(null);
   const [failure, setFailure] = useState<string | null>(null);
+  const todayId = useId();
+  const actionsId = useId();
 
   useEffect(() => {
     const abort = new AbortController();
@@ -60,9 +62,10 @@ export function DashboardScreen() {
 
   return (
     <>
-      <section className="shiftbar">
-        <p className="shiftbar__name">{session?.displayName ?? "Officer"}</p>
-        <p className="shiftbar__meta">
+      <header className="qcohead">
+        <h1 className="panelhead__title">Collection Centre Dashboard</h1>
+        <p className="qcohead__fresh shiftbar__meta">
+          <span>{session?.displayName ?? "Officer"}</span>
           <span>
             <CalendarIcon width={14} height={14} />
             {formatDate(today)}
@@ -72,92 +75,99 @@ export function DashboardScreen() {
             {shiftFor(new Date())}
           </span>
         </p>
-      </section>
+      </header>
 
-      {failure ? <ErrorNotice>{failure}</ErrorNotice> : null}
-
-      {consignments === null ? (
-        <Loading label="Loading today's figures..." />
-      ) : (
-        <section className="stats" aria-label="Today at this centre">
-          <Stat label="Total Intake" value={formatKilolitres(stats.litres)} />
-          <Stat label="Consignments" value={String(stats.count)} />
-          <Stat label="Accepted" value={String(stats.accepted)} tone="good" />
-          <Stat label="Rejected" value={String(stats.rejected)} tone="bad" />
+      <div className="qcogrid">
+        <section className="qcopanel qcopanel--full" aria-labelledby={todayId}>
+          <h2 id={todayId} className="qcopanel__title">
+            Today at this centre
+          </h2>
+          {failure ? <ErrorNotice>{failure}</ErrorNotice> : null}
+          {consignments === null ? (
+            <Loading label="Loading today's figures..." />
+          ) : failure ? null : (
+            <dl className="statusgrid">
+              <Stat label="Total intake" value={formatKilolitres(stats.litres)} tone="neutral" />
+              <Stat label="Consignments" value={String(stats.count)} tone="neutral" />
+              <Stat label="Accepted" value={String(stats.accepted)} tone="cleared" />
+              <Stat label="Rejected" value={String(stats.rejected)} tone="failed" />
+            </dl>
+          )}
         </section>
-      )}
 
-      <section className="section" aria-label="Quick actions">
-        <div className="section__head">
-          <h2 className="section__title section__title--plain">Quick Actions</h2>
-        </div>
+        <section className="qcopanel qcopanel--full" aria-labelledby={actionsId}>
+          <h2 id={actionsId} className="qcopanel__title">
+            Quick actions
+          </h2>
 
-        <div className="actions">
-          {can(role, "registerConsignments") ? (
+          <div className="actions">
+            {can(role, "registerConsignments") ? (
+              <Action
+                icon={<GridPlusIcon width={20} height={20} />}
+                title="Register Consignment"
+                detail="Log new milk deliveries from farmers or societies."
+                tone="solid"
+                onClick={() => navigate("/consignments")}
+              />
+            ) : null}
             <Action
-              icon={<GridPlusIcon width={20} height={20} />}
-              title="Register Consignment"
-              detail="Log new milk deliveries from farmers or societies."
-              tone="solid"
-              onClick={() => navigate("/consignments")}
+              icon={<ClipboardIcon width={20} height={20} />}
+              title="Deliveries"
+              detail="Review consignments and filter them by status."
+              onClick={() => navigate("/consignments/history")}
             />
-          ) : null}
-          <Action
-            icon={<ClipboardIcon width={20} height={20} />}
-            title="Deliveries"
-            detail="Review consignments and filter them by status."
-            onClick={() => navigate("/consignments/history")}
-          />
-          <Action
-            icon={<DropletIcon width={20} height={20} />}
-            title="Chilling Tanks"
-            detail="Monitor capacity and current temperatures."
-            onClick={() => navigate("/tanks")}
-          />
-          {can(role, "recordDispatchNotes") ? (
             <Action
-              icon={<TruckIcon width={20} height={20} />}
-              title="Dispatch Note"
-              detail="Create waybills for outgoing processed batches."
-              onClick={() => navigate("/dispatch")}
+              icon={<DropletIcon width={20} height={20} />}
+              title="Chilling Tanks"
+              detail="Monitor capacity and current temperatures."
+              onClick={() => navigate("/tanks")}
             />
-          ) : null}
-          {/* {can(role, "readProcessing") ? (
+            {can(role, "recordDispatchNotes") ? (
+              <Action
+                icon={<TruckIcon width={20} height={20} />}
+                title="Dispatch Note"
+                detail="Create waybills for outgoing processed batches."
+                onClick={() => navigate("/dispatch")}
+              />
+            ) : null}
+            {/* {can(role, "readProcessing") ? (
+              <Action
+                icon={<TankIcon width={20} height={20} />}
+                title="Factory Tanks"
+                detail="Configure storing and mixing tanks at the factory."
+                onClick={() => navigate("/processing/tanks")}
+              />
+            ) : null}
+            {can(role, "readProcessing") ? (
+              <Action
+                icon={<TruckIcon width={20} height={20} />}
+                title="Unloading Bay"
+                detail="Record a bowser load into a storing tank."
+                onClick={() => navigate("/processing/unloads")}
+              />
+            ) : null} */}
+            {can(role, "traceBatches") ? (
+              <Action
+                icon={<TraceIcon width={20} height={20} />}
+                title="Trace a Batch"
+                detail="Look up history by scanning lot numbers."
+                onClick={() => navigate("/trace")}
+              />
+            ) : null}
             <Action
-              icon={<TankIcon width={20} height={20} />}
-              title="Factory Tanks"
-              detail="Configure storing and mixing tanks at the factory."
-              onClick={() => navigate("/processing/tanks")}
+              icon={<UsersIcon width={20} height={20} />}
+              title="Manage Societies"
+              detail="View supplier profiles and recent performance."
+              onClick={() => navigate("/settings")}
             />
-          ) : null}
-          {can(role, "readProcessing") ? (
-            <Action
-              icon={<TruckIcon width={20} height={20} />}
-              title="Unloading Bay"
-              detail="Record a bowser load into a storing tank."
-              onClick={() => navigate("/processing/unloads")}
-            />
-          ) : null} */}
-          {can(role, "traceBatches") ? (
-            <Action
-              icon={<TraceIcon width={20} height={20} />}
-              title="Trace a Batch"
-              detail="Look up history by scanning lot numbers."
-              onClick={() => navigate("/trace")}
-            />
-          ) : null}
-          <Action
-            icon={<UsersIcon width={20} height={20} />}
-            title="Manage Societies"
-            detail="View supplier profiles and recent performance."
-            onClick={() => navigate("/settings")}
-          />
-        </div>
-      </section>
+          </div>
+        </section>
+      </div>
     </>
   );
 }
 
+// The QCO dashboard's status tile, so a count reads the same in every module's home.
 function Stat({
   label,
   value,
@@ -165,12 +175,12 @@ function Stat({
 }: {
   label: string;
   value: string;
-  tone?: "good" | "bad";
+  tone: "neutral" | "cleared" | "failed";
 }) {
   return (
-    <div className={`stat${tone ? ` stat--${tone}` : ""}`}>
-      <p className="stat__label">{label}</p>
-      <p className="stat__value">{value}</p>
+    <div className={`statustile statustile--${tone}`}>
+      <dt>{label}</dt>
+      <dd>{value}</dd>
     </div>
   );
 }

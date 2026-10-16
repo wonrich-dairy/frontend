@@ -15,7 +15,7 @@
   margin: 0;
   font-size: 17px;
   font-weight: 800;
-  color: var(--navy-900);
+  color: #fff;
   text-align: center;
 }
 
@@ -70,11 +70,6 @@
   font-size: 14px;
 }
 
-.section__title--plain {
-  border: 0;
-  font-weight: 600;
-}
-
 .microlabel--section {
   display: block;
   margin: var(--space-6) 0 var(--space-2);
@@ -82,87 +77,17 @@
 
 /* Dashboard --------------------------------------------------------------- */
 
-.shiftbar {
-  padding-bottom: var(--space-3);
-  border-bottom: 1px solid var(--border);
-}
-
-.shiftbar__name {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--navy-900);
-}
-
+/* Who is on shift, under the dashboard heading. Wraps on a phone rather than run off it. */
 .shiftbar__meta {
   display: flex;
-  gap: var(--space-4);
-  margin: var(--space-2) 0 0;
-  color: var(--ink-muted);
-  font-size: 13px;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
 }
 
 .shiftbar__meta span {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-}
-
-.stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-3);
-  margin-top: var(--space-4);
-}
-
-.stat {
-  padding: var(--space-4);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
-  box-shadow: var(--shadow-card);
-}
-
-.stat--good {
-  border-color: var(--status-cleared-border);
-  background: var(--status-cleared-tint);
-}
-
-.stat--bad {
-  border-color: var(--status-failed-border);
-  background: var(--status-failed-tint);
-}
-
-.stat__label {
-  margin: 0;
-  color: var(--ink-muted);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.stat--good .stat__label {
-  color: var(--status-cleared);
-}
-
-.stat--bad .stat__label {
-  color: var(--status-failed);
-}
-
-.stat__value {
-  margin: var(--space-3) 0 0;
-  font-size: 22px;
-  font-weight: 800;
-  color: var(--navy-900);
-}
-
-.stat--good .stat__value {
-  color: var(--status-cleared);
-}
-
-.stat--bad .stat__value {
-  color: var(--status-failed);
 }
 
 .actions {
@@ -201,13 +126,8 @@
   color: #fff;
 }
 
-/* Wider screens: the day's figures sit in one row and the quick actions form a grid. */
+/* Wider screens: the quick actions form a grid. */
 @media (min-width: 768px) {
-  .stats {
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: var(--space-4);
-  }
-
   .actions {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
@@ -1431,6 +1351,9 @@
 
 /* QCO dashboard (SCRUM-136) ----------------------------------------------- */
 
+/* The heading, panels and status tiles are shared by the MCC and Factory dashboards, so every
+   module's home reads the same way. */
+
 .qcohead__fresh {
   margin: var(--space-1) 0 0;
   color: var(--ink-muted);
@@ -1580,6 +1503,15 @@
   margin-top: 0;
 }
 
+/* Quick actions sit inside a panel, which is already the card. */
+.qcopanel .actions {
+  margin-top: 0;
+}
+
+.qcopanel .action {
+  box-shadow: none;
+}
+
 @media (min-width: 900px) {
   .qcofilters:not(.batchfilters) {
     grid-template-columns: minmax(0, 1.8fr) minmax(0, 1.5fr) minmax(0, 1.15fr) minmax(0, 1.15fr) auto;
@@ -1668,6 +1600,8 @@
 .statustile--cleared { background: var(--status-cleared-tint); color: var(--status-cleared); }
 .statustile--failed { background: var(--status-failed-tint); color: var(--status-failed); }
 .statustile--hold { background: var(--status-hold-tint); color: var(--status-hold); }
+/* A figure that is not a verdict, such as litres taken in, keeps the chrome's navy. */
+.statustile--neutral { background: var(--navy-050); color: var(--navy-900); }
 
 /* Keep columns distinct in every data table. */
 

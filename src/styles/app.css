@@ -10,6 +10,11 @@
   box-shadow: 0 0 0 1px var(--border);
 }
 
+/* "Consignments" is the longest tab label in any module, so the MCC's desk rail is a little wider. */
+.shell--mcc {
+  --sidenav-width: 190px;
+}
+
 .shell__body {
   flex: 1;
   width: 100%;
@@ -60,23 +65,6 @@
       "nav main";
   }
 
-  .shell--qco.shell--nav {
-    grid-template-columns: 160px minmax(0, 1fr);
-  }
-
-  .shell--qco.shell--nav > .topbar {
-    grid-area: 1 / 1 / 2 / -1;
-  }
-
-  .shell--qco.shell--nav > .shell__body {
-    grid-area: 2 / 2 / 3 / -1;
-  }
-
-  .shell--qco.shell--nav > .tabbar {
-    grid-area: 2 / 1 / 3 / 2;
-    top: 65px;
-  }
-
   .shell--nav > .topbar {
     grid-area: top;
     grid-column: 1 / -1;
@@ -94,11 +82,12 @@
     grid-column: 1;
     grid-row: 2;
     position: sticky;
-    top: 0;
+    /* 65px is the top bar: the rail sits below it and runs to the foot of the window, so a short
+       page still fills the window without scrolling. */
+    top: 65px;
     display: flex;
     flex-direction: column;
     gap: var(--space-1);
-    /* 65px is the top bar, so a short page still fills the window without scrolling. */
     min-height: calc(100dvh - 65px);
     padding: var(--space-4) var(--space-3);
     border-top: 0;
@@ -114,42 +103,42 @@
     text-align: left;
   }
 
-  .shell--nav .tabbar__item:not([aria-current]):hover {
-    background: var(--navy-050);
-    color: var(--navy-900);
-  }
 }
 
 /* Top bar ----------------------------------------------------------------- */
 
+/* Every module wears the navy chrome first drawn for the QCO dashboard (SCRUM-136), so the
+   top bar and the tab bar frame the page the same way whichever service is open. */
 .topbar {
   display: flex;
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-}
-
-.shell--qco > .topbar {
   background: var(--navy-900);
-  border-bottom-color: var(--navy-800);
+  border-bottom: 1px solid var(--navy-800);
   color: #fff;
 }
 
-.shell--qco .topbar__brand,
-.shell--qco .topbar__title {
-  color: #fff;
-}
-
-.shell--qco .topbar__brand--button:focus-visible {
-  outline-color: #fff;
-}
-
-.shell--qco .iconbutton {
+.topbar .iconbutton {
   background: transparent;
   border-color: #9aabc0;
   color: #fff;
+}
+
+.topbar .pill {
+  border-color: #9aabc0;
+  color: var(--navy-100);
+}
+
+/* Offline and waiting keep their own fills, which already stand out against the navy. */
+.topbar .pill--offline {
+  border-color: var(--border-strong);
+  color: var(--ink);
+}
+
+.topbar .pill--waiting {
+  border-color: #fec84b;
+  color: #b54708;
 }
 
 .topbar__brand {
@@ -158,7 +147,7 @@
   gap: var(--space-2);
   font-weight: 700;
   line-height: 1.1;
-  color: var(--navy-900);
+  color: #fff;
   font-size: 13px;
 }
 
@@ -171,7 +160,7 @@
 }
 
 .topbar__brand--button:focus-visible {
-  outline: 2px solid var(--navy-800);
+  outline: 2px solid #fff;
   outline-offset: 4px;
   border-radius: var(--radius-sm);
 }
@@ -226,22 +215,8 @@
   grid-auto-columns: 1fr;
   gap: var(--space-1);
   padding: var(--space-2);
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-}
-
-.shell--qco > .tabbar {
   background: var(--navy-900);
-  border-top-color: var(--navy-800);
-}
-
-.shell--qco .tabbar__item {
-  color: #dbe4f0;
-}
-
-.shell--qco .tabbar__item:not([aria-current]):hover {
-  background: #17385f;
-  color: #fff;
+  border-top: 1px solid var(--navy-800);
 }
 
 .tabbar__item {
@@ -253,7 +228,7 @@
   border: 0;
   border-radius: var(--radius-sm);
   background: transparent;
-  color: var(--ink-muted);
+  color: var(--navy-100);
   /* Was 9px: too small to read on a phone held at arm's length at the gate. */
   font-size: 11px;
   font-weight: 700;
@@ -268,13 +243,14 @@
   }
 }
 
-.tabbar__item[aria-current] {
-  background: var(--navy-900);
+.tabbar__item:not([aria-current]):hover {
+  background: #17385f;
   color: #fff;
 }
 
-.shell--qco .tabbar__item[aria-current] {
+.tabbar__item[aria-current] {
   background: #24466f;
+  color: #fff;
 }
 
 /* Search and society ------------------------------------------------------ */

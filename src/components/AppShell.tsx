@@ -38,7 +38,7 @@ export function AppShell({
   const { navigate, path } = useNavigation();
 
   return (
-    <div className="shell shell--nav">
+    <div className="shell shell--mcc shell--nav">
       {title ? (
         <header className="topbar topbar--compact">
           <button type="button" className="iconbutton" onClick={onBack} title="Back">

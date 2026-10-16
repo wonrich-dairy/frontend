@@ -69,6 +69,6 @@
      at a readable width, and list and dashboard screens use the whole shell. */
   --shell-width: 1200px;
   --content-width: 720px;
-  --sidenav-width: 220px;
+  --sidenav-width: 160px;
   --tabbar-height: 64px;
 }
